@@ -109,7 +109,7 @@ public class Test2 {
     
         /*
             // ipns representation
-            CGA1Multivector l1dual = new CGA1Multivector(l1.dual(CGA1Utils.METRIC));
+            CGA1Multivector l1dual = new CGA1Multivector(l1.dual(CGA1Utils.CGA_METRIC));
             System.out.println("l1dual= "+l1dual.toString(CGA1Utils.baseVectorNames));
             Vector3d dirdual = l1dual.decomposeFlat(CGA1Multivector.createPoint(new Point3d())).attitude();
              System.out.println("dir=("+String.valueOf(dirdual.x)+", "+String.valueOf(dirdual.y)+

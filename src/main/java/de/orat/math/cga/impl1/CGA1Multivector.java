@@ -1,6 +1,5 @@
 package de.orat.math.cga.impl1;
 
-import static de.orat.math.cga.impl1.CGA1Utils.METRIC;
 import de.orat.math.cga.util.Decomposition3d;
 import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
@@ -20,6 +19,7 @@ import java.util.Map;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
+import static de.orat.math.cga.impl1.CGA1Utils.CGA_METRIC;
 
 /**
  * CGA Multivector reference implementation based on the reference implementation 
@@ -408,7 +408,7 @@ public class CGA1Multivector extends Multivector {
         // Dorst2007
         //TODO funktioniert nicht - alle components sind 0
         // Ich brauchen undualize into the full space, macht das dual()?
-        //CGAMultivector dir = new CGA1Multivector(Multivector.createBasisVector(4).op(this).dual(CGA1Utils.METRIC));
+        //CGAMultivector dir = new CGA1Multivector(Multivector.createBasisVector(4).op(this).dual(CGA1Utils.CGA_METRIC));
         //System.out.println("dirvec="+dir.toString(CGA1Utils.baseVectorNames)); // ==0
         
         // Bestimmung von E einf
@@ -609,13 +609,13 @@ public class CGA1Multivector extends Multivector {
     // Operatoren
     
     public double scp(CGA1Multivector x) {
-        return super.scp(x, METRIC);
+        return super.scp(x, CGA_METRIC);
     }
     public CGA1Multivector op(CGA1Multivector x) {
        return new CGA1Multivector(super.op(x));
     }
     public CGA1Multivector ip(CGA1Multivector x, int type){
-        return new CGA1Multivector(super.ip(x, METRIC, type));
+        return new CGA1Multivector(super.ip(x, CGA_METRIC, type));
     }
     public CGA1Multivector gp(CGA1Multivector x){
         return new CGA1Multivector(super.gp(x));
@@ -645,16 +645,16 @@ public class CGA1Multivector extends Multivector {
     }
     @Override
     public CGA1Multivector exp() {
-        return new CGA1Multivector(super.exp(METRIC));
+        return new CGA1Multivector(super.exp(CGA_METRIC));
     }
     @Override
     public CGA1Multivector gradeInversion() {
         return new CGA1Multivector(super.gradeInversion());
     }
     public CGA1Multivector generalInverse() {
-        return new CGA1Multivector(super.generalInverse(METRIC));
+        return new CGA1Multivector(super.generalInverse(CGA_METRIC));
     }
     public CGA1Multivector dual() {
-        return new CGA1Multivector(super.dual(METRIC));
+        return new CGA1Multivector(super.dual(CGA_METRIC));
     }
 }

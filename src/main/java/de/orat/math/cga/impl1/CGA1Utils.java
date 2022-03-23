@@ -25,10 +25,10 @@ public class CGA1Utils {
  
     public static final String[] baseVectorNames = {"no", "e1", "e2", "e3", "ni"};
     
-    public static Metric METRIC;
+    public static Metric CGA_METRIC;
     static {
         try {
-            METRIC = new Metric(new double[][]{
+            CGA_METRIC = new Metric(new double[][]{
                 {0.0, 0.0, 0.0, 0.0, -1.0},
                 {0.0, 1.0, 0.0, 0.0, 0.0},
                 {0.0, 0.0, 1.0, 0.0, 0.0},
@@ -144,9 +144,9 @@ public class CGA1Utils {
     
     // scheint zu stimmen
     public static double squareDistanceBetweenPoints(CGA1Multivector p1, CGA1Multivector p2){
-        //Multivector mv = p1.ip(p2, METRIC, LEFT_CONTRACTION);
+        //Multivector mv = p1.ip(p2, CGA_METRIC, LEFT_CONTRACTION);
         //System.out.println("p1*p2="+mv.toString(CGA1Utils.baseVectorNames));
         // return mv.scalarPart()*(-2d);
-        return -2*p1.scp(p2, METRIC);
+        return -2*p1.scp(p2, CGA_METRIC);
     }
 }
