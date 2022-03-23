@@ -1,5 +1,10 @@
 package de.orat.math.cga2;
 
+import de.orat.math.cga.util.Decomposition3d;
+import de.orat.math.cga.util.Decomposition3d.FlatParameters;
+import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
+import de.orat.math.cga.util.Decomposition3d.PointPairParameters;
+import de.orat.math.cga.util.Decomposition3d.RoundParameters;
 import de.orat.math.cga2.generated.CGA;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
@@ -13,7 +18,7 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
     // "1","e1","e2","e3","e4","e5","e12","e13","e14","e15","e23","e24","e25","e34","e35","e45","e123","e124","e125","e134","e135","e145","e234","e235","e245","e345","e1234","e1235","e1245","e1345","e2345","e12345"
     // als Enumeration bauen, damit ich die Strings und Indizes automatisch robust zusammen definieren kann
     
-    public CGA2Multivector(de.orat.math.cga2.generated.CGA cga){
+    CGA2Multivector(de.orat.math.cga2.generated.CGA cga){
         super(cga._mVec);
     }
     public CGA2Multivector(int idx, double value){
@@ -50,7 +55,8 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
     /**
      * Vee product.
      * 
-     * The vee product is availabel as an optimized shorthand for the dual of the wedge of the duals.
+     * The vee product is availabel as an optimized shorthand for the dual of 
+     * the wedge of the duals.
      * 
      * @param b
      * @return 
@@ -113,7 +119,9 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
     
     /**
      * The reverse function of a multivector reverses the order of its factors, 
-     * including the order of the base values within a component. The reverse 
+     * including the order of the base values within a component. 
+     * 
+     * The reverse 
      * function is denoted by †, so the reversal of A is denoted by A†.
      * 
      * @return reverse the order of the basis blades
@@ -136,7 +144,7 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
          return new CGA2Multivector(super.Involute());
     }
    
-    public CGA2Multivector[] getPointPair(){
+    public CGA2Multivector[] splitPointPair(){
         CGA sqr = CGA.binop_Dot(this.dual(), this.dual());
         System.out.println("getPointPair() sqr= "+sqr.toString()); // sollte ein skalar sein
         CGA2Multivector result = new CGA2Multivector(this);
@@ -177,7 +185,7 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
         return point;
     }*/
     
-    public static CGA2Multivector createPointPair(Point3d p1, Point3d p2){
+    public static CGA2Multivector createDualPointPair(Point3d p1, Point3d p2){
         return (new CGA2Multivector(CGA.binop_Wedge(createPoint(p1), createPoint(p2)))).dual();
     }
     public static CGA2Multivector createPlane(Vector3d n, double d){
@@ -185,7 +193,7 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
         result.add(new CGA2Multivector(1,n.x)).add(new CGA2Multivector(2,n.y)).add(new CGA2Multivector(3,n.z));
         return result;
     }
-    public static CGA2Multivector createLine(Point3d p1, Point3d p2){
+    public static CGA2Multivector createDualLine(Point3d p1, Point3d p2){
         return new CGA2Multivector(de.orat.math.cga2.generated.CGA.unop_Dual(
                 CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p1), createPoint(p2)), createEinf())));
     }
@@ -193,19 +201,19 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
         return new CGA2Multivector(de.orat.math.cga2.generated.CGA.unop_Dual(
                 CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p), createPoint(new Point3d(n))), createEinf())));
     }
-    public static CGA2Multivector createCircle(Point3d p1, Point3d p2, Point3d p3){
+    public static CGA2Multivector createDualCircle(Point3d p1, Point3d p2, Point3d p3){
         return new CGA2Multivector(de.orat.math.cga2.generated.CGA.unop_Dual(
                 CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p1), createPoint(p2)), createPoint(p3))));
     }
     public static CGA2Multivector createSphere(Point3d o, double r){
         return createPoint(o).sub(new CGA2Multivector(createEinf()).smul(0.5*r*r));
     }
-    public static CGA2Multivector createSphere(Point3d p1, Point3d p2, Point3d p3, Point3d p4){
+    public static CGA2Multivector createDualSphere(Point3d p1, Point3d p2, Point3d p3, Point3d p4){
         return new CGA2Multivector(CGA.unop_Dual(
             CGA.binop_Wedge(CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p1), 
                     createPoint(p2)),createPoint(p3)),createPoint(p4))));
     }
-    public static CGA2Multivector createPlane(Point3d p1, Point3d p2, Point3d p3){
+    public static CGA2Multivector createDualPlane(Point3d p1, Point3d p2, Point3d p3){
         return new CGA2Multivector(CGA.unop_Dual(
             CGA.binop_Wedge(CGA.binop_Wedge(CGA.binop_Wedge(
                     createPoint(p1), createPoint(p2)),createPoint(p3)),createEinf())));
@@ -298,5 +306,45 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
         }
         CGA result = new CGA(arr);
         return new CGA2Multivector(result);
+    }
+    
+    
+    // Decompose
+    
+    public FlatParameters decomposeLine(){
+        double[] bivectors = getKBlade(2);
+        
+        // d zeigt von l2 nach l1
+        org.jogamp.vecmath.Vector3d d = new org.jogamp.vecmath.Vector3d(bivectors[4], bivectors[1], bivectors[0]);
+        System.out.println("dx="+String.valueOf(d.x)+", dy="+String.valueOf(d.y)+", dz="+String.valueOf(d.z));
+        
+        //TODO
+        Point3d m = null;
+        return new Decomposition3d.FlatParameters(d,m);
+    }
+    
+    public RoundParameters decomposeSphere(){
+        Point3d center = new Point3d(_mVec[1],_mVec[2],_mVec[3]);
+        center.scale(-0.5);
+        double r = 0d;
+        return new Decomposition3d.RoundParameters(null, center, r);
+    }
+    
+    public PointPairParameters decomposePair2(CGA2Multivector pointPair){
+        //de.orat.Math.CGA2Multivector.impl.CGA2Multivector dual = de.orat.Math.CGA2Multivector.impl.CGA2Multivector.unop_Dual(this);
+        //de.orat.Math.CGA2Multivector.impl.CGA2Multivector.binop_adds(dual, -Math.sqrt(de.orat.Math.CGA2Multivector.impl.CGA2Multivector.binop_Dot(dual,dual)));
+        return null;
+    }
+    
+    public Point3d decomposePoint(){
+        return new Point3d(_mVec[1],_mVec[2],_mVec[3]);
+    }
+   
+    public Decomposition3d.RoundParameters decomposeCircle(){
+        //TODO
+        Point3d m = null;
+        Vector3d n = null;
+        double Ic = get(4)+get(5);// euclidean bivector component factor = e0
+        return new Decomposition3d.RoundParameters(n, m, Math.sqrt(mul(this).get(0)/Ic));
     }
 }

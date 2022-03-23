@@ -71,20 +71,7 @@ public class CGA2Utils {
         System.out.println("l: dx="+String.valueOf(d.x)+", dy="+String.valueOf(d.y)+", dz="+String.valueOf(d.z));
     }*/
     
-    public static FlatParameters decomposeLine(CGA2Multivector l){
-        double[] bivectors = l.getKBlade(2);
-        
-        // d zeigt von l2 nach l1
-        org.jogamp.vecmath.Vector3d d = new org.jogamp.vecmath.Vector3d(bivectors[4], bivectors[1], bivectors[0]);
-        System.out.println("dx="+String.valueOf(d.x)+", dy="+String.valueOf(d.y)+", dz="+String.valueOf(d.z));
-        
-        //TODO
-        Point3d m = null;
-        return new FlatParameters(d,m);
-        
-    }
-    
-    /**
+   /**
       * Decompose l2l1 into angle, distance, direction.A Covariant approach to Geometry using Geometric Algebra.
       * 
       * Technical report. Universit of Cambridge Departement of Engineering, 
@@ -122,8 +109,9 @@ public class CGA2Utils {
         double alpha = 0d;
         Point3d p = null;
         Vector3d dir = null;
-        return new LinePairParameters(alpha, p, dir);
+        return new Decomposition3d.LinePairParameters(alpha, p, dir);
     }
+    
     public static void decompose2(CGA2Multivector l1, CGA2Multivector l2){
         CGA2Multivector l1l2 = l1.mul(l2);
       
@@ -134,30 +122,5 @@ public class CGA2Utils {
         System.out.println("d="+String.valueOf(d.length()));
         d.normalize();
         System.out.println("dx="+String.valueOf(d.x)+", dy="+String.valueOf(d.y)+", dz="+String.valueOf(d.z));
-    }
-    
-    public static Decomposition3d.RoundParameters decomposeSphere(CGA2Multivector sphere){
-        Point3d center = new Point3d(sphere._mVec[1],sphere._mVec[2],sphere._mVec[3]);
-        center.scale(-0.5);
-        double r = 0d;
-        return new Decomposition3d.RoundParameters(null, center, r);
-    }
-    
-    public static Decomposition3d.PointPairParameters decomposePair2(CGA2Multivector pointPair){
-        //de.orat.Math.CGA2Multivector.impl.CGA2Multivector dual = de.orat.Math.CGA2Multivector.impl.CGA2Multivector.unop_Dual(this);
-        //de.orat.Math.CGA2Multivector.impl.CGA2Multivector.binop_adds(dual, -Math.sqrt(de.orat.Math.CGA2Multivector.impl.CGA2Multivector.binop_Dot(dual,dual)));
-        return null;
-    }
-    
-    public static Point3d decomposePoint(CGA2Multivector p){
-        return new Point3d(p._mVec[1],p._mVec[2],p._mVec[3]);
-    }
-   
-    public static Decomposition3d.RoundParameters decomposeCircle(CGA2Multivector circle){
-        //TODO
-        Point3d m = null;
-        Vector3d n = null;
-        double Ic = circle.get(4)+circle.get(5);// euclidean bivector component factor = e0
-        return new Decomposition3d.RoundParameters(n, m, Math.sqrt(circle.mul(circle).get(0)/Ic));
     }
 }
