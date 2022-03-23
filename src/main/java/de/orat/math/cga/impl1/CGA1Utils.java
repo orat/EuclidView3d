@@ -1,6 +1,6 @@
-package de.orat.math.cga1;
+package de.orat.math.cga.impl1;
 
-import static de.orat.math.cga1.CGA1Multivector.createPseudoscalar;
+import static de.orat.math.cga.impl1.CGA1Multivector.createPseudoscalar;
 import de.orat.math.cga.util.Decomposition3d;
 import static de.orat.math.ga.basis.InnerProductTypes.HESTENES_INNER_PRODUCT;
 import static de.orat.math.ga.basis.InnerProductTypes.LEFT_CONTRACTION;

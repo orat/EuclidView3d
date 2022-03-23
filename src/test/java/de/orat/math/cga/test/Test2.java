@@ -1,7 +1,7 @@
 package de.orat.math.cga.test;
 
-import de.orat.math.cga1.CGA1Multivector;
-import de.orat.math.cga1.CGA1Utils;
+import de.orat.math.cga.impl1.CGA1Multivector;
+import de.orat.math.cga.impl1.CGA1Utils;
 import de.orat.math.cga.util.Decomposition3d;
 import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;

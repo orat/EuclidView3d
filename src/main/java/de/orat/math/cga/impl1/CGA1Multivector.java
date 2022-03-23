@@ -1,11 +1,11 @@
-package de.orat.math.cga1;
+package de.orat.math.cga.impl1;
 
-import static de.orat.math.cga1.CGA1Utils.METRIC;
+import static de.orat.math.cga.impl1.CGA1Utils.METRIC;
 import de.orat.math.cga.util.Decomposition3d;
 import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
 import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;
-import de.orat.math.cga2.generated.CGA;
+import de.orat.math.cga.impl2.generated.CGA;
 import static de.orat.math.ga.basis.InnerProductTypes.LEFT_CONTRACTION;
 import static de.orat.math.ga.basis.InnerProductTypes.RIGHT_CONTRACTION;
 import de.orat.math.ga.basis.Metric;

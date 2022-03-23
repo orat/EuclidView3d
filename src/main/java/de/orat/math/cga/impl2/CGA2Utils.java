@@ -1,4 +1,4 @@
-package de.orat.math.cga2;
+package de.orat.math.cga.impl2;
 
 import de.orat.math.cga.util.Decomposition3d;
 import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;

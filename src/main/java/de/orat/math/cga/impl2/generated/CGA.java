@@ -1,7 +1,7 @@
 // 3D Projective Geometric Algebra
 // Written by a generator written by enki.
 //package de.dhbw.rahmlab.ganjatest.impl;
-package de.orat.math.cga2.generated;
+package de.orat.math.cga.impl2.generated;
 
 import java.util.Arrays;
 

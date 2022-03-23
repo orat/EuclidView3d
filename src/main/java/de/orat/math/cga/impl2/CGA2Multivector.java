@@ -1,24 +1,24 @@
-package de.orat.math.cga2;
+package de.orat.math.cga.impl2;
 
 import de.orat.math.cga.util.Decomposition3d;
 import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
 import de.orat.math.cga.util.Decomposition3d.PointPairParameters;
 import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;
-import de.orat.math.cga2.generated.CGA;
+import de.orat.math.cga.impl2.generated.CGA;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
+public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
     
     //TODO
     // "1","e1","e2","e3","e4","e5","e12","e13","e14","e15","e23","e24","e25","e34","e35","e45","e123","e124","e125","e134","e135","e145","e234","e235","e245","e345","e1234","e1235","e1245","e1345","e2345","e12345"
     // als Enumeration bauen, damit ich die Strings und Indizes automatisch robust zusammen definieren kann
     
-    CGA2Multivector(de.orat.math.cga2.generated.CGA cga){
+    CGA2Multivector(de.orat.math.cga.impl2.generated.CGA cga){
         super(cga._mVec);
     }
     public CGA2Multivector(int idx, double value){
@@ -194,15 +194,15 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
         return result;
     }
     public static CGA2Multivector createDualLine(Point3d p1, Point3d p2){
-        return new CGA2Multivector(de.orat.math.cga2.generated.CGA.unop_Dual(
+        return new CGA2Multivector(de.orat.math.cga.impl2.generated.CGA.unop_Dual(
                 CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p1), createPoint(p2)), createEinf())));
     }
     public static CGA2Multivector createLine(Point3d p, Vector3d n){
-        return new CGA2Multivector(de.orat.math.cga2.generated.CGA.unop_Dual(
+        return new CGA2Multivector(de.orat.math.cga.impl2.generated.CGA.unop_Dual(
                 CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p), createPoint(new Point3d(n))), createEinf())));
     }
     public static CGA2Multivector createDualCircle(Point3d p1, Point3d p2, Point3d p3){
-        return new CGA2Multivector(de.orat.math.cga2.generated.CGA.unop_Dual(
+        return new CGA2Multivector(de.orat.math.cga.impl2.generated.CGA.unop_Dual(
                 CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p1), createPoint(p2)), createPoint(p3))));
     }
     public static CGA2Multivector createSphere(Point3d o, double r){
