@@ -1,6 +1,6 @@
-package de.orat.math.cga;
+package de.orat.math.cga1;
 
-import static de.orat.math.cga.CGAMultivector.createPseudoscalar;
+import static de.orat.math.cga1.CGA1Multivector.createPseudoscalar;
 import de.orat.math.cga.util.Decomposition3d;
 import static de.orat.math.ga.basis.InnerProductTypes.HESTENES_INNER_PRODUCT;
 import static de.orat.math.ga.basis.InnerProductTypes.LEFT_CONTRACTION;
@@ -18,7 +18,7 @@ import org.jogamp.vecmath.Vector3d;
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class CGAUtils {
+public class CGA1Utils {
     
     public static final int IPNS = 0; // standard representation (inner product null space)
     public static final int OPNS = 1; // dual representation (outer product null space)
@@ -36,7 +36,7 @@ public class CGAUtils {
                 {-1.0, 0.0, 0.0 , 0.0, 0.0}});
         } catch (MetricException e){}
     }
-    private static CGAUtils instance = null;
+    private static CGA1Utils instance = null;
     
     // key= bitset as int, value = index in the multivector
     private final Map<Integer, Integer> bitsetMap = new HashMap<>();
@@ -47,9 +47,9 @@ public class CGAUtils {
     // besser hier die Dimension n übergeben und dann die Tabellen automatisch passend
     // generieren statt hier die Fixkodierung. Dann kann ich das auch allg. IndexTable nennen
     //FIXME
-    static CGAUtils getInstance(){
+    static CGA1Utils getInstance(){
         if (instance == null){
-            instance = new CGAUtils();
+            instance = new CGA1Utils();
         }
         return instance;
     }
@@ -69,7 +69,7 @@ public class CGAUtils {
      * 
      * @Deprecated 
      */
-    private CGAUtils(){
+    private CGA1Utils(){
         // scalar
         bitsetMap.put(0,0);
         gradeCoordinatesMap.put(0,0);
@@ -143,9 +143,9 @@ public class CGAUtils {
     }
     
     // scheint zu stimmen
-    public static double squareDistanceBetweenPoints(CGAMultivector p1, CGAMultivector p2){
+    public static double squareDistanceBetweenPoints(CGA1Multivector p1, CGA1Multivector p2){
         //Multivector mv = p1.ip(p2, METRIC, LEFT_CONTRACTION);
-        //System.out.println("p1*p2="+mv.toString(CGAUtils.baseVectorNames));
+        //System.out.println("p1*p2="+mv.toString(CGA1Utils.baseVectorNames));
         // return mv.scalarPart()*(-2d);
         return -2*p1.scp(p2, METRIC);
     }

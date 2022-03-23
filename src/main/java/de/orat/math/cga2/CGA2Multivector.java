@@ -1,10 +1,10 @@
 package de.orat.math.cga2;
 
 import de.orat.math.cga.util.Decomposition3d;
-import de.orat.math.cga.util.Decomposition3d.FlatParameters;
+import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
 import de.orat.math.cga.util.Decomposition3d.PointPairParameters;
-import de.orat.math.cga.util.Decomposition3d.RoundParameters;
+import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;
 import de.orat.math.cga2.generated.CGA;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
@@ -311,7 +311,7 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
     
     // Decompose
     
-    public FlatParameters decomposeLine(){
+    public FlatAndDirectionParameters decomposeLine(){
         double[] bivectors = getKBlade(2);
         
         // d zeigt von l2 nach l1
@@ -320,14 +320,14 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
         
         //TODO
         Point3d m = null;
-        return new Decomposition3d.FlatParameters(d,m);
+        return new Decomposition3d.FlatAndDirectionParameters(d,m);
     }
     
-    public RoundParameters decomposeSphere(){
+    public RoundAndTangentParameters decomposeSphere(){
         Point3d center = new Point3d(_mVec[1],_mVec[2],_mVec[3]);
         center.scale(-0.5);
         double r = 0d;
-        return new Decomposition3d.RoundParameters(null, center, r);
+        return new Decomposition3d.RoundAndTangentParameters(null, center, r);
     }
     
     public PointPairParameters decomposePair2(CGA2Multivector pointPair){
@@ -340,11 +340,11 @@ public class CGA2Multivector extends de.orat.math.cga2.generated.CGA {
         return new Point3d(_mVec[1],_mVec[2],_mVec[3]);
     }
    
-    public Decomposition3d.RoundParameters decomposeCircle(){
+    public Decomposition3d.RoundAndTangentParameters decomposeCircle(){
         //TODO
         Point3d m = null;
         Vector3d n = null;
         double Ic = get(4)+get(5);// euclidean bivector component factor = e0
-        return new Decomposition3d.RoundParameters(n, m, Math.sqrt(mul(this).get(0)/Ic));
+        return new Decomposition3d.RoundAndTangentParameters(n, m, Math.sqrt(mul(this).get(0)/Ic));
     }
 }

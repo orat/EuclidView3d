@@ -1,10 +1,10 @@
-package de.orat.math.cga;
+package de.orat.math.cga1;
 
-import static de.orat.math.cga.CGAUtils.METRIC;
+import static de.orat.math.cga1.CGA1Utils.METRIC;
 import de.orat.math.cga.util.Decomposition3d;
-import de.orat.math.cga.util.Decomposition3d.FlatParameters;
+import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
-import de.orat.math.cga.util.Decomposition3d.RoundParameters;
+import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;
 import de.orat.math.cga2.generated.CGA;
 import static de.orat.math.ga.basis.InnerProductTypes.LEFT_CONTRACTION;
 import static de.orat.math.ga.basis.InnerProductTypes.RIGHT_CONTRACTION;
@@ -27,12 +27,12 @@ import org.jogamp.vecmath.Vector3d;
  * 
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class CGAMultivector extends Multivector {
+public class CGA1Multivector extends Multivector {
    
     /** 
      * Creates a new instance of CGAMultivector.
      */
-    public CGAMultivector() {
+    public CGA1Multivector() {
         super();
     }
 
@@ -41,7 +41,7 @@ public class CGAMultivector extends Multivector {
      * 
      * @param s scalar value
      */
-    public CGAMultivector(double s) {
+    public CGA1Multivector(double s) {
         super(s);
     }
 
@@ -52,7 +52,7 @@ public class CGAMultivector extends Multivector {
      * 
      * @param B list of scaled blades
      */
-    public CGAMultivector(List<ScaledBasisBlade> B) {
+    public CGA1Multivector(List<ScaledBasisBlade> B) {
 	super(B);
     }
 
@@ -63,7 +63,7 @@ public class CGAMultivector extends Multivector {
      * 
      * @param B 
      */
-    public CGAMultivector(ScaledBasisBlade B) {
+    public CGA1Multivector(ScaledBasisBlade B) {
         super(B);
     }
     
@@ -74,7 +74,7 @@ public class CGAMultivector extends Multivector {
      * 
      * @param mv multivector 
      */
-    public CGAMultivector(Multivector mv) {
+    public CGA1Multivector(Multivector mv) {
         // throws exception if mv contains blades not corresponding to cga
         super(mv.getBlades());
     }
@@ -89,7 +89,7 @@ public class CGAMultivector extends Multivector {
     public double[] extractCoordinates(int grade){
         List<ScaledBasisBlade> gblades = extractBlades(new int[]{grade});
         int n =  5;//spaceDim();
-        CGAUtils indexTable = CGAUtils.getInstance();
+        CGA1Utils indexTable = CGA1Utils.getInstance();
         double[] result = new double[Util.binominal(n, grade)];
         for (int i=0;i<gblades.size();i++){
             ScaledBasisBlade basisBlade = gblades.get(i);
@@ -107,7 +107,7 @@ public class CGAMultivector extends Multivector {
      * @param r radius of the sphere
      * @return multivector representation of a sphere (e0, e1, e2, e3, einf)
      */
-    public static CGAMultivector createSphere(Point3d o, double r){
+    public static CGA1Multivector createSphere(Point3d o, double r){
         return createSphere(createPoint(o), r);
     }
     /**
@@ -117,8 +117,8 @@ public class CGAMultivector extends Multivector {
      * @param r radius of the sphere to create
      * @return multivector representing a sphere
      */
-    public static CGAMultivector createSphere(CGAMultivector o, double r){
-        return new CGAMultivector(o.sub(Multivector.createBasisVector(4,0.5*r*r)));
+    public static CGA1Multivector createSphere(CGA1Multivector o, double r){
+        return new CGA1Multivector(o.sub(Multivector.createBasisVector(4,0.5*r*r)));
     }
     /**
      * Create dual sphere.
@@ -127,8 +127,8 @@ public class CGAMultivector extends Multivector {
      * @param p point on the sphere
      * @return dual sphere (inner product null space representation) as a multivector
      */
-    public static CGAMultivector createDualSphere(Point3d o, Point3d p){
-        return createPoint(p).ip(CGAMultivector.createBasisVector(4).op(createPoint(o)), LEFT_CONTRACTION);
+    public static CGA1Multivector createDualSphere(Point3d o, Point3d p){
+        return createPoint(p).ip(CGA1Multivector.createBasisVector(4).op(createPoint(o)), LEFT_CONTRACTION);
     }
     /**
      * Create dual sphere in outer product null space representation (grade 4 multivector).
@@ -139,9 +139,9 @@ public class CGAMultivector extends Multivector {
      * @param p4 multivector representing a point on the sphere
      * @return multivector representing a dual sphere.
      */
-    public static CGAMultivector createDualSphere(CGAMultivector p1, CGAMultivector p2, 
-                                                CGAMultivector p3, CGAMultivector p4){
-        return new CGAMultivector(p1.op(p2).op(p3).op(p4));
+    public static CGA1Multivector createDualSphere(CGA1Multivector p1, CGA1Multivector p2, 
+                                                CGA1Multivector p3, CGA1Multivector p4){
+        return new CGA1Multivector(p1.op(p2).op(p3).op(p4));
     }
     /**
      * Create dual sphere in outer product null space represenation (grade 4 multivector).
@@ -152,8 +152,8 @@ public class CGAMultivector extends Multivector {
      * @param p4
      * @return dual sphere in outer product null space representation
      */
-    public static CGAMultivector createDualSphere(Point3d p1, Point3d p2, Point3d p3, Point3d p4){
-        return new CGAMultivector(createPoint(p1).op(createPoint(p2)).op(createPoint(p3)).op(createPoint(p4)));
+    public static CGA1Multivector createDualSphere(Point3d p1, Point3d p2, Point3d p3, Point3d p4){
+        return new CGA1Multivector(createPoint(p1).op(createPoint(p2)).op(createPoint(p3)).op(createPoint(p4)));
     }
     /**
      * Create a conformal point (grade 1 multivector).
@@ -163,8 +163,8 @@ public class CGAMultivector extends Multivector {
      * @param p point
      * @return conformal point
      */
-    public static CGAMultivector createPoint(Tuple3d p){
-        return new CGAMultivector(Multivector.createBasisVector(0)
+    public static CGA1Multivector createPoint(Tuple3d p){
+        return new CGA1Multivector(Multivector.createBasisVector(0)
                 .add(Multivector.createBasisVector(1,p.x))
                 .add(Multivector.createBasisVector(2,p.y))
                 .add(Multivector.createBasisVector(3,p.z))
@@ -179,9 +179,9 @@ public class CGAMultivector extends Multivector {
      * @param sphere4 forth sphere in inner product null space represenation
      * @return conformal point in inner product null space representation
      */
-    public static CGAMultivector createDualPoint(CGAMultivector sphere1, CGAMultivector sphere2, 
-                                              CGAMultivector sphere3, CGAMultivector sphere4){
-        return new CGAMultivector(sphere1.op(sphere2).op(sphere3).op(sphere4));
+    public static CGA1Multivector createDualPoint(CGA1Multivector sphere1, CGA1Multivector sphere2, 
+                                              CGA1Multivector sphere3, CGA1Multivector sphere4){
+        return new CGA1Multivector(sphere1.op(sphere2).op(sphere3).op(sphere4));
     }
     
     /**
@@ -193,8 +193,8 @@ public class CGAMultivector extends Multivector {
      * @param d distance of the plane to the origin
      * @return conformal plane in inner product null space representation (e1, e2, e3, einf).
      */
-    public static CGAMultivector createPlane(Vector3d n, double d){
-        return new CGAMultivector(Multivector.createBasisVector(1,n.x)
+    public static CGA1Multivector createPlane(Vector3d n, double d){
+        return new CGA1Multivector(Multivector.createBasisVector(1,n.x)
             .add(Multivector.createBasisVector(2,n.y))
             .add(Multivector.createBasisVector(3,n.z))
             .add(Multivector.createBasisVector(4,d)));
@@ -207,8 +207,8 @@ public class CGAMultivector extends Multivector {
      * @param p3 third point in inner product null space representation
      * @return conformal plane in outer product null space representation.
      */
-    public static CGAMultivector createDualPlane(CGAMultivector p1, CGAMultivector p2, CGAMultivector p3){
-        return p1.op(p2).op(p3).op(CGAMultivector.createBasisVector(4));
+    public static CGA1Multivector createDualPlane(CGA1Multivector p1, CGA1Multivector p2, CGA1Multivector p3){
+        return p1.op(p2).op(p3).op(CGA1Multivector.createBasisVector(4));
     }
     /**
      * Create a dual plane as a mid plane between two given point (in outer product
@@ -218,8 +218,8 @@ public class CGAMultivector extends Multivector {
      * @param p2
      * @return 
      */
-    public static CGAMultivector createDualPlane(CGAMultivector p1, CGAMultivector p2){
-        return CGAMultivector.createBasisVector(4).op((p1.op(p2)).dual());
+    public static CGA1Multivector createDualPlane(CGA1Multivector p1, CGA1Multivector p2){
+        return CGA1Multivector.createBasisVector(4).op((p1.op(p2)).dual());
     }
     /**
      * Create dual plane from a point on the plane an its normal vector (in outer product
@@ -229,10 +229,10 @@ public class CGAMultivector extends Multivector {
      * @param n normal vector.
      * @return 
      */
-    public static CGAMultivector createDualPlane(Point3d p, Vector3d n){
-        CGAMultivector cp = createPoint(p);
-        CGAMultivector cn = createPoint(n);
-        return cp.ip(cn.op(CGAMultivector.createBasisVector(4)), LEFT_CONTRACTION);
+    public static CGA1Multivector createDualPlane(Point3d p, Vector3d n){
+        CGA1Multivector cp = createPoint(p);
+        CGA1Multivector cn = createPoint(n);
+        return cp.ip(cn.op(CGA1Multivector.createBasisVector(4)), LEFT_CONTRACTION);
     }
     /**
      * Create line in inner product null space representation (grade 2 multivector).
@@ -243,8 +243,8 @@ public class CGAMultivector extends Multivector {
      * @param plane2 plane2 in inner product null space representation
      * @return conformal line in inner product null space representation 
      */
-    public static CGAMultivector createLine(CGAMultivector plane1, CGAMultivector plane2){
-        return new CGAMultivector(plane1.op(plane2));
+    public static CGA1Multivector createLine(CGA1Multivector plane1, CGA1Multivector plane2){
+        return new CGA1Multivector(plane1.op(plane2));
     }
     /**
      * Create line in outer product null space representation (grade 3 multivector).
@@ -257,8 +257,8 @@ public class CGAMultivector extends Multivector {
      * @return conformal line in outer product null space representation (tri-vector: 
      * (e12inf, e13inf, e23inf, e10inf, e20inf, e30inf = tree-vector))
      */
-    public static CGAMultivector createDualLine(Point3d p1, Tuple3d p2){
-        return new CGAMultivector(createDualLine(createPoint(p1), createPoint(p2)));
+    public static CGA1Multivector createDualLine(Point3d p1, Tuple3d p2){
+        return new CGA1Multivector(createDualLine(createPoint(p1), createPoint(p2)));
     }
     /**
      * Create line in outer product null space representation (grade 3 multivector).
@@ -270,8 +270,8 @@ public class CGAMultivector extends Multivector {
      * Be careful: The representation is called dual in Hildenbrand213 but not
      * in Dorst2007.
      */
-    public static CGAMultivector createDualLine(CGAMultivector p1, CGAMultivector p2){
-        return p1.op(p2).op(CGAMultivector.createBasisVector(4));
+    public static CGA1Multivector createDualLine(CGA1Multivector p1, CGA1Multivector p2){
+        return p1.op(p2).op(CGA1Multivector.createBasisVector(4));
     }
     
     /**
@@ -281,8 +281,8 @@ public class CGAMultivector extends Multivector {
      * @param sphere2
      * @return conformal circle
      */
-    public static CGAMultivector createCircle(CGAMultivector sphere1, CGAMultivector sphere2){
-        return new CGAMultivector(sphere1.op(sphere2));
+    public static CGA1Multivector createCircle(CGA1Multivector sphere1, CGA1Multivector sphere2){
+        return new CGA1Multivector(sphere1.op(sphere2));
     }
     /**
      * Create dual circle in outer product null space representation (grade 3 multivector).
@@ -292,8 +292,8 @@ public class CGAMultivector extends Multivector {
      * @param point3
      * @return 
      */
-    public static CGAMultivector createDualCircle(CGAMultivector point1, CGAMultivector point2, CGAMultivector point3){
-        return new CGAMultivector(point1.op(point2).op(point3));
+    public static CGA1Multivector createDualCircle(CGA1Multivector point1, CGA1Multivector point2, CGA1Multivector point3){
+        return new CGA1Multivector(point1.op(point2).op(point3));
     }
     /**
      * Create dual circle in outer product null space representation (grade 3 multivector).
@@ -303,8 +303,8 @@ public class CGAMultivector extends Multivector {
      * @param point3
      * @return 
      */
-    public static CGAMultivector createDualCircle(Point3d point1, Point3d point2, Point3d point3){
-        return new CGAMultivector(createPoint(point1).op(createPoint(point2)).op(createPoint(point3)));
+    public static CGA1Multivector createDualCircle(Point3d point1, Point3d point2, Point3d point3){
+        return new CGA1Multivector(createPoint(point1).op(createPoint(point2)).op(createPoint(point3)));
     }
     
     /**
@@ -315,8 +315,8 @@ public class CGAMultivector extends Multivector {
      * @param sphere3
      * @return 
      */
-    public static CGAMultivector createPointPair(CGAMultivector sphere1, CGAMultivector sphere2, CGAMultivector sphere3){
-        return new CGAMultivector(sphere1.op(sphere2).op(sphere3));
+    public static CGA1Multivector createPointPair(CGA1Multivector sphere1, CGA1Multivector sphere2, CGA1Multivector sphere3){
+        return new CGA1Multivector(sphere1.op(sphere2).op(sphere3));
     }
     /**
      * Create dual point pair in outer product null space representation (grade 2 multivector).
@@ -325,17 +325,17 @@ public class CGAMultivector extends Multivector {
      * @param point2
      * @return 
      */
-    public static CGAMultivector createDualPointPair(CGAMultivector point1, CGAMultivector point2){
-        return new CGAMultivector(point1.op(point2));
+    public static CGA1Multivector createDualPointPair(CGA1Multivector point1, CGA1Multivector point2){
+        return new CGA1Multivector(point1.op(point2));
     }
-    public static CGAMultivector createDualPointPair(Point3d point1, Point3d point2){
-        return new CGAMultivector(createPoint(point1).op(createPoint(point2)));
+    public static CGA1Multivector createDualPointPair(Point3d point1, Point3d point2){
+        return new CGA1Multivector(createPoint(point1).op(createPoint(point2)));
     }
     
-    public static CGAMultivector createPseudoscalar(){
-        return CGAMultivector.createBasisVector(0).op(CGAMultivector.createBasisVector(1))
-                .op(CGAMultivector.createBasisVector(2)).op(CGAMultivector.createBasisVector(3))
-                .op(CGAMultivector.createBasisVector(4));
+    public static CGA1Multivector createPseudoscalar(){
+        return CGA1Multivector.createBasisVector(0).op(CGA1Multivector.createBasisVector(1))
+                .op(CGA1Multivector.createBasisVector(2)).op(CGA1Multivector.createBasisVector(3))
+                .op(CGA1Multivector.createBasisVector(4));
     }
     /**
      * Create tangent vector which includes a point and a direction in inner product null space 
@@ -345,9 +345,9 @@ public class CGAMultivector extends Multivector {
      * @param u direction of the tangent
      * @return bivector representing a tangend vector
      */
-    public CGAMultivector createTangentVector(Point3d p, Vector3d u){
-        CGAMultivector cp = createPoint(p);
-        return cp.ip(cp.op(createPoint(u)).op(CGAMultivector.createBasisVector(4)), LEFT_CONTRACTION);
+    public CGA1Multivector createTangentVector(Point3d p, Vector3d u){
+        CGA1Multivector cp = createPoint(p);
+        return cp.ip(cp.op(createPoint(u)).op(CGA1Multivector.createBasisVector(4)), LEFT_CONTRACTION);
     }
     
     // decompose
@@ -358,13 +358,13 @@ public class CGAMultivector extends Multivector {
      * @param probePoint normalized probe point (e0=1, e1,e2,e3, einf)
      * @return direction of the given flat
      */
-    public FlatParameters decomposeFlat(CGAMultivector probePoint){
+    public FlatAndDirectionParameters decomposeFlat(CGA1Multivector probePoint){
         // Kleppe2016
         //Multivector attitude = flat.ip(Multivector.createBasisVector(0), RIGHT_CONTRACTION)
         //        .ip(Multivector.createBasisVector(4), RIGHT_CONTRACTION);
         
         // Dorst2007
-        CGAMultivector attitude = CGAMultivector.createBasisVector(4).ip(this, LEFT_CONTRACTION);
+        CGA1Multivector attitude = CGA1Multivector.createBasisVector(4).ip(this, LEFT_CONTRACTION);
         double[] dirCoord = attitude.extractCoordinates(1);
         dirCoord[0] *=-1;
         dirCoord[1] *=-1;
@@ -373,11 +373,11 @@ public class CGAMultivector extends Multivector {
                 
         // Dorst2007 - Formel für dual-flat verwenden
         // locations are determined as dual spheres
-        CGAMultivector loc = probePoint.op(this).gp(generalInverse());
+        CGA1Multivector loc = probePoint.op(this).gp(generalInverse());
         //CGAMultivector loc = probePoint.ip(this, LEFT_CONTRACTION).gp(generalInverse());
         double[] locationCoord = loc.extractCoordinates(1);
         
-        return new FlatParameters(new Vector3d(dirCoord[1], dirCoord[2],dirCoord[3]), 
+        return new FlatAndDirectionParameters(new Vector3d(dirCoord[1], dirCoord[2],dirCoord[3]), 
                new Point3d(locationCoord[1], locationCoord[2], locationCoord[3]));
     }
     
@@ -403,26 +403,26 @@ public class CGAMultivector extends Multivector {
      * @return euclid parameters. The location is determined as a point of the dualFlat
      * with the smallest distance to the given probe point.
      */
-    public FlatParameters decomposeDualFlat(CGAMultivector probePoint){
+    public FlatAndDirectionParameters decomposeDualFlat(CGA1Multivector probePoint){
         
         // Dorst2007
         //TODO funktioniert nicht - alle components sind 0
         // Ich brauchen undualize into the full space, macht das dual()?
-        //CGAMultivector dir = new CGAMultivector(Multivector.createBasisVector(4).op(this).dual(CGAUtils.METRIC));
-        //System.out.println("dirvec="+dir.toString(CGAUtils.baseVectorNames)); // ==0
+        //CGAMultivector dir = new CGA1Multivector(Multivector.createBasisVector(4).op(this).dual(CGA1Utils.METRIC));
+        //System.out.println("dirvec="+dir.toString(CGA1Utils.baseVectorNames)); // ==0
         
         // Bestimmung von E einf
-        CGAMultivector dir = CGAMultivector.createBasisVector(4).ip(this, LEFT_CONTRACTION);
+        CGA1Multivector dir = CGA1Multivector.createBasisVector(4).ip(this, LEFT_CONTRACTION);
         //TODO
         // wie bekomme ich da die attitude raus?
         
-        System.out.println("dirvec="+dir.toString(CGAUtils.baseVectorNames)); // bivector
+        System.out.println("dirvec="+dir.toString(CGA1Utils.baseVectorNames)); // bivector
         
         // Kleppe2016 adaptiert
         // oder left contraction?
         // left contraction ist null wenn k > l
         //dir = dualFlat.op(Multivector.createBasisVector(4)).ip(Multivector.createBasisVector(0), HESTENES_INNER_PRODUCT);
-        //System.out.println("dirvec2="+dir.toString(CGAUtils.baseVectorNames)); // ==0
+        //System.out.println("dirvec2="+dir.toString(CGA1Utils.baseVectorNames)); // ==0
         
         double[] dirCoord = dir.extractCoordinates(1);
         dirCoord[1] *=-1;
@@ -431,20 +431,20 @@ public class CGAMultivector extends Multivector {
         
         // Dorst2007
         // das sieht richtig aus! ist aber die Formel von dualflat statt flat
-        CGAMultivector location = probePoint.op(this).gp(generalInverse());
+        CGA1Multivector location = probePoint.op(this).gp(generalInverse());
         // Formel von flat - funktioniert nicht
         //CGAMultivector location = probePoint.ip(this, LEFT_CONTRACTION).gp(generalInverse());
          
         // grade 1 ist drin und sieht sinnvoll aus, grade-3 ist mit sehr kleinen Werten aber auch dabei
         // und zusätzlich auch e1einf und e0e1
-        System.out.println("loc="+location.toString(CGAUtils.baseVectorNames));
+        System.out.println("loc="+location.toString(CGA1Utils.baseVectorNames));
         
         // locations are determined as duals-spheres (e0, e1, e2, e3, einf)
         double[] locationCoord = location.extractCoordinates(1);
         System.out.println("locationCoord=("+String.valueOf(locationCoord[1])+", "+String.valueOf(locationCoord[2])+" ,"+
                 String.valueOf(locationCoord[3])+")");
         
-        return new Decomposition3d.FlatParameters(new Vector3d(dirCoord[1], dirCoord[2], dirCoord[3]), 
+        return new Decomposition3d.FlatAndDirectionParameters(new Vector3d(dirCoord[1], dirCoord[2], dirCoord[3]), 
                new Point3d(locationCoord[1], locationCoord[2], locationCoord[3]));
     }
     /**
@@ -452,36 +452,36 @@ public class CGAMultivector extends Multivector {
      * 
      * @return 
      */
-    public RoundParameters decomposeTangent(){
+    public RoundAndTangentParameters decomposeTangent(){
         // ungetestet
         // das ist die formel von tangent() aber vermutlich muss ich hier die Formel
         // von dualTangend verwenden!!!
-        CGAMultivector einf = CGAMultivector.createBasisVector(4);
-        CGAMultivector attitude = new CGAMultivector(einf.ip(this, LEFT_CONTRACTION).op(einf));
+        CGA1Multivector einf = CGA1Multivector.createBasisVector(4);
+        CGA1Multivector attitude = new CGA1Multivector(einf.ip(this, LEFT_CONTRACTION).op(einf));
         double[] result = attitude.extractCoordinates(1);
         result[1] *=-1;
         result[2] *=-1;
         result[3] *=-1;
-        return new RoundParameters(new Vector3d(result[1], result[2], result[3]), decomposeLocation(), 0d);
+        return new RoundAndTangentParameters(new Vector3d(result[1], result[2], result[3]), decomposeLocation(), 0d);
     }
-    public RoundParameters decomposeDualTangent(){
-        CGAMultivector einf = CGAMultivector.createBasisVector(4);
+    public RoundAndTangentParameters decomposeDualTangent(){
+        CGA1Multivector einf = CGA1Multivector.createBasisVector(4);
         //TODO
         // das stimmt so noch nicht!
-        CGAMultivector attitude = new CGAMultivector(einf.ip(this.generalInverse(), LEFT_CONTRACTION).op(einf));
+        CGA1Multivector attitude = new CGA1Multivector(einf.ip(this.generalInverse(), LEFT_CONTRACTION).op(einf));
         double[] result = attitude.extractCoordinates(1);
         result[1] *=-1;
         result[2] *=-1;
         result[3] *=-1;
-        return new RoundParameters(new Vector3d(result[1], result[2], result[3]), decomposeLocation(), 0d);
+        return new RoundAndTangentParameters(new Vector3d(result[1], result[2], result[3]), decomposeLocation(), 0d);
     }
     
-    public RoundParameters decomposeRound(){
-        RoundParameters temp = decomposeTangent();
+    public RoundAndTangentParameters decomposeRound(){
+        RoundAndTangentParameters temp = decomposeTangent();
         
         //FIXME ist gradeInversion wirklich gradeInvolution()?
-        CGAMultivector mvNumerator = gp(gradeInversion());
-        CGAMultivector mvDenominator = CGAMultivector.createBasisVector(4).ip(this, LEFT_CONTRACTION);
+        CGA1Multivector mvNumerator = gp(gradeInversion());
+        CGA1Multivector mvDenominator = CGA1Multivector.createBasisVector(4).ip(this, LEFT_CONTRACTION);
         
         //double squaredSize = mvNumerator.gp(mvDenominator.gp(mvDenominator).generalInverse()).scalarPart();
         
@@ -492,7 +492,7 @@ public class CGAMultivector extends Multivector {
         // Vielleicht klappt das nur für Kugeln im Ursprung?
         //FIXME
         double squaredSize = mvNumerator.gp(-1d/mvDenominator.norm_e2()).scalarPart();
-        return new RoundParameters(temp.attitude(), temp.location(), squaredSize);
+        return new RoundAndTangentParameters(temp.attitude(), temp.location(), squaredSize);
     }
     
     /**
@@ -502,10 +502,10 @@ public class CGAMultivector extends Multivector {
      */
     public Point3d decomposeLocation(){
         // Dorst2007
-        CGAMultivector loc = 
-                gp(CGAMultivector.createBasisVector(4).ip(this, LEFT_CONTRACTION).generalInverse());
+        CGA1Multivector loc = 
+                gp(CGA1Multivector.createBasisVector(4).ip(this, LEFT_CONTRACTION).generalInverse());
         
-        //System.out.println("loc="+loc.toString(CGAUtils.baseVectorNames));
+        //System.out.println("loc="+loc.toString(CGA1Utils.baseVectorNames));
         double[] result = loc.extractCoordinates(1);
         result[1] *=-1;
         result[2] *=-1;
@@ -513,7 +513,7 @@ public class CGAMultivector extends Multivector {
         return new Point3d(result[1], result[2], result[3]);
     }
     
-    public Decomposition3d.RoundParameters decomposeDualRound(){
+    public Decomposition3d.RoundAndTangentParameters decomposeDualRound(){
          
         Vector3d attitude = null;
         //TODO
@@ -521,7 +521,7 @@ public class CGAMultivector extends Multivector {
         //TODO
         double radius = 0d;
         
-        return new RoundParameters(null, decomposeLocation(), radius);
+        return new RoundAndTangentParameters(null, decomposeLocation(), radius);
     }
     
     
@@ -531,7 +531,7 @@ public class CGAMultivector extends Multivector {
      * @param mv2 Line, Plane, Sphere
      * @return 
      */
-    public CGAMultivector intersect(CGAMultivector mv2){
+    public CGA1Multivector intersect(CGA1Multivector mv2){
         return createPseudoscalar().gp(this).ip(mv2, LEFT_CONTRACTION);
     }
     
@@ -547,30 +547,30 @@ public class CGAMultivector extends Multivector {
      * @param l2
      * @return dij and P if l1 and l2 are not coincident and not parallel else an empty array
      */
-    public LinePairParameters decomposeLinePair(CGAMultivector l2){
+    public LinePairParameters decomposeLinePair(CGA1Multivector l2){
         
-        CGAMultivector l1l2 = gp(l2);
+        CGA1Multivector l1l2 = gp(l2);
         
         
         
         // X soll eine sum aus 1- und 2-blade sein
         // falsch da sind auch zwei 4-blades mit drin
-        CGAMultivector n0 = CGAMultivector.createBasisVector(0);
-        CGAMultivector ni = CGAMultivector.createBasisVector(4);
-        CGAMultivector X = l1l2.sub(n0.ip(
-                l1l2, LEFT_CONTRACTION).op(CGAMultivector.createBasisVector(4)));
-        System.out.println("X="+X.toString(CGAUtils.baseVectorNames));
+        CGA1Multivector n0 = CGA1Multivector.createBasisVector(0);
+        CGA1Multivector ni = CGA1Multivector.createBasisVector(4);
+        CGA1Multivector X = l1l2.sub(n0.ip(
+                l1l2, LEFT_CONTRACTION).op(CGA1Multivector.createBasisVector(4)));
+        System.out.println("X="+X.toString(CGA1Utils.baseVectorNames));
         
         // scheint korret sum aus 3- und 1-blade
-        CGAMultivector Y = n0.ip(l1l2, LEFT_CONTRACTION);
-        System.out.println("Y="+Y.toString(CGAUtils.baseVectorNames));
-        CGAMultivector Y3 = Y.extractGrade(3);
-        System.out.println("Y3="+Y3.toString(CGAUtils.baseVectorNames));
+        CGA1Multivector Y = n0.ip(l1l2, LEFT_CONTRACTION);
+        System.out.println("Y="+Y.toString(CGA1Utils.baseVectorNames));
+        CGA1Multivector Y3 = Y.extractGrade(3);
+        System.out.println("Y3="+Y3.toString(CGA1Utils.baseVectorNames));
         
-        CGAMultivector X2 = X.extractGrade(2);
-        System.out.println("X2="+X2.toString(CGAUtils.baseVectorNames));
+        CGA1Multivector X2 = X.extractGrade(2);
+        System.out.println("X2="+X2.toString(CGA1Utils.baseVectorNames));
          // quatrieren und test auf !=0
-        CGAMultivector X22 = X2.gp(X2);
+        CGA1Multivector X22 = X2.gp(X2);
         
         
         // identisch
@@ -593,8 +593,8 @@ public class CGAMultivector extends Multivector {
             }
         // skewed
         } else {
-            CGAMultivector d = new CGAMultivector(Y3.gp(X2.reverse().gp(1d/X2.norm_e2())));
-            System.out.println("d="+d.toString(CGAUtils.baseVectorNames));
+            CGA1Multivector d = new CGA1Multivector(Y3.gp(X2.reverse().gp(1d/X2.norm_e2())));
+            System.out.println("d="+d.toString(CGA1Utils.baseVectorNames));
 
             double[] dValues = d.extractCoordinates(2);
          
@@ -608,53 +608,53 @@ public class CGAMultivector extends Multivector {
     
     // Operatoren
     
-    public double scp(CGAMultivector x) {
+    public double scp(CGA1Multivector x) {
         return super.scp(x, METRIC);
     }
-    public CGAMultivector op(CGAMultivector x) {
-       return new CGAMultivector(super.op(x));
+    public CGA1Multivector op(CGA1Multivector x) {
+       return new CGA1Multivector(super.op(x));
     }
-    public CGAMultivector ip(CGAMultivector x, int type){
-        return new CGAMultivector(super.ip(x, METRIC, type));
+    public CGA1Multivector ip(CGA1Multivector x, int type){
+        return new CGA1Multivector(super.ip(x, METRIC, type));
     }
-    public CGAMultivector gp(CGAMultivector x){
-        return new CGAMultivector(super.gp(x));
-    }
-    @Override
-    public CGAMultivector gp(double a) {
-        return new CGAMultivector(super.gp(a));
-    }
-    public static CGAMultivector createBasisVector(int idx) throws IllegalArgumentException {
-        if (idx >= CGAUtils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
-        return new CGAMultivector(Multivector.createBasisVector(idx));
+    public CGA1Multivector gp(CGA1Multivector x){
+        return new CGA1Multivector(super.gp(x));
     }
     @Override
-    public CGAMultivector reverse() {
-        return new CGAMultivector(super.reverse());
+    public CGA1Multivector gp(double a) {
+        return new CGA1Multivector(super.gp(a));
+    }
+    public static CGA1Multivector createBasisVector(int idx) throws IllegalArgumentException {
+        if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
+        return new CGA1Multivector(Multivector.createBasisVector(idx));
     }
     @Override
-    public CGAMultivector extractGrade(int g){
-        return new CGAMultivector(super.extractGrade(g));
-    }
-    public CGAMultivector sub(CGAMultivector x) {
-        return new CGAMultivector(super.sub(x));
+    public CGA1Multivector reverse() {
+        return new CGA1Multivector(super.reverse());
     }
     @Override
-    public CGAMultivector sub(double x){
-        return new CGAMultivector(super.sub(x));
+    public CGA1Multivector extractGrade(int g){
+        return new CGA1Multivector(super.extractGrade(g));
+    }
+    public CGA1Multivector sub(CGA1Multivector x) {
+        return new CGA1Multivector(super.sub(x));
     }
     @Override
-    public CGAMultivector exp() {
-        return new CGAMultivector(super.exp(METRIC));
+    public CGA1Multivector sub(double x){
+        return new CGA1Multivector(super.sub(x));
     }
     @Override
-    public CGAMultivector gradeInversion() {
-        return new CGAMultivector(super.gradeInversion());
+    public CGA1Multivector exp() {
+        return new CGA1Multivector(super.exp(METRIC));
     }
-    public CGAMultivector generalInverse() {
-        return new CGAMultivector(super.generalInverse(METRIC));
+    @Override
+    public CGA1Multivector gradeInversion() {
+        return new CGA1Multivector(super.gradeInversion());
     }
-    public CGAMultivector dual() {
-        return new CGAMultivector(super.dual(METRIC));
+    public CGA1Multivector generalInverse() {
+        return new CGA1Multivector(super.generalInverse(METRIC));
+    }
+    public CGA1Multivector dual() {
+        return new CGA1Multivector(super.dual(METRIC));
     }
 }

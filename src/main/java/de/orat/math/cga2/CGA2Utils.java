@@ -1,7 +1,7 @@
 package de.orat.math.cga2;
 
 import de.orat.math.cga.util.Decomposition3d;
-import de.orat.math.cga.util.Decomposition3d.FlatParameters;
+import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
