@@ -6,6 +6,8 @@ import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
+import org.jzy3d.maths.Utils2;
+import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Sphere;
@@ -21,18 +23,25 @@ public class GeometryView3d {
     
     public static void main(String[] args) {
         GeometryView3d viewer = new GeometryView3d();
-        viewer.addPoint(new Point3d(1,1,1), Color.BLUE);
+        viewer.addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f);
         viewer.addSphere(null, new Point3d(20,20,20), 10, Color.ORANGE);
         viewer.open();
     }
     
-    public void addPoint(Point3d p, Color color){
+    /**
+     * Add a point to the 3d view.
+     * 
+     * @param p
+     * @param color 
+     * @param width 
+     */
+    public void addPoint(Point3d p, Color color, float width){
         //double radius = 0.6;
         //Sphere sphere = new Sphere(new Coord3d(p.x,p.x,p.z),(float)radius,20,color);
         //sphere.setPolygonOffsetFillEnable(false);
         //chart.add(sphere);
         
-        float width = 0.6f;
+        //float width = 0.6f;
         Point point = new Point(new Coord3d(p.x,p.x,p.z), color, width);
         chart.add(point);
     }
@@ -70,7 +79,7 @@ public class GeometryView3d {
     
     /**
      * Add a line to the 3d view.
-     * #
+     * 
      * @param p1
      * @param p2
      * @param radius
@@ -92,6 +101,22 @@ public class GeometryView3d {
     
     public void addCircle(Point3d origin, Vector3d direction, Color color){
         //circle.setPolygonOffsetFillEnable(false);
+    }
+    
+    /**
+     * Add an arrow to the 3d view.
+     * 
+     * @param location midpoint of the arrow
+     * @param direction direction of the arrow
+     * @param length length of the arrow
+     * @param radius radius of the arrow
+     * @param color color of the arrow
+     */
+    public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color){
+        Arrow arrow = new Arrow();
+        arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
+                    new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color);
+        arrow.setWireframeDisplayed(false);
     }
     
     public GeometryView3d(){

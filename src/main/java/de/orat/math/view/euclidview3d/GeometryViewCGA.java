@@ -27,16 +27,41 @@ public class GeometryViewCGA extends GeometryView3d {
     public static Color COLOR_GRADE_3 = Color.BLUE; // point-pairs
     public static Color COLOR_GRADE_4 = Color.YELLOW; // spheres, planes, points
      
+    // fixme abschaffen und bei tangent durch Farbe des passendes Grads ersetzen
+    public static Color COLOR_TANGENT = Color.ORANGE;
+    
     public static float POINT_RADIUS = 0.02f;
     public static float LINE_RADIUS = 0.02f;
+    public static float TANGENT_LENGTH = 0.1f;
     
-    public void addPoint(Point3d p){
-        addPoint(p, COLOR_GRADE_1); // oder grade 4?
+    /**
+     * Add a point to the 3d view.
+     * 
+     * @param location location of the point
+     */
+    public void addPoint(Point3d location){
+        addPoint(location, COLOR_GRADE_1, POINT_RADIUS*2); // oder grade 4?
     }
+    /**
+     * Add a line to the 3d view.
+     * 
+     * @param attitude
+     * @param location 
+     */
     public void addLine(Vector3d attitude, Point3d location){
         //FIXME
         float length = 1;
         addLine(attitude, location, COLOR_GRADE_2, LINE_RADIUS, length); 
+    }
+    
+    /**
+     * Add a tangent to the 3d view.
+     * 
+     * @param location
+     * @param attitude 
+     */
+    public void addTangent(Point3d location, Vector3d attitude){
+        addArrow(location, attitude, TANGENT_LENGTH, LINE_RADIUS, COLOR_TANGENT);
     }
     
     public void addSphere(Point3d location, double radius){};
