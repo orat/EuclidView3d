@@ -2,9 +2,6 @@ package org.jzy3d.plot3d.primitives;
 
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
-import org.jzy3d.plot3d.primitives.Point; 
-
-
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2019

@@ -8,7 +8,9 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.plot3d.primitives.Arrow;
+import org.jzy3d.plot3d.primitives.CroppableLineStrip;
 import org.jzy3d.plot3d.primitives.Line;
+import org.jzy3d.plot3d.primitives.Plane;
 import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Sphere;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
@@ -80,18 +82,12 @@ public class GeometryView3d {
     /**
      * Add a line to the 3d view.
      * 
-     * @param p1
-     * @param p2
-     * @param radius
+     * @param p1 start point of the cylinder
+     * @param p2 end point of the cylinder
+     * @param radius radius of the cylinder
      * @param color 
      */
     public void addLine(Point3d p1, Point3d p2, float radius, Color color){
-        //CroppableLineStrip lineStrip = new CroppableLineStrip();
-        //lineStrip.setWireframeColor(Color.BLACK);
-        //lineStrip.add(new Point( new Coord3d(p1.x,p1.y,p1.z)));
-        //lineStrip.add(new Point( new Coord3d(p2.x,p2.y,p2.z)));
-        //chart.add(lineStrip);
-        
         org.jzy3d.maths.Vector3d vec = 
                 new org.jzy3d.maths.Vector3d(new Coord3d(p1.x,p1.y,p1.z),new Coord3d(p2.x, p2.y, p2.z));
         Line line = new Line();
@@ -99,8 +95,25 @@ public class GeometryView3d {
         chart.add(line);
     }
     
+    /**
+     * add circle to the 3d view.
+     * 
+     * @param origin origin of the circle
+     * @param direction normal vector of the plane the circle lays in
+     * @param color color of the circle
+     */
     public void addCircle(Point3d origin, Vector3d direction, Color color){
-        //circle.setPolygonOffsetFillEnable(false);
+        int slices;
+        int rings = 100;
+        CroppableLineStrip lineStrip = new CroppableLineStrip();
+        for (int i=0;i<rings;i++){
+            //TODO
+        }
+        //lineStrip.setWireframeColor(Color.BLACK);
+        //lineStrip.add(new Point( new Coord3d(p1.x,p1.y,p1.z)));
+        //lineStrip.add(new Point( new Coord3d(p2.x,p2.y,p2.z)));
+        //chart.add(lineStrip);
+        
     }
     
     /**
@@ -117,6 +130,18 @@ public class GeometryView3d {
         arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
                     new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color);
         arrow.setWireframeDisplayed(false);
+    }
+    /**
+     * Add a plane to the 3d view.
+     * 
+     * @param location first point of the plane
+     * @param dir1 vector which is added to the first point to get the second point
+     * @param dir2 vector which is added to the second point to get the third point and which is added to the location to get the forth point
+     * @param color color of the plane
+     */
+    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, Color color){
+        Plane plane = new Plane();
+        plane.setData(location, dir1, dir2, color);
     }
     
     public GeometryView3d(){

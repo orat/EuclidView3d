@@ -22,14 +22,16 @@ import org.jzy3d.colors.Color;
  */
 public class GeometryViewCGA extends GeometryView3d {
     
-    public static Color COLOR_GRADE_1 = Color.RED; // dual sphere, dual planes, points
-    public static Color COLOR_GRADE_2 = Color.GREEN; // circle, lines
-    public static Color COLOR_GRADE_3 = Color.BLUE; // point-pairs
-    public static Color COLOR_GRADE_4 = Color.YELLOW; // spheres, planes, points
+    public static Color COLOR_GRADE_1 = Color.RED;    // sphere, planes, dual points
+    public static Color COLOR_GRADE_2 = Color.GREEN;  // circle, lines, dual point-pair
+    public static Color COLOR_GRADE_3 = Color.BLUE;   // point-pairs, dual line, dual circles
+    public static Color COLOR_GRADE_4 = Color.YELLOW; // dual spheres, dual planes, points
      
-    // fixme abschaffen und bei tangent durch Farbe des passendes Grads ersetzen
+    // FIXME abschaffen und bei tangent durch Farbe des passendes Grads ersetzen
     public static Color COLOR_TANGENT = Color.ORANGE;
     
+    //TODO
+    // nur als Faktoren verwenden und skalieren auf Basis des angezeigten Volumens
     public static float POINT_RADIUS = 0.02f;
     public static float LINE_RADIUS = 0.02f;
     public static float TANGENT_LENGTH = 0.1f;
