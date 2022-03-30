@@ -39,6 +39,12 @@ public class Arrow extends Composite {
         Translate translate = new Translate(position);
         trans.add(translate);
         applyGeometryTransform(trans);
+        
+        //TODO label anfügen, im Methodenaufruf zustäzlich argument String label einfügen ...
+        //Coord3d labelP = new Coord3d(position.x + (border1.x + border2.x) / 2,
+        //position.y + (border1.y + border2.y) / 2, position.z + height / 2);
+        //DrawableTextBitmap txt3d = new DrawableTextBitmap("Face " + (i + 1), labelP, Color.BLACK);
+        //add(txt3d);
     }
     
     private static Rotate createRotateTo(Coord3d from, Coord3d to){

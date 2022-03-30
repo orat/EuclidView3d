@@ -4,16 +4,17 @@ import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.primitives.textured.TranslucentQuad;
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2022
  */
-public class Plane extends Composite {	
+public class Plane extends Quad /*TranslucentQuadComposite*/ {	
     
-    protected Quad quad;
+    //protected /*Translucent*/Quad quad;
     
     public void setData(Point3d location, Vector3d dir1, Vector3d dir2, Color color){
-        quad = new Quad(); 
+        //quad = new /*Translucent*/Quad(); 
      
         Coord3d coord3d = new Coord3d();
         coord3d.add((float) location.x, (float) location.y, (float) location.z);
@@ -31,11 +32,11 @@ public class Plane extends Composite {
         coord3d.add((float) (location.x+dir2.x), (float) (location.y + dir2.y), (float) (location.z+dir2.z));
         Point forthPoint = new Point(coord3d, color);
 
-        quad.add(firstPoint);
-        quad.add(secondPoint);
-        quad.add(thirdPoint);
-        quad.add(forthPoint);
+        /*quad.*/add(firstPoint);
+        /*quad.*/add(secondPoint);
+        /*quad.*/add(thirdPoint);
+        /*quad.*/add(forthPoint);
 
-        quad.setColor(color);
+        /*quad.*/setColor(color);
     }
 }
