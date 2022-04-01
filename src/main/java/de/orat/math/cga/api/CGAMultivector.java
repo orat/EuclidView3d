@@ -1,11 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package de.orat.math.cga.api;
 
 /**
- *
+ * Da die blades unterschiedlich definiert sein können je nach Implementierung, darf
+ * es keine Methoden geben um coordinaten rauszuholen.
+ * 
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
 public class CGAMultivector {

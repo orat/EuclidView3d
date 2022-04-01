@@ -20,6 +20,7 @@ public class Decomposition3d {
      */
     public record RoundAndTangentParameters(Vector3d attitude, Point3d location, double squaredSize){}
     
+    // statt location und atttitude, vielleciht besser location1 und location2?
     public record LinePairParameters(double alpha, Point3d location, Vector3d attitude){}
     
 }

@@ -7,7 +7,7 @@ import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 
 /**
- * @Deprecated code nach CGA3dMap verschieben
+ * @Deprecated code nach CGA2Multivector erschieben
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
 public class CGA2Utils {
@@ -40,7 +40,7 @@ public class CGA2Utils {
         System.out.println("y:\n"+y.toString());
         System.out.println("x:\n"+y.toString());
         
-        return Math.atan2(y.getKBlade(0)[0], x.getKBlade(0)[0]);
+        return Math.atan2(y.extractCoordinates(0)[0], x.extractCoordinates(0)[0]);
     }
     
     /**
@@ -87,14 +87,14 @@ public class CGA2Utils {
         System.out.println("l2l1:"+l2l1.toString());
         
         // Bivektoren 
-        double[] bivectors = l2l1.getKBlade(2);
+        double[] bivectors = l2l1.extractCoordinates(2);
         // d zeigt von l1 nach l2?
         org.jogamp.vecmath.Vector3d d = new org.jogamp.vecmath.Vector3d(bivectors[4], bivectors[1], bivectors[0]);
         // da sollte noch ein Faktor sin(theta) drinstecken
         System.out.println("dx="+String.valueOf(d.x)+", dy="+String.valueOf(d.y)+", dz="+String.valueOf(d.z));
      
         // Vektoren
-        double[] vectors = l2l1.getKBlade(1);
+        double[] vectors = l2l1.extractCoordinates(1);
         org.jogamp.vecmath.Vector3d d2 = new org.jogamp.vecmath.Vector3d(vectors[0], vectors[1], vectors[2]);
         // identisch zu dx,dy,dz wo ist der sin(theta) faktor?
         System.out.println("d2x="+String.valueOf(d.x)+", d2y="+String.valueOf(d.y)+", d2z="+String.valueOf(d.z));
@@ -102,7 +102,7 @@ public class CGA2Utils {
         
         // theta=163.82184787299215
         // das scheint aber falsch zu sein
-        double costheta = l2l1.getKBlade(0)[0];
+        double costheta = l2l1.extractCoordinates(0)[0];
         System.out.println("theta="+String.valueOf(Math.acos(costheta)*180/Math.PI));
         
         //TODO
@@ -115,12 +115,25 @@ public class CGA2Utils {
     public static void decompose2(CGA2Multivector l1, CGA2Multivector l2){
         CGA2Multivector l1l2 = l1.mul(l2);
       
-        double costheta = l1l2.getKBlade(0)[0];
+        double costheta = l1l2.extractCoordinates(0)[0];
         System.out.println("theta="+String.valueOf(Math.acos(costheta)*180/Math.PI));
-        org.jogamp.vecmath.Vector3d d = new org.jogamp.vecmath.Vector3d(l1l2.getKBlade(1));
+        org.jogamp.vecmath.Vector3d d = new org.jogamp.vecmath.Vector3d(l1l2.extractCoordinates(1));
         d.scale(1d/costheta);
         System.out.println("d="+String.valueOf(d.length()));
         d.normalize();
         System.out.println("dx="+String.valueOf(d.x)+", dy="+String.valueOf(d.y)+", dz="+String.valueOf(d.z));
+    }
+    
+    public static String toString(String name, double[] values){
+        StringBuilder sb = new StringBuilder();
+        sb.append(name);
+        sb.append("=[");
+        for (int i=0;i<values.length;i++){
+            sb.append(String.valueOf(values[i]));
+            sb.append(", ");
+        }
+        sb.delete(sb.length()-2, sb.length());
+        sb.append("]");
+        return sb.toString();
     }
 }

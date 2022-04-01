@@ -36,16 +36,25 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
         
         return sb.toString();
     }
+    
+    // Operatoren
+    
     public CGA2Multivector add (CGA2Multivector b){
         return new CGA2Multivector (binop_Add (this, b));
+    }
+    public CGA2Multivector add (double b){
+        return new CGA2Multivector (binop_adds (this, b));
     }
     public CGA2Multivector sub (CGA2Multivector b){
         return new CGA2Multivector (binop_Sub (this, b));
     }
+    public CGA2Multivector sub (double b){
+        return new CGA2Multivector (binop_subs (this, b));
+    }
     public CGA2Multivector mul(CGA2Multivector b){
         return new CGA2Multivector(binop_Mul(this, b));
     }
-    public CGA2Multivector smul(double s){
+    public CGA2Multivector mul(double s){
         return new CGA2Multivector(binop_smul (s, this));
     }
     public CGA2Multivector wedge(CGA2Multivector b){
@@ -166,7 +175,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
     }
     public static CGA2Multivector createPoint(Point3d p){
         return (new CGA2Multivector(1,p.x)).add(new CGA2Multivector(2,p.y)).add(new CGA2Multivector(3,p.z)).
-                add((new CGA2Multivector(createEinf())).smul(0.5*(p.x*p.x+p.y*p.y+p.z*p.z))).add(new CGA2Multivector(createE0()));
+                add((new CGA2Multivector(createEinf())).mul(0.5*(p.x*p.x+p.y*p.y+p.z*p.z))).add(new CGA2Multivector(createE0()));
     }
     
     /*public CGA createPoint(Point3d p){
@@ -206,7 +215,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
                 CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p1), createPoint(p2)), createPoint(p3))));
     }
     public static CGA2Multivector createSphere(Point3d o, double r){
-        return createPoint(o).sub(new CGA2Multivector(createEinf()).smul(0.5*r*r));
+        return createPoint(o).sub(new CGA2Multivector(createEinf()).mul(0.5*r*r));
     }
     public static CGA2Multivector createDualSphere(Point3d p1, Point3d p2, Point3d p3, Point3d p4){
         return new CGA2Multivector(CGA.unop_Dual(
@@ -234,10 +243,11 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
      * 3-blades are threevectors, 4-blades are quad-vectors and 5-blades are
      * called pseudo-scalars.
      * 
+     * equivalent to k-vector/k-blades
      * @param grade
      * @return 
      */
-    public double[] getKBlade(int grade){
+    public double[] extractCoordinates(int grade){
         switch (grade){
             case 0 -> {
                 return new double[]{_mVec[0]};
@@ -312,7 +322,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
     // Decompose
     
     public FlatAndDirectionParameters decomposeLine(){
-        double[] bivectors = getKBlade(2);
+        double[] bivectors = extractCoordinates(2);
         
         // d zeigt von l2 nach l1
         org.jogamp.vecmath.Vector3d d = new org.jogamp.vecmath.Vector3d(bivectors[4], bivectors[1], bivectors[0]);
@@ -345,6 +355,6 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
         Point3d m = null;
         Vector3d n = null;
         double Ic = get(4)+get(5);// euclidean bivector component factor = e0
-        return new Decomposition3d.RoundAndTangentParameters(n, m, Math.sqrt(mul(this).get(0)/Ic));
+        return new Decomposition3d.RoundAndTangentParameters(n, m, Math.sqrt(CGA2Multivector.this.mul(this).get(0)/Ic));
     }
 }
