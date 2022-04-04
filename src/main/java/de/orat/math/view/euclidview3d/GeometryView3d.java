@@ -149,6 +149,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         chart.add(plane);
     }
     
+    
     /*public GeometryView3d(){
         
         
