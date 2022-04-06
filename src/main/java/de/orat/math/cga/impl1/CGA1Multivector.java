@@ -111,10 +111,12 @@ public class CGA1Multivector extends Multivector {
     /**
      * Create sphere in inner product null space representation (grade 1 multivector).
      * 
-     * Be carefule: This is a dual sphere corresponding to Dorst2007.
+     * Be careful: This is a dual real sphere corresponding to Dorst2007 but a 
+     * real sphere in Hildenbrand2013.
      * 
      * @param o origin of the shphere
-     * @param r radius of the sphere
+     * @param r radius of the sphere (A negative radius does not create an imagninary 
+     *        sphere. Use the method createImaginarySphere() instead.)
      * @return multivector representation of a sphere (e0, e1, e2, e3, einfM)
      */
     public static CGA1Multivector createSphere(Point3d o, double r){
@@ -127,12 +129,12 @@ public class CGA1Multivector extends Multivector {
      * 
      * Dorst2007 page 363 == Hildenbrand1998 page 29
      * 
-     * @param o multivector representing a result
+     * @param location multivector representing a result
      * @param r radius of the sphere to create
      * @return multivector representing a sphere
      */
-    public static CGA1Multivector createSphere(CGA1Multivector o, double r){
-        return new CGA1Multivector(o.sub(Multivector.createBasisVector(4,0.5*r*r)));
+    public static CGA1Multivector createSphere(CGA1Multivector location, double r){
+        return new CGA1Multivector(location.sub(Multivector.createBasisVector(4,0.5*r*r)));
     }
     public static CGA1Multivector createImaginarySphere(CGA1Multivector o, double r){
         return new CGA1Multivector(o.add(Multivector.createBasisVector(4,0.5*r*r)));
@@ -177,9 +179,10 @@ public class CGA1Multivector extends Multivector {
     /**
      * Create a conformal point (grade 1 multivector).
      * 
-     * Inner and outer product null space representation is identical.
+     * Inner and outer product null space representation is identical.<p>
      * 
      * Multiplication of the multivector by double alpha possible
+     * 
      * @param p result
      * @return conformal result
      */
@@ -471,7 +474,7 @@ public class CGA1Multivector extends Multivector {
      * 
      * @param probePoint normalized probe result (e0=1, e1,e2,e3, einfM) to define the location dualFlat parameter.. If not specified use e0.
      * @return euclid parameters. The location is determined as a result of the dualFlat
- with the smallest distance to the given probe result.
+     * with the smallest distance to the given probe result.
      */
     public FlatAndDirectionParameters decomposeDualFlat(CGA1Multivector probePoint){
         
@@ -593,11 +596,14 @@ public class CGA1Multivector extends Multivector {
      * 
      * Dorst2007
      * 
-     * @return attitude, location and squared size
+     * @return attitude, location and squared size for multivectors corresponding to rounds in
+     * inner product null space representaton
      */
     public RoundAndTangentParameters decomposeRound(){
+        // (-) because the radius for dual round corresponding to Dorst2007 is needed to
+        // get the value corresponding to inner product null space representation
         return new RoundAndTangentParameters(decomposeTangentAndRoundDirection(), 
-                decomposeTangentAndRoundLocation(), roundSquaredSize());
+                decomposeTangentAndRoundLocation(), -roundSquaredSize());
     }
     
     /**
@@ -619,7 +625,12 @@ public class CGA1Multivector extends Multivector {
      * 
      * Dorst2007
      * 
-     * @return squared size/radius
+     * FIXME
+     * Da das Ergebnis nicht stimmt befürchte ich, dass die Formel nur für Kugeln
+     * im Ursprung gilt.
+     * 
+     * @return squared size/radius for a round corresponding of Dorst2007 and (-) 
+     * squared size/radius for dual round
      */
     private double roundSquaredSize(){
         CGA1Multivector mvNumerator = gp(gradeInversion());
@@ -628,10 +639,11 @@ public class CGA1Multivector extends Multivector {
         // (-) d.h. das ist die Formel für dual-round nach Dorst2007. Das sieht also
         // richtig aus.
         // aber der Radius im Test stimmt nur ungefährt mit dem ursprünglichen überein
-        // vermutlich Probleme mit der norm-Berechnung?
+        // vermutlich Probleme mit der norm-Berechnung? radius = 2.061455835083547 statt 2.0
         //FIXME
         //double squaredSize = mvNumerator.gp(-1d/mvDenominator.norm_e2()).scalarPart();
-        return mvNumerator.gp(-1d/mvDenominator.squaredNorm()).scalarPart();
+        return mvNumerator.gp(-1d/mvDenominator.squaredNorm()).scalarPart(); 
+        //return mvNumerator.gp(-1d/(2d*mvDenominator.squaredNorm())).scalarPart(); // *2.0 aus Hildenbrand, wird noch falscher
     }
     
     /**
@@ -711,16 +723,25 @@ public class CGA1Multivector extends Multivector {
     // das könnte ich aber ändern
     //TODO
     /**
+     * Determine the squared weight of an CGA object.
+     * 
+     * @param attitude direction specific for the object form the multivector is representing
+     * @param probePoint If not specified use e0.
+     * @return squared weight
+     */
+    public static double decomposeSquaredWeight(CGA1Multivector attitude, CGA1Multivector probePoint){
+        CGA1Multivector A = probePoint.ip(attitude, LEFT_CONTRACTION);
+        return A.reverse().gp(A).scalarPart();
+    }
+    /**
+     * Determine the weight of an CGA object.
      * 
      * @param attitude direction specific for the object form the multivector is representing
      * @param probePoint If not specified use e0.
      * @return 
      */
     public static double decomposeWeight(CGA1Multivector attitude, CGA1Multivector probePoint){
-        // oder mit squaredNorm() bestimmen ?
-        //FIXME
-        CGA1Multivector A = probePoint.ip(attitude, LEFT_CONTRACTION);
-        return Math.sqrt(Math.abs(A.reverse().gp(A).scalarPart()));
+        return Math.sqrt(Math.abs(decomposeSquaredWeight(attitude, probePoint)));
     }
     
     /**

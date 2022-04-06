@@ -6,13 +6,14 @@ import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
 import de.orat.math.cga.util.Decomposition3d.PointPairParameters;
 import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;
 import de.orat.math.cga.impl2.generated.CGA;
+import de.orat.math.cga.spi.iCGAMultivector;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
+public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implements iCGAMultivector {
     
     //TODO
     // "1","e1","e2","e3","e4","e5","e12","e13","e14","e15","e23","e24","e25","e34","e35","e45","e123","e124","e125","e134","e135","e145","e234","e235","e245","e345","e1234","e1235","e1245","e1345","e2345","e12345"
@@ -39,10 +40,13 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
     
     // Operatoren
     
-    public CGA2Multivector add (CGA2Multivector b){
+    /*public CGA2Multivector add (CGA2Multivector b){
         return new CGA2Multivector (binop_Add (this, b));
-    }
-    public CGA2Multivector add (double b){
+    }*/
+    
+    
+    
+    /*public CGA2Multivector add (double b){
         return new CGA2Multivector (binop_adds (this, b));
     }
     public CGA2Multivector sub (CGA2Multivector b){
@@ -56,7 +60,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
     }
     public CGA2Multivector mul(double s){
         return new CGA2Multivector(binop_smul (s, this));
-    }
+    }*/
     public CGA2Multivector wedge(CGA2Multivector b){
         return new CGA2Multivector(binop_Wedge(this,b));
     }
@@ -174,8 +178,8 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
         return new CGA2Multivector(cga);
     }
     public static CGA2Multivector createPoint(Point3d p){
-        return (new CGA2Multivector(1,p.x)).add(new CGA2Multivector(2,p.y)).add(new CGA2Multivector(3,p.z)).
-                add((new CGA2Multivector(createEinf())).mul(0.5*(p.x*p.x+p.y*p.y+p.z*p.z))).add(new CGA2Multivector(createE0()));
+        return (CGA2Multivector) (new CGA2Multivector(1,p.x)).add(new CGA2Multivector(2,p.y)).add(new CGA2Multivector(3,p.z)).
+                add(new CGA2Multivector((createEinf())).mul(0.5*(p.x*p.x+p.y*p.y+p.z*p.z))).add(new CGA2Multivector(createE0()));
     }
     
     /*public CGA createPoint(Point3d p){
@@ -215,7 +219,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
                 CGA.binop_Wedge(CGA.binop_Wedge(createPoint(p1), createPoint(p2)), createPoint(p3))));
     }
     public static CGA2Multivector createSphere(Point3d o, double r){
-        return createPoint(o).sub(new CGA2Multivector(createEinf()).mul(0.5*r*r));
+        return (CGA2Multivector) createPoint(o).sub(new CGA2Multivector(createEinf()).mul(0.5*r*r));
     }
     public static CGA2Multivector createDualSphere(Point3d p1, Point3d p2, Point3d p3, Point3d p4){
         return new CGA2Multivector(CGA.unop_Dual(
@@ -350,11 +354,55 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA {
         return new Point3d(_mVec[1],_mVec[2],_mVec[3]);
     }
    
-    public Decomposition3d.RoundAndTangentParameters decomposeCircle(){
+    /*public RoundAndTangentParameters decomposeCircle(){
         //TODO
         Point3d m = null;
         Vector3d n = null;
         double Ic = get(4)+get(5);// euclidean bivector component factor = e0
-        return new Decomposition3d.RoundAndTangentParameters(n, m, Math.sqrt(CGA2Multivector.this.mul(this).get(0)/Ic));
+        return new Decomposition3d.RoundAndTangentParameters(n, m, Math.sqrt((CGA2Multivector) this.mul(this)).get(0)/Ic));
+    }*/
+
+    // implementation of iCGAMultivector 
+    
+    @Override
+    public iCGAMultivector add(iCGAMultivector b) {
+         return new CGA2Multivector (binop_Add (this, (CGA2Multivector) b));
+    }
+    @Override
+    public iCGAMultivector add (double b){
+        return new CGA2Multivector (binop_adds (this, b));
+    }
+    @Override
+    public iCGAMultivector sub (iCGAMultivector b){
+        return new CGA2Multivector (binop_Sub (this, (CGA2Multivector) b));
+    }
+    @Override
+    public iCGAMultivector sub (double b){
+        return new CGA2Multivector (binop_subs (this, b));
+    }
+    @Override
+    public iCGAMultivector mul(iCGAMultivector b){
+        return new CGA2Multivector(binop_Mul(this, (CGA2Multivector) b));
+    }
+    @Override
+    public iCGAMultivector mul(double s){
+        return new CGA2Multivector(binop_smul (s, this));
+    }
+    
+   
+
+    @Override
+    public iCGAMultivector wedge(iCGAMultivector b) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public iCGAMultivector vee(iCGAMultivector b) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public iCGAMultivector dot(iCGAMultivector b) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

@@ -24,18 +24,32 @@ public class CGA1Utils {
     public static final int IPNS = 0; // standard representation (inner product null space)
     public static final int OPNS = 1; // dual representation (outer product null space)
  
+    //public static enum BaseVectorNames {"no", "e1", "e2", "e3", "ni"};
+    
     public static final String[] baseVectorNames = {"no", "e1", "e2", "e3", "ni"};
     
     // representational space - Minkovski space
     public static Metric CGA_METRIC;
     static {
         try {
+            // Metric: [-1.0, 0.9999999999999998, 1.0, 1.0, 1.0]
             CGA_METRIC = new Metric(new double[][]{
                 {0.0, 0.0, 0.0, 0.0, -1.0},
                 {0.0, 1.0, 0.0, 0.0, 0.0},
                 {0.0, 0.0, 1.0, 0.0, 0.0},
                 {0.0, 0.0, 0.0 ,1.0, 0.0},
                 {-1.0, 0.0, 0.0 , 0.0, 0.0}});
+        } catch (MetricException e){}
+    }
+    public static Metric CGA2_METRIC;
+    static {
+        try {
+            CGA2_METRIC = new Metric(new double[][]{
+                {1.0, 0.0, 0.0, 0.0, 0.0},
+                {0.0, 1.0, 0.0, 0.0, 0.0},
+                {0.0, 0.0, 1.0, 0.0, 0.0},
+                {0.0, 0.0, 0.0 ,1.0, 0.0},
+                {0.0, 0.0, 0.0 , 0.0, -1.0}});
         } catch (MetricException e){}
     }
     private static CGA1Utils instance = null;
@@ -77,15 +91,15 @@ public class CGA1Utils {
         gradeCoordinatesMap.put(0,0);
         // vectors
         bitsetMap.put(1,1);
-        gradeCoordinatesMap.put(1,0); // n0
+        gradeCoordinatesMap.put(1,0); // n0 // gaalop e1
         bitsetMap.put(2,2);
-        gradeCoordinatesMap.put(2,1); // e1
+        gradeCoordinatesMap.put(2,1); // e1 // gaalop e2
         bitsetMap.put(4,3);
-        gradeCoordinatesMap.put(3,2); // e2
+        gradeCoordinatesMap.put(3,2); // e2 // gaalop e3
         bitsetMap.put(8,4);
-        gradeCoordinatesMap.put(4,3); // e3
+        gradeCoordinatesMap.put(4,3); // e3 // gaalop ni
         bitsetMap.put(16,5);
-        gradeCoordinatesMap.put(5,4); // ni
+        gradeCoordinatesMap.put(5,4); // ni / gaalop n0
         // bivectors
         bitsetMap.put(1+2,6);
         gradeCoordinatesMap.put(6,0);

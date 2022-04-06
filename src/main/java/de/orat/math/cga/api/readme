@@ -1,0 +1,33 @@
+Siehe Dorst2007 Seite 391 für eine Liste sinnvoller spezialisierter Klassen
+
+
+Hereʻs a sketch of how I solved this problem. I am using a kind of programming 
+syntax to describe the method. I rely heavily on projecting a point onto a line 
+using (P . L) / L. Projecting P onto L gives the point on L closest to P.
+
+1.      Start with lines L1 and L2, and make N1 the normal along L1. 
+        Hint: V1 = -e45 . L; N1 = V1 / Mag(V1).
+
+2.      Select P0 as an arbitrary point on L1. Hint: you can project eo onto L1; 
+        if you get 0 then eo is on L1, so you can set P0 = eo.
+
+3.      Make a translator T(s) = 1 - 0.5 * s * N1 * ei
+
+4.      define P1(s) = T(s) * P0 * Rev(T(s))
+// point P1(s) is on line L1
+
+5.      define P2(s) = (P1(s) << L2) / L2
+// point P2(s) is projection of P1(s) on line L2
+
+6.      define D(s) = -2 * (P1(s) . P2(s))
+// D(s) is the distance squared from P1(s) to P2(s)
+// D(s) should be a quadratic in s; d = axx + b*x + c
+
+7.      Solve for s at the minimum of D(s), which is the axis of the parabola at s = -0.5*b/a.
+
+8.      Evaluate P1(s) and P2(s) using the calculated s. These are your solution points.
+
+The resulting points should be normalized, providing that the points used to 
+construct L1 and L2 were normalized. This makes it easy to extract the 3D vectors, 
+but you might have a value for the ei component that is not 0.5vv. This is a bit 
+puzzling to me, but it does not seem to affect the validity of the points.

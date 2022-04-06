@@ -52,7 +52,7 @@ public class CGA2Utils {
      * @param l2
      * @return 
      */
-    public static double angle2(CGA2Multivector l1, CGA2Multivector l2){
+    /*public static double angle2(CGA2Multivector l1, CGA2Multivector l2){
         CGA2Multivector l1l2 = l1.mul(l2);
         CGA2Multivector x = l1l2.sub(CGA2Multivector.createE0().dot(l1l2).wedge(CGA2Multivector.createEinf()));
         CGA2Multivector y = CGA2Multivector.createE0().dot(l1l2);
@@ -62,7 +62,7 @@ public class CGA2Utils {
         // Teilen durch projection vom Grade 2 im Quadrat
         
         return 0d;
-    }
+    }*/
     
     /*public static void decomposeLinePair(CGA2Multivector l){
         double[] bivectors = l.getKBlade(2);
@@ -113,7 +113,7 @@ public class CGA2Utils {
     }
     
     public static void decompose2(CGA2Multivector l1, CGA2Multivector l2){
-        CGA2Multivector l1l2 = l1.mul(l2);
+        CGA2Multivector l1l2 = (CGA2Multivector) l1.mul(l2);
       
         double costheta = l1l2.extractCoordinates(0)[0];
         System.out.println("theta="+String.valueOf(Math.acos(costheta)*180/Math.PI));

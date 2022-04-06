@@ -2,6 +2,8 @@ package de.orat.math.cga.test;
 
 import de.orat.math.cga.impl1.CGA1Multivector;
 import de.orat.math.cga.impl1.CGA1Utils;
+import static de.orat.math.cga.impl1.CGA1Utils.CGA2_METRIC;
+import static de.orat.math.cga.impl1.CGA1Utils.CGA_METRIC;
 import de.orat.math.cga.util.Decomposition3d;
 import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;
@@ -19,6 +21,33 @@ public class Test2 {
     public Test2() {
     }
 
+    // Metric: [-1.0, 0.9999999999999998, 1.0, 1.0, 1.0]
+    public void testCGAMetric(){
+        System.out.println("------------------ Metric -----------");
+        double[] values = CGA_METRIC.getEigenMetric();
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i=0;i<values.length;i++){
+            sb.append(String.valueOf(values[i]));
+            sb.append(", ");
+        }
+        sb.append("]");
+        sb.delete(sb.length()-3, sb.length()-1);
+        System.out.println("CGA Metric: "+sb.toString());
+        
+        values = CGA2_METRIC.getEigenMetric();
+        sb = new StringBuilder();
+        sb.append("[");
+        for (int i=0;i<values.length;i++){
+            sb.append(String.valueOf(values[i]));
+            sb.append(", ");
+        }
+        sb.append("]");
+        sb.delete(sb.length()-3, sb.length()-1);
+        System.out.println("CGA CGA2_METRIC: "+sb.toString());
+        
+    }
+    
     public void testPlane(){
         System.out.println("---------------------- plane ----");
         Vector3d n = new Vector3d(0d,0d,1d);
@@ -50,9 +79,10 @@ public class Test2 {
         // radius = 1.7318198520631412 das ist falsch
         RoundAndTangentParameters rp2 = sphere.decomposeSphere();
         System.out.println("radius2 = "+String.valueOf(Math.sqrt(Math.abs(rp2.squaredSize()))));
+        System.out.println("radius2squared = "+String.valueOf(Math.abs(rp2.squaredSize())));
         
         // weight bestimmen
-        double weight = sphere.decomposeWeight(sphere.decomposeTangentAndRoundDirectionAsMultivector(), 
+        double weight = CGA1Multivector.decomposeWeight(sphere.decomposeTangentAndRoundDirectionAsMultivector(), 
                 CGA1Multivector.createBasisVectorE0());
         // weight=0.9999999999999989 richtig
         System.out.println("weight="+String.valueOf(weight));
@@ -64,7 +94,7 @@ public class Test2 {
         // Dorst2007: -einf*P = 1 stimmt? soll das die Normierung sein?
         System.out.println("-einf*sphere = "+
                 String.valueOf(-CGA1Multivector.createBasisVector(4).scp(sphere)));
-        // norm(p) = 1? ist aber fälschlicherweise 2
+        // norm(p) = 2 ist sollte das nicht 1 sein?
         System.out.println("norm(sphere) = "+String.valueOf(sphere.norm()));
         
     }
