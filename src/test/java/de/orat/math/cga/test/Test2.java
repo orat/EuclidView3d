@@ -105,16 +105,28 @@ public class Test2 {
         System.out.println("p=("+String.valueOf(p.x)+","+String.valueOf(p.y)+","+String.valueOf(p.z)+")");
         CGA1Multivector cp = CGA1Multivector.createPoint(p);
         System.out.println("cp="+cp.toString(CGA1Utils.baseVectorNames));
+        Vector3d a1 = cp.decomposeRound().attitude();
+        System.out.println("attitude=("+String.valueOf(a1.x)+", "+String.valueOf(a1.y)+", "+String.valueOf(a1.z)+")");
         Point3d p1 = cp.decomposeRound().location();
         System.out.println("location=("+String.valueOf(p1.x)+","+String.valueOf(p1.y)+","+String.valueOf(p1.z)+")");
+        // sollte aber 0 sein.
+        // squaredSize=-2.2512001600000007
+        double squaredSize = cp.decomposeRound().squaredSize();
+        System.out.println("squaredSize="+String.valueOf(squaredSize));
+        // weight sollte auch 1 sein
+        // weight=0.9999999999999976
+        CGA1Multivector attitude = cp.decomposeTangentAndRoundDirectionAsMultivector();
+        CGA1Multivector probePoint = CGA1Multivector.createPoint(new Point3d(0d,0d,0d));
+        double weight = CGA1Multivector.decomposeSquaredWeight(attitude, probePoint);
+        System.out.println("weight="+String.valueOf(weight));
     }
     
     // scheint zu funktionieren
-    // TODO Vergleich mit festen ERgebniszahlen einbauen etc.
+    // TODO Vergleich mit festen Ergebniszahlen einbauen etc.
     public void testSquareDistanceBetweenPoints(){
         System.out.println("--------------- square dist -------");
         Point3d p1 = new Point3d(0.02,0.02,1);
-        Point3d p2 = new Point3d(1,0.02,1);
+        Point3d p2 = new Point3d(2,0.02,1);
         System.out.println("distsquare="+String.valueOf(p2.distanceSquared(p1)));
         
         // die beiden Multivektoren brauchen scheinbar nicht normalisiert zu werden

@@ -20,6 +20,7 @@ import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
 import static de.orat.math.cga.impl1.CGA1Utils.CGA_METRIC;
+import de.orat.math.ga.basis.MeetJoin;
 
 /**
  * CGA Multivector reference implementation based on the reference implementation 
@@ -369,6 +370,9 @@ public class CGA1Multivector extends Multivector {
     public static CGA1Multivector createBasisVectorE0(){
         return CGA1Multivector.createBasisVector(0);
     }
+    public static CGA1Multivector createBasisVectorEinf(){
+        return CGA1Multivector.createBasisVector(4);
+    }
     public static CGA1Multivector createBasisVector(int idx, double s){
         if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector(Multivector.createBasisVector(idx, s));
@@ -529,7 +533,7 @@ public class CGA1Multivector extends Multivector {
      */
     private Vector3d decomposeTangentAndRoundDirection(){
         CGA1Multivector attitude = decomposeTangentAndRoundDirectionAsMultivector();
-        System.out.println("tangent(Eeinf)= "+attitude.toString(CGA1Utils.baseVectorNames));
+        //System.out.println("tangent(Eeinf)= "+attitude.toString(CGA1Utils.baseVectorNames));
         return attitude.extractDirectionFromEeinfRepresentation();
     }
     /**
@@ -760,12 +764,15 @@ public class CGA1Multivector extends Multivector {
     public double scp(CGA1Multivector x) {
         return super.scp(x, CGA_METRIC);
     }
-    public CGA1Multivector op(CGA1Multivector x) {
-       return new CGA1Multivector(super.op(x));
-    }
+    
     public CGA1Multivector ip(CGA1Multivector x, int type){
         return new CGA1Multivector(super.ip(x, CGA_METRIC, type));
     }
+    
+    public CGA1Multivector op(CGA1Multivector x) {
+       return new CGA1Multivector(super.op(x));
+    }
+    
     public CGA1Multivector gp(CGA1Multivector x){
         return new CGA1Multivector(super.gp(x));
     }
@@ -774,6 +781,9 @@ public class CGA1Multivector extends Multivector {
         return new CGA1Multivector(super.gp(a));
     }
     
+    public CGA1Multivector vee(CGA1Multivector x){
+        return dual().op(x.dual()).undual();
+    }
     /**
      * This plays an analogous role to transposition in matrix algebra.
      * 
@@ -818,6 +828,9 @@ public class CGA1Multivector extends Multivector {
     public CGA1Multivector generalInverse() {
         return new CGA1Multivector(super.generalInverse(CGA_METRIC));
     }
+    public CGA1Multivector conjugate(){
+        return new CGA1Multivector(super.cliffordConjugate());
+    }
     public CGA1Multivector dual() {
         return new CGA1Multivector(super.dual(CGA_METRIC));
     }
@@ -844,5 +857,14 @@ public class CGA1Multivector extends Multivector {
     }
     public double norm(){
         return super.norm_e(CGA_METRIC);
+    }
+    
+    public CGA1Multivector meet(CGA1Multivector b){
+        MeetJoin mj = new MeetJoin(this, b);
+        return new CGA1Multivector(mj.getMeet());
+    }
+    public CGA1Multivector join(CGA1Multivector b){
+        MeetJoin mj = new MeetJoin(this, b);
+        return new CGA1Multivector(mj.getJoin());
     }
 }
