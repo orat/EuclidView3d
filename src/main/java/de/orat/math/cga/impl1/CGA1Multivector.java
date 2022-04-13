@@ -815,11 +815,11 @@ public class CGA1Multivector extends Multivector {
         return new CGA1Multivector(super.exp(CGA_METRIC));
     }
     /**
-     * Grade inversion (is called involution in Dorst2007?) of the multivector.
+     * Grade inversion of the multivector.
      * 
      * This is also called "involution" in Dorst2007.
      * 
-     * @return grade inversion/involution of this 
+     * @return grade inversion/involution of this multivector
      */
     @Override
     public CGA1Multivector gradeInversion() {
@@ -827,6 +827,9 @@ public class CGA1Multivector extends Multivector {
     }
     public CGA1Multivector generalInverse() {
         return new CGA1Multivector(super.generalInverse(CGA_METRIC));
+    }
+    public CGA1Multivector div(CGA1Multivector x){
+        return this.gp(x.generalInverse());
     }
     public CGA1Multivector conjugate(){
         return new CGA1Multivector(super.cliffordConjugate());

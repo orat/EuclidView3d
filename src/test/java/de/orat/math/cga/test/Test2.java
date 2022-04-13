@@ -15,6 +15,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
+ * 
+ * For some features to work the IDE needs to associate each Maven NetBeans 
+ * module project with a NetBeans Platform/IDE that the module will be part of 
+ * at runtime. Such features include running/debugging the project, context 
+ * information in various nodes or wizards etc. To fix the problem, either open 
+ * the NetBeans platform application project that this project is part of (maven 
+ * packaging nbm-application) or define a property named netbeans.installation 
+ * in either the pom.xml file or ~/.m2/settings.xml file pointing to a binary 
+ * distribution of NetBeans.
  */
 public class Test2 {
     
