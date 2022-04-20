@@ -17,19 +17,19 @@ public class Plane extends Quad /*TranslucentQuadComposite*/ {
         //quad = new /*Translucent*/Quad(); 
      
         Coord3d coord3d = new Coord3d();
-        coord3d.add((float) location.x, (float) location.y, (float) location.z);
+        coord3d.set((float) location.x, (float) location.y, (float) location.z);
         Point firstPoint = new Point(coord3d, color);
 
         coord3d = new Coord3d();
-        coord3d.add((float) (location.x+dir1.x), (float) (location.y + dir1.y), (float) (location.z+dir1.z));
+        coord3d.set((float) (location.x+dir1.x), (float) (location.y + dir1.y), (float) (location.z+dir1.z));
         Point secondPoint = new Point(coord3d, color);
 
         coord3d = new Coord3d();
-        coord3d.add((float) (location.x+dir2.x+dir1.x), (float) (location.y + dir2.y+dir1.y), (float) (location.z+dir2.z+dir1.z));
+        coord3d.set((float) (location.x+dir2.x+dir1.x), (float) (location.y + dir2.y+dir1.y), (float) (location.z+dir2.z+dir1.z));
         Point thirdPoint = new Point(coord3d, color);
 
         coord3d = new Coord3d();
-        coord3d.add((float) (location.x+dir2.x), (float) (location.y + dir2.y), (float) (location.z+dir2.z));
+        coord3d.set((float) (location.x+dir2.x), (float) (location.y + dir2.y), (float) (location.z+dir2.z));
         Point forthPoint = new Point(coord3d, color);
 
         /*quad.*/add(firstPoint);
