@@ -102,24 +102,24 @@ public class CGA1Utils {
         gradeCoordinatesMap.put(5,4); // ni / gaalop n0
         // bivectors
         bitsetMap.put(1+2,6);
-        gradeCoordinatesMap.put(6,0);
+        gradeCoordinatesMap.put(6,0); // e01
         bitsetMap.put(1+4,7);
-        gradeCoordinatesMap.put(7,1);
+        gradeCoordinatesMap.put(7,1); // e02
         bitsetMap.put(1+8,8);
-        gradeCoordinatesMap.put(8,2);
+        gradeCoordinatesMap.put(8,2); // e03
         bitsetMap.put(1+16,9);
-        gradeCoordinatesMap.put(9,3);
+        gradeCoordinatesMap.put(9,3); // e04
         bitsetMap.put(2+4,10); // e12
         gradeCoordinatesMap.put(10,4);
         bitsetMap.put(2+8,11); // e13
         gradeCoordinatesMap.put(11,5);
-        bitsetMap.put(2+16,12);
+        bitsetMap.put(2+16,12); // e14
         gradeCoordinatesMap.put(12,6);
         bitsetMap.put(4+8,13); // e23
         gradeCoordinatesMap.put(13,7);
-        bitsetMap.put(4+16,14);
+        bitsetMap.put(4+16,14); // e24
         gradeCoordinatesMap.put(14,8);
-        bitsetMap.put(8+16,15);
+        bitsetMap.put(8+16,15); // e34
         gradeCoordinatesMap.put(15,9);
         //trivectors
         bitsetMap.put(1+2+4,16); //e012

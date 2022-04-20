@@ -174,7 +174,7 @@ public class Test2 {
         System.out.println("n1=("+String.valueOf(n.x)+","+String.valueOf(n.y)+","+String.valueOf(n.z)+")");
         
         CGA1Multivector l1dual = CGA1Multivector.createDualLine(p1, p2);
-        // line represented as tri-vector
+        // dual line represented as tri-vector
         // l1dual= 0.98*no^e1^ni - 0.0196*e1^e2^ni - 0.98*e1^e3^ni
         System.out.println("l1(dual)= "+l1dual.toString(CGA1Utils.baseVectorNames));
       
@@ -183,8 +183,10 @@ public class Test2 {
         // 5.551115123125783E-17*no^e2 - 1.734723475976807E-18*no^e3 + 0.9799999999999993*e2^e3 + 0.9799999999999995*e2^ni - 0.019599999999999985*e3^ni
         System.out.println("l1= "+l1.toString(CGA1Utils.baseVectorNames));
                 
-        FlatAndDirectionParameters flatParameters = l1.decomposeDualFlat(CGA1Multivector.createPoint(new Point3d()));
+        FlatAndDirectionParameters flatParameters = l1dual.decomposeDualFlat(CGA1Multivector.createPoint(new Point3d()));
         Vector3d attitude = flatParameters.attitude();
+        // sollte (0.98,0.0,0.0) sein
+        // ist aber attitude=-5.551115123125785E-17*e2 + 5.7777898331617076E-34*e3
         System.out.println("attitude=("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+
                 ", "+String.valueOf(attitude.z)+")");
         Point3d location = flatParameters.location();

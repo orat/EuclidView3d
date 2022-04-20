@@ -61,8 +61,7 @@ public class CGA {
 	/// CGA.Reverse : res = ~a
 	/// Reverse the order of the basis blades.
 	/// </summary>
-	public static CGA unop_Reverse (CGA a_param)
-	{
+	public static CGA unop_Reverse (CGA a_param){
 		double[] res = new double[CGA._basisLength];
 		double[] a = a_param._mVec;
 

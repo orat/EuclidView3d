@@ -96,6 +96,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
      * 
      * @return poincare duality operator
      */
+    @Override
     public CGA2Multivector dual(){
         return new CGA2Multivector(CGA.unop_Dual(this));
     }
@@ -126,6 +127,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
      * 
      * @return Cifford conjugate
      */
+    @Override
     public CGA2Multivector conjugate(){
         return new CGA2Multivector(super.Conjugate());
     }
@@ -140,6 +142,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
      * @return reverse the order of the basis blades
      * 
      */
+    @Override
     public CGA2Multivector reverse(){
         // ist involute wirklich reverse?
         
@@ -153,6 +156,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
      * 
      * @return main involution
      */
+    @Override
     public CGA2Multivector involute(){
          return new CGA2Multivector(super.Involute());
     }
@@ -251,6 +255,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
      * @param grade
      * @return 
      */
+    @Override
     public double[] extractCoordinates(int grade){
         switch (grade){
             case 0 -> {
@@ -292,31 +297,28 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
         
         double[] arr = new double[32];
         switch (grade){
-            case 0:
-                arr[0] = _mVec[0];
-                break;
-            case 1:
+            case 0 -> arr[0] = _mVec[0];
+            case 1 -> {
                 for (int i=1;i<=5;i++){
                     arr[i] = _mVec[i];
                 }
-                break;
-            case 2:
+            }
+            case 2 -> {
                 for (int i=6;i<=15;i++){
                     arr[i] = _mVec[i];
                 }
-                break;
-            case 3:
+            }
+            case 3 -> {
                 for (int i=16;i<=26;i++){
                     arr[i] = _mVec[i];
                 }
-                break;
-            case 4:
+            }
+            case 4 -> {
                 for (int i=26;i<=30;i++){
                     arr[i] = _mVec[i];
                 }
-                break;
-            case 5:
-                arr[31] = _mVec[31];
+            }
+            case 5 -> arr[31] = _mVec[31];
         }
         CGA result = new CGA(arr);
         return new CGA2Multivector(result);
@@ -396,13 +398,17 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    @Override
     public iCGAMultivector vee(iCGAMultivector b) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public iCGAMultivector dot(iCGAMultivector b) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public iCGAMultivector scp(iCGAMultivector b) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

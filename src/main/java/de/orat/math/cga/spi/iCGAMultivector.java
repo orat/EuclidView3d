@@ -8,6 +8,8 @@ import de.orat.math.cga.impl2.CGA2Multivector;
  */
 public interface iCGAMultivector {
     
+    // dual operators
+    
     public iCGAMultivector add (iCGAMultivector b);
     public iCGAMultivector add (double b);
     public iCGAMultivector sub (iCGAMultivector b);
@@ -15,12 +17,16 @@ public interface iCGAMultivector {
     public iCGAMultivector mul(iCGAMultivector b);
     public iCGAMultivector mul(double s);
     
+    // Produkte
     // äußeres Produkt
     public iCGAMultivector wedge(iCGAMultivector b);
-    // oben offen
-    public iCGAMultivector vee(iCGAMultivector b);
-    // innerproduct
+    // inneres Product
     public iCGAMultivector dot(iCGAMultivector b);
+    // Skalarprodukt
+    public iCGAMultivector scp(iCGAMultivector b);
+    
+    // monadic operators
+    
     public iCGAMultivector dual();
     public iCGAMultivector conjugate();
     public iCGAMultivector reverse();
