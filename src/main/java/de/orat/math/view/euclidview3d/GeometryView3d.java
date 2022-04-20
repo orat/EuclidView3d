@@ -195,7 +195,6 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f);
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE);
         
-        //FIXME plane wird nicht angezeigt
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED );
         
         addArrow(new Point3d(3d, 3d, 3d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN);
