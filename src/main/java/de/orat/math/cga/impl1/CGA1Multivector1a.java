@@ -135,10 +135,10 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
         if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector1a(Multivector.createBasisVector(idx, s));
     }
-    protected static CGA1Multivector1a createBasisVector(int idx) throws IllegalArgumentException {
+    /*protected static CGA1Multivector1a createBasisVector(int idx) throws IllegalArgumentException {
         if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector1a(Multivector.createBasisVector(idx));
-    }
+    }*/
     
     
     
@@ -240,7 +240,7 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
      * @throws java.lang.ArithmeticException if multivector is null.
      */
     @Override
-    public iCGAMultivector unit() {
+    public iCGAMultivector normalize() {
 	return new CGA1Multivector1a(super.unit_r(CGA_METRIC));
     }
     /**

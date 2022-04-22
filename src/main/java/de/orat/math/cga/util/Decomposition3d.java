@@ -9,7 +9,6 @@ import org.jogamp.vecmath.Vector3d;
 public class Decomposition3d {
     public record PointPairParameters(Point3d p1, Point3d p2){}
     
-    
     public record FlatAndDirectionParameters(Vector3d attitude, Point3d location){}
     
     /**
@@ -22,5 +21,4 @@ public class Decomposition3d {
     
     // statt location und atttitude, vielleciht besser location1 und location2?
     public record LinePairParameters(double alpha, Point3d location, Vector3d attitude){}
-    
 }

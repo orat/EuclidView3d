@@ -394,10 +394,10 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
         if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector(Multivector.createBasisVector(idx, s));
     }
-    protected static CGA1Multivector createBasisVector(int idx) throws IllegalArgumentException {
+    /*protected static CGA1Multivector createBasisVector(int idx) throws IllegalArgumentException {
         if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector(Multivector.createBasisVector(idx));
-    }
+    }*/
     public static CGA1Multivector createBasisVectorE3(){
         return CGA1Multivector.createBasisVectorEx(1d).
                 add(CGA1Multivector.createBasisVectorEy(1d)).
@@ -919,7 +919,7 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
      * @return unit
      * @throws java.lang.ArithmeticException if multivector is null.
      */
-    public CGA1Multivector unit() {
+    public CGA1Multivector normalize() {
 	return new CGA1Multivector(super.unit_r(CGA_METRIC));
     }
     /**

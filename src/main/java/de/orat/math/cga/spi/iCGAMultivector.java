@@ -1,7 +1,5 @@
 package de.orat.math.cga.spi;
 
-import static de.orat.math.cga.impl2.generated.CGA.binop_Mul;
-
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
@@ -26,20 +24,18 @@ public interface iCGAMultivector {
     public iCGAMultivector sub (double b);
     
     
-    // Produkte
+    // products
    
     public iCGAMultivector gp(double a);
     public iCGAMultivector gp(iCGAMultivector a);
     
-    // für die folgenden Produkte könnte ich vermutlich leicht default implementations
-    // ins interface mit aufnehmen
     //TODO
-    
+    // implement default implementations
     public iCGAMultivector ip(iCGAMultivector b, int type);
     public iCGAMultivector op(iCGAMultivector b);
     
     
-    // Skalarprodukt
+    // Scalarproduct
     public double scp(iCGAMultivector b);
     
              
@@ -47,6 +43,8 @@ public interface iCGAMultivector {
     
     public iCGAMultivector generalInverse();
     public iCGAMultivector dual();
+    //TODO
+    // implement default implementation
     public iCGAMultivector undual();
 
     public double scalarPart();
@@ -70,7 +68,7 @@ public interface iCGAMultivector {
      * @throws java.lang.ArithmeticException if multivector is null-vector
      * @return unit under 'reverse' norm (this / sqrt(abs(this.reverse(this))))
      */
-    default iCGAMultivector unit(){
+    default iCGAMultivector normalize(){
         double s = scp(reverse());
         if (s == 0.0) throw new java.lang.ArithmeticException("null multivector");
         else return this.gp(1 / Math.sqrt(Math.abs(s)));

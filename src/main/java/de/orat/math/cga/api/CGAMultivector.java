@@ -817,7 +817,7 @@ public class CGAMultivector {
     }
     
     public CGAMultivector normalize(){
-        return new CGAMultivector(impl.unit());
+        return new CGAMultivector(impl.normalize());
     }
     
     public CGAMultivector gradeInversion(){
