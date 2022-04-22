@@ -19,6 +19,7 @@ import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Sphere;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
+import org.jzy3d.plot3d.text.drawable.DrawableText;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
@@ -149,6 +150,20 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         chart.add(plane);
     }
     
+    /**
+     * Add a label with a text to the 3d view.
+     * 
+     * @param location the location of the label
+     * @param text the text of the label
+     * @param color color of the text
+     */
+    public void addLabel(Point3d location, String text, Color color){
+         Coord3d coord3d = new Coord3d();
+         coord3d.set((float) location.x, (float) location.y, (float) location.z);
+         DrawableText label = new DrawableText(text, coord3d, color);
+         chart.add(label);
+    }
+    
     
     /*public GeometryView3d(){
         
@@ -198,5 +213,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED );
         
         addArrow(new Point3d(3d, 3d, 3d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN);
+        
+        addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
     }
 }
