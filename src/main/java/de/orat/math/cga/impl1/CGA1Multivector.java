@@ -20,6 +20,7 @@ import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
 import static de.orat.math.cga.impl1.CGA1Utils.CGA_METRIC;
+import de.orat.math.cga.spi.iCGAMultivector;
 import de.orat.math.ga.basis.MeetJoin;
 import org.jogamp.vecmath.Quat4d;
 
@@ -29,7 +30,7 @@ import org.jogamp.vecmath.Quat4d;
  * 
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class CGA1Multivector extends Multivector {
+public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ {
    
     /** 
      * Creates a new instance of CGAMultivector.
@@ -151,7 +152,7 @@ public class CGA1Multivector extends Multivector {
      * @return dual sphere (inner product null space representation) as a multivector of grade 4.
      */
     public static CGA1Multivector createDualSphere(Point3d o, Point3d p){
-        return createPoint(p).ip(CGA1Multivector.createBasisVector(4).op(createPoint(o)), LEFT_CONTRACTION);
+        return createPoint(p).ip(CGA1Multivector.createBasisVectorEinf(1d).op(createPoint(o)), LEFT_CONTRACTION);
     }
     /**
      * Create dual sphere in outer product null space representation (grade 4 multivector).
@@ -233,7 +234,7 @@ public class CGA1Multivector extends Multivector {
      * @return conformal plane in outer product null space representation.
      */
     public static CGA1Multivector createDualPlane(CGA1Multivector p1, CGA1Multivector p2, CGA1Multivector p3){
-        return p1.op(p2).op(p3).op(CGA1Multivector.createBasisVector(4));
+        return p1.op(p2).op(p3).op(CGA1Multivector.createBasisVectorEinf(1d));
     }
     /**
      * Create a dual plane as a mid plane between two given result (in outer product
@@ -244,7 +245,7 @@ public class CGA1Multivector extends Multivector {
      * @return 
      */
     public static CGA1Multivector createDualPlane(CGA1Multivector p1, CGA1Multivector p2){
-        return CGA1Multivector.createBasisVector(4).op((p1.op(p2)).dual());
+        return CGA1Multivector.createBasisVectorEinf(1d).op((p1.op(p2)).dual());
     }
     /**
      * Create dual plane from a result on the plane an its normal vector (in outer product
@@ -257,7 +258,7 @@ public class CGA1Multivector extends Multivector {
     public static CGA1Multivector createDualPlane(Point3d p, Vector3d n){
         CGA1Multivector cp = createPoint(p);
         CGA1Multivector cn = createPoint(n);
-        return cp.ip(cn.op(CGA1Multivector.createBasisVector(4)), LEFT_CONTRACTION);
+        return cp.ip(cn.op(CGA1Multivector.createBasisVectorEinf(1d)), LEFT_CONTRACTION);
     }
     /**
      * Create line in inner product null space representation (grade 2 multivector).
@@ -296,7 +297,7 @@ public class CGA1Multivector extends Multivector {
      * in Dorst2007.
      */
     public static CGA1Multivector createDualLine(CGA1Multivector p1, CGA1Multivector p2){
-        return p1.op(p2).op(CGA1Multivector.createBasisVector(4));
+        return p1.op(p2).op(CGA1Multivector.createBasisVectorEinf(1d));
     }
     
     /**
@@ -364,33 +365,43 @@ public class CGA1Multivector extends Multivector {
      * @return the multivector representing the pseudoscalar
      */
     public static CGA1Multivector createPseudoscalar(){
-        return CGA1Multivector.createBasisVector(0).op(CGA1Multivector.createBasisVector(1))
-                .op(CGA1Multivector.createBasisVector(2)).op(CGA1Multivector.createBasisVector(3))
-                .op(CGA1Multivector.createBasisVector(4));
+        return CGA1Multivector.createBasisVectorOrigin(1d).op(CGA1Multivector.createBasisVectorEx(1d))
+                .op(CGA1Multivector.createBasisVectorEy(1d)).op(CGA1Multivector.createBasisVectorEz(1d))
+                .op(CGA1Multivector.createBasisVectorEinf(1d));
     }
     /**
      * Create origin base vector.
      * 
+     * @param scale
      * @return origin base vector.
      */
-    public static CGA1Multivector createBasisVectorE0(){
-        return CGA1Multivector.createBasisVector(0);
+    public static CGA1Multivector createBasisVectorOrigin(double scale){
+        return CGA1Multivector.createBasisVector(0, scale);
     }
-    public static CGA1Multivector createBasisVectorEinf(){
-        return CGA1Multivector.createBasisVector(4);
+    public static CGA1Multivector createBasisVectorEx(double scale){
+        return CGA1Multivector.createBasisVector(1, scale);
+    }
+    public static CGA1Multivector createBasisVectorEy(double scale){
+        return CGA1Multivector.createBasisVector(2, scale);
+    }
+    public static CGA1Multivector createBasisVectorEz(double scale){
+        return CGA1Multivector.createBasisVector(3, scale);
+    }
+    public static CGA1Multivector createBasisVectorEinf(double scale){
+        return CGA1Multivector.createBasisVector(4, scale);
     }
     public static CGA1Multivector createBasisVector(int idx, double s){
         if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector(Multivector.createBasisVector(idx, s));
     }
-    public static CGA1Multivector createBasisVector(int idx) throws IllegalArgumentException {
+    protected static CGA1Multivector createBasisVector(int idx) throws IllegalArgumentException {
         if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector(Multivector.createBasisVector(idx));
     }
     public static CGA1Multivector createBasisVectorE3(){
-        return CGA1Multivector.createBasisVector(1).
-                add(CGA1Multivector.createBasisVector(2)).
-                add(CGA1Multivector.createBasisVector(3));
+        return CGA1Multivector.createBasisVectorEx(1d).
+                add(CGA1Multivector.createBasisVectorEy(1d)).
+                add(CGA1Multivector.createBasisVectorEz(1d));
     }
     
     /**
@@ -403,7 +414,7 @@ public class CGA1Multivector extends Multivector {
      */
     public static CGA1Multivector createTangentVector(Point3d p, Vector3d u){
         CGA1Multivector cp = createPoint(p);
-        return cp.ip(cp.op(createPoint(u)).op(CGA1Multivector.createBasisVector(4)), LEFT_CONTRACTION);
+        return cp.ip(cp.op(createPoint(u)).op(CGA1Multivector.createBasisVectorEinf(1d)), LEFT_CONTRACTION);
     }
     
     /**
@@ -431,9 +442,9 @@ public class CGA1Multivector extends Multivector {
         return createVector(v1).op(createVector(v2)).op(createVector(v3));
     }
     public static CGA1Multivector createVector(Vector3d v){
-        return CGA1Multivector.createBasisVector(1,v.x)
-                .add(CGA1Multivector.createBasisVector(2,v.y))
-                .add(CGA1Multivector.createBasisVector(3,v.z));
+        return CGA1Multivector.createBasisVectorEx(v.x)
+                .add(CGA1Multivector.createBasisVectorEy(v.y))
+                .add(CGA1Multivector.createBasisVectorEz(v.z));
     }
     
     
@@ -453,7 +464,7 @@ public class CGA1Multivector extends Multivector {
         // use dualFlat in Dorst2007
         // damit bekomme ich die attitude in der Form E.op(einfM)
         // für attitude ist ein Vorzeichen nach Dorst2007 zu erwarten, scheint aber nicht zu stimmen
-        CGA1Multivector attitude = CGA1Multivector.createBasisVector(4).op(this).undual();
+        CGA1Multivector attitude = CGA1Multivector.createBasisVectorEinf(1d).op(this).undual();
         // attitude=-5.551115123125783E-17*no^e1^e2 + 0.9999999999999996*e1^e2^ni
         System.out.println("attitude="+String.valueOf(attitude.toString(CGA1Utils.baseVectorNames)));
                 
@@ -506,8 +517,8 @@ public class CGA1Multivector extends Multivector {
         // Vector3d attitude = dir.extractDirectionFromEeinfRepresentation();
         
         // Nach Kleppe2016
-        CGA1Multivector dir = ip(CGA1Multivector.createBasisVectorE0(), RIGHT_CONTRACTION).
-                ip(CGA1Multivector.createBasisVectorEinf(), RIGHT_CONTRACTION);
+        CGA1Multivector dir = ip(CGA1Multivector.createBasisVectorOrigin(1d), RIGHT_CONTRACTION).
+                ip(CGA1Multivector.createBasisVectorEinf(1d), RIGHT_CONTRACTION);
         // attitude=-0.9799999999999993*e1 statt (0.98,0.0,0.0) mit right contraction
         //FIXME Warum stimmt das Vorzeichen nicht?
         System.out.println("attitude Kleppe="+dir.toString(CGA1Utils.baseVectorNames)); 
@@ -540,8 +551,8 @@ public class CGA1Multivector extends Multivector {
     
     public CGA1Multivector decomposeTangentAndRoundDirectionAsMultivector(){
         // ungetestet
-        CGA1Multivector einfM = CGA1Multivector.createBasisVector(4,-1d);
-        CGA1Multivector einf = CGA1Multivector.createBasisVector(4);
+        CGA1Multivector einfM = CGA1Multivector.createBasisVectorEinf(-1d);
+        CGA1Multivector einf = CGA1Multivector.createBasisVectorEinf(1d);
         return new CGA1Multivector(einfM.ip(this.undual(), LEFT_CONTRACTION).op(einf));
     }
     /**
@@ -564,7 +575,7 @@ public class CGA1Multivector extends Multivector {
      * @return direction
      */
     private Vector3d decomposeDualTangentAndRoundDirection(){
-        CGA1Multivector einf = CGA1Multivector.createBasisVector(4);
+        CGA1Multivector einf = CGA1Multivector.createBasisVectorEinf(1d);
         CGA1Multivector attitude = new CGA1Multivector(einf.ip(this, LEFT_CONTRACTION).op(einf));
         Vector3d result = attitude.extractDirectionFromEeinfRepresentation();
         //FIXME
@@ -612,7 +623,7 @@ public class CGA1Multivector extends Multivector {
         // Vorzeichen wird unten gedreht
         // das sollte aber ein normalized dual sphere ergeben
         CGA1Multivector location = 
-                gp(CGA1Multivector.createBasisVector(4).ip(this, LEFT_CONTRACTION).generalInverse());
+                gp(CGA1Multivector.createBasisVectorEinf(1d).ip(this, LEFT_CONTRACTION).generalInverse());
         // das ergibt einen reinen vector (1-blade)
         System.out.println("location1="+location.toString(CGA1Utils.baseVectorNames));
         /*double[] vector = location.extractCoordinates(1);
@@ -620,8 +631,8 @@ public class CGA1Multivector extends Multivector {
         result.negate();*/
         
         // Hildenbrand2004 (Tutorial)
-        location = gp(CGA1Multivector.createBasisVector(4)).gp(this).div(
-                (CGA1Multivector.createBasisVector(4).ip(this, LEFT_CONTRACTION)).sqr()).gp(-0.5);
+        location = gp(CGA1Multivector.createBasisVectorEinf(1d)).gp(this).div(
+                (CGA1Multivector.createBasisVectorEinf(1d).ip(this, LEFT_CONTRACTION)).sqr()).gp(-0.5);
         System.out.println("location="+location.toString(CGA1Utils.baseVectorNames));
         double[] vector = location.extractCoordinates(1);
         Point3d result = new Point3d(vector[1], vector[2], vector[3]);
@@ -686,7 +697,7 @@ public class CGA1Multivector extends Multivector {
      */
     private double roundSquaredSize(){
         CGA1Multivector mvNumerator = gp(gradeInversion());
-        CGA1Multivector mvDenominator = CGA1Multivector.createBasisVector(4).ip(this, LEFT_CONTRACTION);
+        CGA1Multivector mvDenominator = CGA1Multivector.createBasisVectorEinf(1d).ip(this, LEFT_CONTRACTION);
         
         // (-) d.h. das ist die Formel für dual-round nach Dorst2007. Das sieht also
         // richtig aus.
@@ -719,10 +730,10 @@ public class CGA1Multivector extends Multivector {
         
         // X soll eine sum aus 1- und 2-blade sein
         // falsch da sind auch zwei 4-blades mit drin
-        CGA1Multivector n0 = CGA1Multivector.createBasisVector(0);
-        CGA1Multivector ni = CGA1Multivector.createBasisVector(4);
+        CGA1Multivector n0 = CGA1Multivector.createBasisVectorOrigin(1d);
+        CGA1Multivector ni = CGA1Multivector.createBasisVectorEinf(1d);
         CGA1Multivector X = sub(n0.ip(
-                this, LEFT_CONTRACTION).op(CGA1Multivector.createBasisVector(4)));
+                this, LEFT_CONTRACTION).op(CGA1Multivector.createBasisVectorEinf(1d)));
         System.out.println("X="+X.toString(CGA1Utils.baseVectorNames));
         
         // scheint korrekt sum aus 3- und 1-blade
@@ -931,4 +942,5 @@ public class CGA1Multivector extends Multivector {
         MeetJoin mj = new MeetJoin(this, b);
         return new CGA1Multivector(mj.getJoin());
     }
+
 }

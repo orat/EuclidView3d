@@ -9,6 +9,7 @@ import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;
 import de.orat.math.ga.basis.Multivector;
 import org.jogamp.vecmath.Point3d;
+import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,7 +93,7 @@ public class Test2 {
         
         // weight bestimmen
         double weight = CGA1Multivector.decomposeWeight(sphere.decomposeTangentAndRoundDirectionAsMultivector(), 
-                CGA1Multivector.createBasisVectorE0());
+                CGA1Multivector.createBasisVectorOrigin(1d));
         // weight=0.9999999999999989 richtig
         System.out.println("weight="+String.valueOf(weight));
         
@@ -102,7 +103,7 @@ public class Test2 {
         
         // Dorst2007: -einf*P = 1 stimmt? soll das die Normierung sein?
         System.out.println("-einf*sphere = "+
-                String.valueOf(-CGA1Multivector.createBasisVector(4).scp(sphere)));
+                String.valueOf(-CGA1Multivector.createBasisVectorEinf(1d).scp(sphere)));
         // norm(p) = 2 ist sollte das nicht 1 sein?
         System.out.println("norm(sphere) = "+String.valueOf(sphere.norm()));
         
@@ -154,11 +155,11 @@ public class Test2 {
      */
     public void testLine() {
         System.out.println("-------------- line --------");
-        Multivector no = Multivector.createBasisVector(0);
-        Multivector e1 = Multivector.createBasisVector(1);
-        Multivector e2 = Multivector.createBasisVector(2);
-        Multivector e3 = Multivector.createBasisVector(3);
-        Multivector ni = Multivector.createBasisVector(4);
+        /*Multivector no = Multivector.createBasisVectorOrigin(1d);
+        Multivector e1 = Multivector.createBasisVectorEx(1d);
+        Multivector e2 = Multivector.createBasisVectorEy(1d);
+        Multivector e3 = Multivector.createBasisVectorEz(1d);
+        Multivector ni = Multivector.createBasisVectorEinf(1d);*/
         
         Point3d p1 = new Point3d(0.02,0.02,1);
         System.out.println("p1=("+String.valueOf(p1.x)+","+String.valueOf(p1.y)+","+String.valueOf(p1.z)+")");
@@ -181,8 +182,9 @@ public class Test2 {
         CGA1Multivector l1 = l1dual.undual();
         // line represented as bivector
         // 5.551115123125783E-17*no^e2 - 1.734723475976807E-18*no^e3 + 0.9799999999999993*e2^e3 + 0.9799999999999995*e2^ni - 0.019599999999999985*e3^ni
+        // 0.979993*e2^e3 + 0.979999995*e2^ni - 0.0195999985*e3^ni
         System.out.println("l1= "+l1.toString(CGA1Utils.baseVectorNames));
-                
+        
         FlatAndDirectionParameters flatParameters = l1dual.decomposeDualFlat(CGA1Multivector.createPoint(new Point3d()));
         Vector3d attitude = flatParameters.attitude();
         // sollte (0.98,0.0,0.0) sein
@@ -198,11 +200,11 @@ public class Test2 {
     
         System.out.println("-------------- linepair --------");
         
-        Multivector no = Multivector.createBasisVector(0);
+        /*Multivector no = Multivector.createBasisVector(0);
         Multivector e1 = Multivector.createBasisVector(1);
         Multivector e2 = Multivector.createBasisVector(2);
         Multivector e3 = Multivector.createBasisVector(3);
-        Multivector ni = Multivector.createBasisVector(4);
+        Multivector ni = Multivector.createBasisVector(4);*/
         
         Point3d p1 = new Point3d(0.02,0.02,1);
         CGA1Multivector cp1 = CGA1Multivector.createPoint(p1);

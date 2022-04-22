@@ -23,20 +23,22 @@ public class CGA2Utils {
      */
     public static double angle(CGA2Multivector l1, CGA2Multivector l2){
         // Richtungsvektor von l1
-        CGA2Multivector a = (l1.dot(CGA2Multivector.createE0())).dot(CGA2Multivector.createEinf());
+        CGA2Multivector a = (l1.ip(CGA2Multivector.defaultInstance.createBasisVectorOrigin(1d))).ip(
+                CGA2Multivector.defaultInstance.createBasisVectorEinf(1d));
         System.out.println("a:\n"+a.toString());
         
         //FIXME bereits bei a sind alle Komponenten = 0
         
-        CGA2Multivector b = l2.dot(CGA2Multivector.createE0()).dot(CGA2Multivector.createEinf());
+        CGA2Multivector b = l2.ip(CGA2Multivector.defaultInstance.createBasisVectorOrigin(1d)).ip(
+                CGA2Multivector.defaultInstance.createBasisVectorEinf(1d));
         System.out.println("b:\n"+b.toString());
         CGA2Multivector an = new CGA2Multivector(a.normalized());
         CGA2Multivector bn = new CGA2Multivector(b.normalized());
         
-        CGA2Multivector nn = new CGA2Multivector(bn.wedge(an).normalized());
+        CGA2Multivector nn = new CGA2Multivector(bn.op(an).normalized());
         System.out.println("nn:\n"+nn.toString());
-        CGA2Multivector y = a.wedge(b).dot(nn);
-        CGA2Multivector x = a.dot(b);
+        CGA2Multivector y = a.op(b).ip(nn);
+        CGA2Multivector x = a.ip(b);
         System.out.println("y:\n"+y.toString());
         System.out.println("x:\n"+y.toString());
         
@@ -113,7 +115,7 @@ public class CGA2Utils {
     }
     
     public static void decompose2(CGA2Multivector l1, CGA2Multivector l2){
-        CGA2Multivector l1l2 = (CGA2Multivector) l1.mul(l2);
+        CGA2Multivector l1l2 = (CGA2Multivector) l1.gp(l2);
       
         double costheta = l1l2.extractCoordinates(0)[0];
         System.out.println("theta="+String.valueOf(Math.acos(costheta)*180/Math.PI));

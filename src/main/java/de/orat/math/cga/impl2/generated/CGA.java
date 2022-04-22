@@ -54,8 +54,6 @@ public class CGA {
 		this._mVec[idx] = value;
 	}
 
-
-
 	/// <summary>
 	/// unary operator
 	/// CGA.Reverse : res = ~a
