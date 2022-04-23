@@ -19,6 +19,7 @@ import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Sphere;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
+import org.jzy3d.plot3d.text.drawable.DrawableText;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
@@ -26,6 +27,7 @@ import org.jzy3d.plot3d.rendering.lights.Light;
 public class GeometryView3d extends AWTAbstractAnalysis {
 
     //private Chart chart;
+    private final float labelOffset = 0.5f;
     
     public static void main(String[] args) throws Exception {
         AnalysisLauncher.open(new GeometryView3d());
@@ -39,14 +41,17 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param location locattion of the point
      * @param color color of the point
      * @param width width of the point
+     * @param label the text of the label of the point
      */
-    public void addPoint(Point3d location, Color color, float width){
+    public void addPoint(Point3d location, Color color, float width, String label){
         //double radius = 0.6;
         Sphere sphere = new Sphere(new Coord3d(location.x,location.x,location.z),(float) (width/2), 20, color);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeDisplayed(false);
         //Point point = new Point(new Coord3d(location.x,location.x,location.z), color, width);
         chart.add(sphere);
+        Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - labelOffset);
+        addLabel(labelLocation,label, Color.BLACK);
     }
     
     /**
@@ -55,13 +60,16 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param location
      * @param squaredSize
      * @param color 
+     * @param label the text of the label of the sphere
      */
-    public void addSphere(Point3d location, double squaredSize, Color color){
+    public void addSphere(Point3d location, double squaredSize, Color color, String label){
         Sphere sphere = new Sphere(new Coord3d(location.x,location.x,location.z),
                 (float) Math.sqrt(Math.abs(squaredSize)),10, color);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
         chart.add(sphere);
+        Point3d labelLocation = new Point3d(location.x,location.y, location.z - Math.sqrt(Math.abs(squaredSize)) - labelOffset);
+        addLabel(labelLocation, label, Color.BLACK);
     }
   
     /**
@@ -125,13 +133,16 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param length length of the arrow
      * @param radius radius of the arrow
      * @param color color of the arrow
+     * * @param label the text of the label of the arrow
      */
-    public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color){
+    public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color, String label){
         Arrow arrow = new Arrow();
         arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
                     new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color);
         arrow.setWireframeDisplayed(false);
         chart.add(arrow);
+        Point3d labelLocation = new Point3d(location.x, location.y - radius - labelOffset, location.z);
+        addLabel(labelLocation, label, Color.BLACK);
     }
     /**
      * Add a plane to the 3d view.
@@ -140,13 +151,37 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param dir1 vector which is added to the first point to get the second point
      * @param dir2 vector which is added to the second point to get the third point and which is added to the location to get the forth point
      * @param color color of the plane
+     * @param label the text of the label of the plane
      */
-    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, Color color){
+    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, Color color, String label){
         Plane plane = new Plane();
         plane.setData(location, dir1, dir2, color);
         plane.setPolygonOffsetFillEnable(false);
         plane.setWireframeDisplayed(true);
         chart.add(plane);
+        Coord3d lowestPoint = plane.getCoordArray()[0];
+        for(Coord3d coord: plane.getCoordArray()){
+            if(coord.z < lowestPoint.z){
+                lowestPoint = coord;
+            }
+        }
+        Point3d labelLocation = new Point3d(lowestPoint.x, lowestPoint.y, lowestPoint.z - labelOffset);
+        addLabel(labelLocation, label, Color.BLACK);
+        
+    }
+    
+    /**
+     * Add a label with a text to the 3d view.
+     * 
+     * @param location the location of the label
+     * @param text the text of the label
+     * @param color color of the text
+     */
+    public void addLabel(Point3d location, String text, Color color){
+         Coord3d coord3d = new Coord3d();
+         coord3d.set((float) location.x, (float) location.y, (float) location.z);
+         DrawableText label = new DrawableText(text, coord3d, color);
+         chart.add(label);
     }
     
     
@@ -192,11 +227,13 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         //Light light = chart.addLightOnCamera();
         Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         
-        addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f);
-        addSphere(new Point3d(20,20,20), 10, Color.ORANGE);
+        addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
+        addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
-        addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED );
+        addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         
-        addArrow(new Point3d(3d, 3d, 3d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN);
+        addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
+        
+        addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
     }
 }
