@@ -133,7 +133,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param length length of the arrow
      * @param radius radius of the arrow
      * @param color color of the arrow
-     * * @param label the text of the label of the arrow
+     * @param label the text of the label of the arrow
      */
     public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color, String label){
         Arrow arrow = new Arrow();
