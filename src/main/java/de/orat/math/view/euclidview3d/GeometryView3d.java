@@ -109,20 +109,68 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * 
      * @param origin origin of the circle
      * @param direction normal vector of the plane the circle lays in
+     * @param radius radius of the circle
      * @param color color of the circle
      */
-    public void addCircle(Point3d origin, Vector3d direction, Color color){
-        int slices;
-        int rings = 100;
+    public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color){
+        float rings = 100.f;
         CroppableLineStrip lineStrip = new CroppableLineStrip();
+        //get the orthogonal vectors to the direction to get the plane for the circle
+        direction.normalize();
+        Vector3d[] plane = getOrthogonalsToDirection(direction);
+        Coord3d p1 = new Coord3d(origin.x+plane[1].x, origin.y+plane[1].y, origin.z+plane[1].z);
+        //Calculate the first point from the circle. Scale the vector between the origin and a point p1 on the plane to the radius.
+        Vector3d vec_p1_origin = new Vector3d(p1.x-origin.x, p1.y-origin.y, p1.z-origin.z);
+        double length = vec_p1_origin.length();
+        float ratio = (float) radius/ (float) length;
+        vec_p1_origin.scale(ratio);
+        //rotate the first point around the direction and the points to the strip
+        Coord3d firstPoint = new Coord3d(origin.x+vec_p1_origin.x, origin.y+vec_p1_origin.y, origin.z+vec_p1_origin.z);
+        Coord3d rotateAround = new Coord3d(direction.x, direction.y, direction.z);
+        float rotationStep = 360.f/rings;
+        float degree_now = 0;
         for (int i=0;i<rings;i++){
-            //TODO
+            lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
+            degree_now += rotationStep;
         }
-        //lineStrip.setWireframeColor(Color.BLACK);
-        //lineStrip.add(new Point( new Coord3d(p1.x,p1.y,p1.z)));
-        //lineStrip.add(new Point( new Coord3d(p2.x,p2.y,p2.z)));
+        lineStrip.setWireframeColor(color);
         chart.add(lineStrip);
         
+    }
+    
+    /**Calculates the orthogonal vectors to a normalized vector
+     * 
+     * @param direction the vector to which the orthogonal vectors should be calculated
+     * @return the orthogonal basis with the direction and its 2 orthogonal vectors
+     */
+    private Vector3d[] getOrthogonalsToDirection(Vector3d direction){
+        Vector3d[] orthogonals = new Vector3d[3];
+        orthogonals[0] = direction;
+        int smalest = 0;
+        float smalest_value = (float) direction.x; 
+        if(smalest_value > direction.y){
+            smalest = 1; 
+            smalest_value = (float) direction.y;
+        }
+        if(smalest_value > direction.z){
+            smalest = 2; 
+            smalest_value = (float) direction.z;
+        }
+        Vector3d w = new Vector3d(1,0,0);
+        if(smalest == 0){
+            w = new Vector3d(1,0,0);
+        } else if(smalest == 1){
+            w = new Vector3d(0,1,0);
+        } else {
+            w = new Vector3d(0,0,1);
+        }
+        Vector3d u = new Vector3d(0,0,0);
+        u.cross(w, direction);
+        orthogonals[1] = u;
+        Vector3d v = new Vector3d(0,0,0);
+        v.cross(direction, u);
+        orthogonals[2] = v;
+        return orthogonals;
     }
     
     /**
@@ -227,7 +275,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         //Light light = chart.addLightOnCamera();
         Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         
-        addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
+        //addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
@@ -235,5 +283,8 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         
         addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
+        addCircle(new Point3d(0,0,0), new Vector3d(0,0,1),5,Color.RED);
     }
+    
+    
 }
