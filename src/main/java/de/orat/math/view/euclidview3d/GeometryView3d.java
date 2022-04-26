@@ -128,11 +128,12 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         Coord3d firstPoint = new Coord3d(origin.x+vec_p1_origin.x, origin.y+vec_p1_origin.y, origin.z+vec_p1_origin.z);
         Coord3d rotateAround = new Coord3d(direction.x, direction.y, direction.z);
         float rotationStep = 360.f/rings;
-        float degree_now = 0;
+        float degree_now = 0.f;
         for (int i=0;i<rings;i++){
             lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
             degree_now += rotationStep;
         }
+        lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
         lineStrip.setWireframeColor(color);
         chart.add(lineStrip);
         
