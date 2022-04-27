@@ -81,11 +81,11 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param radius
      * @param length weglassen und die Länge anhand des Volumens der view bestimmen
      */
-    public void addLine(Vector3d attitude, Point3d location, Color color, float radius, float length){
+    public void addLine(Vector3d attitude, Point3d location, Color color, float radius, float length, String label){
         addLine(location, 
             new Point3d(location.x+attitude.x*length, 
                         location.y+attitude.y*length, 
-                        location.z+attitude.z*length), radius, color);
+                        location.z+attitude.z*length), radius, color, label);
     }
     
     /**
@@ -94,14 +94,19 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param p1 start point of the cylinder
      * @param p2 end point of the cylinder
      * @param radius radius of the cylinder
-     * @param color 
+     * @param color color of the line
+     * @param label the label of the line
      */
-    public void addLine(Point3d p1, Point3d p2, float radius, Color color){
+    public void addLine(Point3d p1, Point3d p2, float radius, Color color, String label){
         org.jzy3d.maths.Vector3d vec = 
                 new org.jzy3d.maths.Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
         Line line = new Line();
         line.setData(vec, radius, 10, 0, color);
         chart.add(line);
+        Vector3d negative_direction = new Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
+        negative_direction.scale((2*labelOffset)/negative_direction.length());
+        Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
+        addLabel(labelLocation, label, Color.BLACK);
     }
     
     /**
@@ -112,7 +117,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param radius radius of the circle
      * @param color color of the circle
      */
-    public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color){
+    public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color, String label){
         float rings = 100.f;
         CroppableLineStrip lineStrip = new CroppableLineStrip();
         //get the orthogonal vectors to the direction to get the plane for the circle
@@ -136,7 +141,11 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
         lineStrip.setWireframeColor(color);
         chart.add(lineStrip);
-        
+        Vector3d origin_firstPoint = new Vector3d(origin.x+firstPoint.x, origin.y+firstPoint.y, origin.z+firstPoint.z);
+        ratio = (float) (labelOffset+origin_firstPoint.length())/(float) origin_firstPoint.length();
+        vec_p1_origin.scale(ratio);
+        Point3d labelLocation = new Point3d(p1.x+vec_p1_origin.x, p1.y+vec_p1_origin.y,p1.z+vec_p1_origin.z);
+        addLabel(labelLocation, label, Color.BLACK);
     }
     
     /**Calculates the orthogonal vectors to a normalized vector
@@ -276,7 +285,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         //Light light = chart.addLightOnCamera();
         Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         
-        //addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
+        addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
@@ -284,8 +293,9 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         
         addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
-        addCircle(new Point3d(0,0,0), new Vector3d(0,0,1),5,Color.RED);
+        addCircle(new Point3d(0,0,0), new Vector3d(0,0,1),5,Color.RED, "Circle");
+        
+        addLine(new Vector3d(0d,0d,-1d), new Point3d(-4d,-4d,-4d), Color.CYAN, 0.2f, 10f, "Linie");
     }
-    
-    
+       
 }
