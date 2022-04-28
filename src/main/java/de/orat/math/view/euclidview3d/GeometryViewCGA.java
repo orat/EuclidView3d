@@ -50,6 +50,7 @@ public class GeometryViewCGA extends GeometryView3d {
      * 
      * @param attitude
      * @param location 
+     * @param label 
      */
     public void addLine(Vector3d attitude, Point3d location, String label){
         //FIXME

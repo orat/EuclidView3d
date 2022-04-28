@@ -115,8 +115,10 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param direction normal vector of the plane the circle lays in
      * @param radius radius of the circle
      * @param color color of the circle
+     * @param label
      */
-    public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color, String label){
+    public void addCircle(Point3d origin, Vector3d direction, float radius, 
+                          Color color, String label){
         float rings = 100.f;
         CroppableLineStrip lineStrip = new CroppableLineStrip();
         //get the orthogonal vectors to the direction to get the plane for the circle
@@ -143,11 +145,14 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         Vector3d origin_firstPoint = new Vector3d(origin.x+firstPoint.x, origin.y+firstPoint.y, origin.z+firstPoint.z);
         ratio = (float) (labelOffset+origin_firstPoint.length())/(float) origin_firstPoint.length();
         vec_p1_origin.scale(ratio);
-        Point3d labelLocation = new Point3d(p1.x+vec_p1_origin.x, p1.y+vec_p1_origin.y,p1.z+vec_p1_origin.z);
-        addLabel(labelLocation, label, Color.BLACK);
+        if (label != null){
+            Point3d labelLocation = new Point3d(p1.x+vec_p1_origin.x, p1.y+vec_p1_origin.y,p1.z+vec_p1_origin.z);
+            addLabel(labelLocation, label, Color.BLACK);
+        }
     }
     
-    /**Calculates the orthogonal vectors to a normalized vector
+    /**
+     * Calculates the orthogonal vectors to a normalized vector
      * 
      * @param direction the vector to which the orthogonal vectors should be calculated
      * @return the orthogonal basis with the direction and its 2 orthogonal vectors
@@ -157,22 +162,19 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         orthogonals[0] = direction;
         int smalest = 0;
         float smalest_value = (float) direction.x; 
-        if(smalest_value > direction.y){
+        if (smalest_value > direction.y){
             smalest = 1; 
             smalest_value = (float) direction.y;
         }
-        if(smalest_value > direction.z){
+        if (smalest_value > direction.z){
             smalest = 2; 
-            smalest_value = (float) direction.z;
+            //smalest_value = (float) direction.z;
         }
-        Vector3d w = new Vector3d(1,0,0);
-        if(smalest == 0){
-            w = new Vector3d(1,0,0);
-        } else if(smalest == 1){
-            w = new Vector3d(0,1,0);
-        } else {
-            w = new Vector3d(0,0,1);
-        }
+        Vector3d w = switch (smalest) {
+            case 0 -> new Vector3d(1,0,0);
+            case 1 -> new Vector3d(0,1,0);
+            default -> new Vector3d(0,0,1);
+        };
         Vector3d u = new Vector3d(0,0,0);
         u.cross(w, direction);
         orthogonals[1] = u;
