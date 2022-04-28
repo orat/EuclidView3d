@@ -2,12 +2,7 @@ package de.orat.math.view.euclidview3d;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.analysis.AWTAbstractAnalysis;
-import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
-import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.factories.AWTChartFactory;
-import org.jzy3d.chart.factories.ChartFactory;
-import org.jzy3d.chart.factories.NewtChartFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
@@ -15,7 +10,6 @@ import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.Plane;
-import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Sphere;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
@@ -41,7 +35,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param location locattion of the point
      * @param color color of the point
      * @param width width of the point
-     * @param label the text of the label of the point
+     * @param label the text of the label of the point, null if no label needed
      */
     public void addPoint(Point3d location, Color color, float width, String label){
         //double radius = 0.6;
@@ -50,8 +44,10 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         sphere.setWireframeDisplayed(false);
         //Point point = new Point(new Coord3d(location.x,location.x,location.z), color, width);
         chart.add(sphere);
-        Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - labelOffset);
-        addLabel(labelLocation,label, Color.BLACK);
+        if (label != null){
+            Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - labelOffset);
+            addLabel(labelLocation,label, Color.BLACK);
+        }
     }
     
     /**
@@ -60,7 +56,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param location
      * @param squaredSize
      * @param color 
-     * @param label the text of the label of the sphere
+     * @param label the text of the label of the sphere, null if no label needed
      */
     public void addSphere(Point3d location, double squaredSize, Color color, String label){
         Sphere sphere = new Sphere(new Coord3d(location.x,location.x,location.z),
@@ -68,8 +64,10 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
         chart.add(sphere);
-        Point3d labelLocation = new Point3d(location.x,location.y, location.z - Math.sqrt(Math.abs(squaredSize)) - labelOffset);
-        addLabel(labelLocation, label, Color.BLACK);
+        if (label != null){
+            Point3d labelLocation = new Point3d(location.x,location.y, location.z - Math.sqrt(Math.abs(squaredSize)) - labelOffset);
+            addLabel(labelLocation, label, Color.BLACK);
+        }
     }
   
     /**
@@ -94,7 +92,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param p1 start point of the cylinder
      * @param p2 end point of the cylinder
      * @param radius radius of the cylinder
-     * @param color 
+     * @param color color
      */
     public void addLine(Point3d p1, Point3d p2, float radius, Color color){
         org.jzy3d.maths.Vector3d vec = 
@@ -133,7 +131,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param length length of the arrow
      * @param radius radius of the arrow
      * @param color color of the arrow
-     * @param label the text of the label of the arrow
+     * @param label the text of the label of the arrow, null if no label needed
      */
     public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color, String label){
         Arrow arrow = new Arrow();
@@ -141,8 +139,10 @@ public class GeometryView3d extends AWTAbstractAnalysis {
                     new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color);
         arrow.setWireframeDisplayed(false);
         chart.add(arrow);
-        Point3d labelLocation = new Point3d(location.x, location.y - radius - labelOffset, location.z);
-        addLabel(labelLocation, label, Color.BLACK);
+        if (label != null){
+            Point3d labelLocation = new Point3d(location.x, location.y - radius - labelOffset, location.z);
+            addLabel(labelLocation, label, Color.BLACK);
+        }
     }
     /**
      * Add a plane to the 3d view.
@@ -151,7 +151,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param dir1 vector which is added to the first point to get the second point
      * @param dir2 vector which is added to the second point to get the third point and which is added to the location to get the forth point
      * @param color color of the plane
-     * @param label the text of the label of the plane
+     * @param label the text of the label of the plane, null if no label needed
      */
     public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, Color color, String label){
         Plane plane = new Plane();
@@ -165,9 +165,10 @@ public class GeometryView3d extends AWTAbstractAnalysis {
                 lowestPoint = coord;
             }
         }
-        Point3d labelLocation = new Point3d(lowestPoint.x, lowestPoint.y, lowestPoint.z - labelOffset);
-        addLabel(labelLocation, label, Color.BLACK);
-        
+        if (label != null){
+            Point3d labelLocation = new Point3d(lowestPoint.x, lowestPoint.y, lowestPoint.z - labelOffset);
+            addLabel(labelLocation, label, Color.BLACK);
+        }
     }
     
     /**
@@ -177,7 +178,7 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param text the text of the label
      * @param color color of the text
      */
-    public void addLabel(Point3d location, String text, Color color){
+    void addLabel(Point3d location, String text, Color color){
          Coord3d coord3d = new Coord3d();
          coord3d.set((float) location.x, (float) location.y, (float) location.z);
          DrawableText label = new DrawableText(text, coord3d, color);
