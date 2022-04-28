@@ -81,11 +81,11 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param radius
      * @param length weglassen und die Länge anhand des Volumens der view bestimmen
      */
-    public void addLine(Vector3d attitude, Point3d location, Color color, float radius, float length){
+    public void addLine(Vector3d attitude, Point3d location, Color color, float radius, float length, String label){
         addLine(location, 
             new Point3d(location.x+attitude.x*length, 
                         location.y+attitude.y*length, 
-                        location.z+attitude.z*length), radius, color);
+                        location.z+attitude.z*length), radius, color, label);
     }
     
     /**
@@ -94,14 +94,19 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param p1 start point of the cylinder
      * @param p2 end point of the cylinder
      * @param radius radius of the cylinder
-     * @param color 
+     * @param color color of the line
+     * @param label the label of the line
      */
-    public void addLine(Point3d p1, Point3d p2, float radius, Color color){
+    public void addLine(Point3d p1, Point3d p2, float radius, Color color, String label){
         org.jzy3d.maths.Vector3d vec = 
                 new org.jzy3d.maths.Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
         Line line = new Line();
         line.setData(vec, radius, 10, 0, color);
         chart.add(line);
+        Vector3d negative_direction = new Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
+        negative_direction.scale((2*labelOffset)/negative_direction.length());
+        Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
+        addLabel(labelLocation, label, Color.BLACK);
     }
     
     /**
@@ -109,20 +114,73 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * 
      * @param origin origin of the circle
      * @param direction normal vector of the plane the circle lays in
+     * @param radius radius of the circle
      * @param color color of the circle
      */
-    public void addCircle(Point3d origin, Vector3d direction, Color color){
-        int slices;
-        int rings = 100;
+    public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color, String label){
+        float rings = 100.f;
         CroppableLineStrip lineStrip = new CroppableLineStrip();
+        //get the orthogonal vectors to the direction to get the plane for the circle
+        direction.normalize();
+        Vector3d[] plane = getOrthogonalsToDirection(direction);
+        Coord3d p1 = new Coord3d(origin.x+plane[1].x, origin.y+plane[1].y, origin.z+plane[1].z);
+        //Calculate the first point from the circle. Scale the vector between the origin and a point p1 on the plane to the radius.
+        Vector3d vec_p1_origin = new Vector3d(p1.x-origin.x, p1.y-origin.y, p1.z-origin.z);
+        double length = vec_p1_origin.length();
+        float ratio = (float) radius/ (float) length;
+        vec_p1_origin.scale(ratio);
+        //rotate the first point around the direction and the points to the strip
+        Coord3d firstPoint = new Coord3d(origin.x+vec_p1_origin.x, origin.y+vec_p1_origin.y, origin.z+vec_p1_origin.z);
+        Coord3d rotateAround = new Coord3d(direction.x, direction.y, direction.z);
+        float rotationStep = 360.f/rings;
+        float degree_now = 0.f;
         for (int i=0;i<rings;i++){
-            //TODO
+            lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
+            degree_now += rotationStep;
         }
-        //lineStrip.setWireframeColor(Color.BLACK);
-        //lineStrip.add(new Point( new Coord3d(p1.x,p1.y,p1.z)));
-        //lineStrip.add(new Point( new Coord3d(p2.x,p2.y,p2.z)));
+        lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
+        lineStrip.setWireframeColor(color);
         chart.add(lineStrip);
-        
+        Vector3d origin_firstPoint = new Vector3d(origin.x+firstPoint.x, origin.y+firstPoint.y, origin.z+firstPoint.z);
+        ratio = (float) (labelOffset+origin_firstPoint.length())/(float) origin_firstPoint.length();
+        vec_p1_origin.scale(ratio);
+        Point3d labelLocation = new Point3d(p1.x+vec_p1_origin.x, p1.y+vec_p1_origin.y,p1.z+vec_p1_origin.z);
+        addLabel(labelLocation, label, Color.BLACK);
+    }
+    
+    /**Calculates the orthogonal vectors to a normalized vector
+     * 
+     * @param direction the vector to which the orthogonal vectors should be calculated
+     * @return the orthogonal basis with the direction and its 2 orthogonal vectors
+     */
+    private Vector3d[] getOrthogonalsToDirection(Vector3d direction){
+        Vector3d[] orthogonals = new Vector3d[3];
+        orthogonals[0] = direction;
+        int smalest = 0;
+        float smalest_value = (float) direction.x; 
+        if(smalest_value > direction.y){
+            smalest = 1; 
+            smalest_value = (float) direction.y;
+        }
+        if(smalest_value > direction.z){
+            smalest = 2; 
+            smalest_value = (float) direction.z;
+        }
+        Vector3d w = new Vector3d(1,0,0);
+        if(smalest == 0){
+            w = new Vector3d(1,0,0);
+        } else if(smalest == 1){
+            w = new Vector3d(0,1,0);
+        } else {
+            w = new Vector3d(0,0,1);
+        }
+        Vector3d u = new Vector3d(0,0,0);
+        u.cross(w, direction);
+        orthogonals[1] = u;
+        Vector3d v = new Vector3d(0,0,0);
+        v.cross(direction, u);
+        orthogonals[2] = v;
+        return orthogonals;
     }
     
     /**
@@ -235,5 +293,9 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         
         addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
+        addCircle(new Point3d(0,0,0), new Vector3d(0,0,1),5,Color.RED, "Circle");
+        
+        addLine(new Vector3d(0d,0d,-1d), new Point3d(-4d,-4d,-4d), Color.CYAN, 0.2f, 10f, "Linie");
     }
+       
 }
