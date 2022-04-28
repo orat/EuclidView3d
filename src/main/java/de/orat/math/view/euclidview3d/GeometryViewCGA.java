@@ -51,10 +51,10 @@ public class GeometryViewCGA extends GeometryView3d {
      * @param attitude
      * @param location 
      */
-    public void addLine(Vector3d attitude, Point3d location){
+    public void addLine(Vector3d attitude, Point3d location, String label){
         //FIXME
         float length = 1;
-        addLine(attitude, location, COLOR_GRADE_2, LINE_RADIUS, length); 
+        addLine(attitude, location, COLOR_GRADE_2, LINE_RADIUS, length, label); 
     }
     
     /**
