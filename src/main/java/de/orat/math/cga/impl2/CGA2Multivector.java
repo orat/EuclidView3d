@@ -3,6 +3,7 @@ package de.orat.math.cga.impl2;
 import de.orat.math.cga.impl1.CGA1Multivector;
 import de.orat.math.cga.impl2.generated.CGA;
 import de.orat.math.cga.spi.iCGAMultivector;
+import org.jogamp.vecmath.Tuple3d;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
@@ -30,11 +31,9 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
             sb.append("\n");
         }
         sb.deleteCharAt(sb.length()-1);
-        
         return sb.toString();
     }
     
-   
     @Override
     public CGA2Multivector op(iCGAMultivector b){
         return new CGA2Multivector(binop_Wedge(this, (CGA) b));
@@ -47,12 +46,12 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
      * the wedge of the duals.
      * 
      * @param b
-     * @return 
+     * @return vee product
      */
     public CGA2Multivector vee(CGA2Multivector b){
         return new CGA2Multivector(binop_Vee(this,b));
-        //return dual().wedge(b.dual()).dual();
     }
+    
     /**
      * Dot procuct.
      * 
@@ -68,6 +67,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
         return new CGA2Multivector(CGA.binop_Dot(this, (CGA) b));
     }
     /**
+     * dual.
      * 
      * @return poincare duality operator
      */
@@ -132,7 +132,18 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
          return new CGA2Multivector(super.Involute());
     }
  
-    
+    @Override
+    public int getEStartIndex(){
+        return 1;
+    }
+    @Override
+    public int getEinfIndex(){
+        return 0;
+    }
+    @Override
+    public int getOriginIndex(){
+        return 4;
+    }
     /**
      * Get the k-blade (k-vector) of the given grade k.
      * 
@@ -252,7 +263,7 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
     @Override
     public iCGAMultivector ip(iCGAMultivector b, int type) {
         switch (type){
-            
+            //TODO
             case CGA1Multivector.LEFT_CONTRACTION:
             default:
                 return new CGA2Multivector(CGA.binop_Dot(this, (CGA) b));
@@ -260,39 +271,42 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
     }
 
     @Override
-    public iCGAMultivector createBasisVectorOrigin(double scale) {
+    public iCGAMultivector createOrigin(double scale) {
         return new CGA2Multivector(CGA.binop_Add(e4,e5));
     }
     @Override
-    public iCGAMultivector createBasisVectorEx(double scale) {
+    public iCGAMultivector createEx(double scale) {
         return new CGA2Multivector(new CGA(1, scale));
     }
     @Override
-    public iCGAMultivector createBasisVectorEy(double scale) {
+    public iCGAMultivector createEy(double scale) {
        return new CGA2Multivector(new CGA(2, scale));
     }
     @Override
-    public iCGAMultivector createBasisVectorEz(double scale) {
+    public iCGAMultivector createEz(double scale) {
        return new CGA2Multivector(new CGA(3, scale));
     }
     @Override
-    public iCGAMultivector createBasisVectorEinf(double scale) {
+    public iCGAMultivector createInf(double scale) {
         return new CGA2Multivector(CGA.binop_smul(0.5d, CGA.binop_Sub(e5, e4)));
     }
+    @Override
+    public iCGAMultivector createE(Tuple3d p){
+        return createEx(p.x).add(createEy(p.y)).add(createEz(p.z));
+    }
+    @Override
+    public iCGAMultivector createScalar(double scale){
+        return new CGA2Multivector(new CGA(0, scale));
+    }
     
-    //TODO
-    // sollte sich auf basis bestehender Methoden implementieren lassen
     @Override
     public boolean isScalar() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        for (int i=1;i<_mVec.length;i++){
+            if (_mVec[i] != 0d) return false;
+        }
+        return true;
     }
 
-    //TODO
-    // sollte sich auf basis bestehender Methoden implementieren lassen
-    @Override
-    public double scp(iCGAMultivector b) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
     //TODO
     // unklar wie das implementiert werden könnte, da braucht es linear-algebra dazu

@@ -19,7 +19,7 @@ import java.util.Map;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
-import static de.orat.math.cga.impl1.CGA1Utils.CGA_METRIC;
+import static de.orat.math.cga.impl1.CGA1Metric.CGA_METRIC;
 import de.orat.math.cga.spi.iCGAMultivector;
 import de.orat.math.ga.basis.MeetJoin;
 import org.jogamp.vecmath.Quat4d;
@@ -94,7 +94,7 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
     public double[] extractCoordinates(int grade){
         List<ScaledBasisBlade> gblades = extractBlades(new int[]{grade});
         int n =  5;//spaceDim();
-        CGA1Utils indexTable = CGA1Utils.getInstance();
+        CGA1Metric indexTable = CGA1Metric.getInstance();
         double[] result = new double[Util.binominal(n, grade)];
         for (int i=0;i<gblades.size();i++){
             ScaledBasisBlade basisBlade = gblades.get(i);
@@ -391,11 +391,11 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
         return CGA1Multivector.createBasisVector(4, scale);
     }
     public static CGA1Multivector createBasisVector(int idx, double s){
-        if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
+        if (idx >= CGA1Metric.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector(Multivector.createBasisVector(idx, s));
     }
     /*protected static CGA1Multivector createBasisVector(int idx) throws IllegalArgumentException {
-        if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
+        if (idx >= CGA1Metric.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector(Multivector.createBasisVector(idx));
     }*/
     public static CGA1Multivector createBasisVectorE3(){
@@ -466,7 +466,7 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
         // für attitude ist ein Vorzeichen nach Dorst2007 zu erwarten, scheint aber nicht zu stimmen
         CGA1Multivector attitude = CGA1Multivector.createBasisVectorEinf(1d).op(this).undual();
         // attitude=-5.551115123125783E-17*no^e1^e2 + 0.9999999999999996*e1^e2^ni
-        System.out.println("attitude="+String.valueOf(attitude.toString(CGA1Utils.baseVectorNames)));
+        System.out.println("attitude="+String.valueOf(attitude.toString(CGA1Metric.baseVectorNames)));
                 
         // Dorst2007 - Formel für dual-flat verwenden
         // locations are determined as dual spheres
@@ -508,8 +508,8 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
         // Dorst2007
         //TODO funktioniert nicht - alle components sind 0
         // Ich brauchen undualize into the full space, macht das dual()?
-        //CGAMultivector vector = new CGA1Multivector(Multivector.createBasisVector(4).op(this).dual(CGA1Utils.CGA_METRIC));
-        //System.out.println("dirvec="+vector.toString(CGA1Utils.baseVectorNames)); // ==0
+        //CGAMultivector vector = new CGA1Multivector(Multivector.createBasisVector(4).op(this).dual(CGA1Metric.CGA_METRIC));
+        //System.out.println("dirvec="+vector.toString(CGA1Metric.baseVectorNames)); // ==0
         
         // Bestimmung von E einf M
         // stimmt nicht
@@ -521,14 +521,14 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
                 ip(CGA1Multivector.createBasisVectorEinf(1d), RIGHT_CONTRACTION);
         // attitude=-0.9799999999999993*e1 statt (0.98,0.0,0.0) mit right contraction
         //FIXME Warum stimmt das Vorzeichen nicht?
-        System.out.println("attitude Kleppe="+dir.toString(CGA1Utils.baseVectorNames)); 
+        System.out.println("attitude Kleppe="+dir.toString(CGA1Metric.baseVectorNames)); 
         Vector3d attitude = dir.extractDirection();
         System.out.println("attitude extraction=("+String.valueOf(attitude.x)+","+String.valueOf(attitude.y)+","+String.valueOf(attitude.z)+")");
         // Kleppe2016 adaptiert
         // oder left contraction?
         // left contraction ist null wenn k > l
         //dir = dualFlat.op(Multivector.createBasisVector(4)).ip(Multivector.createBasisVector(0), HESTENES_INNER_PRODUCT);
-        //System.out.println("dirvec2="+vector.toString(CGA1Utils.baseVectorNames)); // ==0
+        //System.out.println("dirvec2="+vector.toString(CGA1Metric.baseVectorNames)); // ==0
         
         // Dorst2007
         // das sieht richtig aus! ist aber die Formel von dualflat statt flat
@@ -538,7 +538,7 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
          
         // grade 1 ist drin und sieht sinnvoll aus, grade-3 ist mit sehr kleinen Werten aber auch dabei
         // und zusätzlich auch e1einf und e0e1
-        System.out.println("location="+location.toString(CGA1Utils.baseVectorNames));
+        System.out.println("location="+location.toString(CGA1Metric.baseVectorNames));
         
         // locations are determined as duals-spheres (e0, e1, e2, e3, einfM)
         double[] locationCoord = location.extractCoordinates(1);
@@ -564,7 +564,7 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
      */
     private Vector3d decomposeTangentAndRoundDirection(){
         CGA1Multivector attitude = decomposeTangentAndRoundDirectionAsMultivector();
-        //System.out.println("tangent(Eeinf)= "+attitude.toString(CGA1Utils.baseVectorNames));
+        //System.out.println("tangent(Eeinf)= "+attitude.toString(CGA1Metric.baseVectorNames));
         return attitude.extractDirectionFromEeinfRepresentation();
     }
     /**
@@ -625,7 +625,7 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
         CGA1Multivector location = 
                 gp(CGA1Multivector.createBasisVectorEinf(1d).ip(this, LEFT_CONTRACTION).generalInverse());
         // das ergibt einen reinen vector (1-blade)
-        System.out.println("location1="+location.toString(CGA1Utils.baseVectorNames));
+        System.out.println("location1="+location.toString(CGA1Metric.baseVectorNames));
         /*double[] vector = location.extractCoordinates(1);
         Point3d result = new Point3d(vector[1], vector[2], vector[3]);
         result.negate();*/
@@ -633,7 +633,7 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
         // Hildenbrand2004 (Tutorial)
         location = gp(CGA1Multivector.createBasisVectorEinf(1d)).gp(this).div(
                 (CGA1Multivector.createBasisVectorEinf(1d).ip(this, LEFT_CONTRACTION)).sqr()).gp(-0.5);
-        System.out.println("location="+location.toString(CGA1Utils.baseVectorNames));
+        System.out.println("location="+location.toString(CGA1Metric.baseVectorNames));
         double[] vector = location.extractCoordinates(1);
         Point3d result = new Point3d(vector[1], vector[2], vector[3]);
         return result;
@@ -734,16 +734,16 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
         CGA1Multivector ni = CGA1Multivector.createBasisVectorEinf(1d);
         CGA1Multivector X = sub(n0.ip(
                 this, LEFT_CONTRACTION).op(CGA1Multivector.createBasisVectorEinf(1d)));
-        System.out.println("X="+X.toString(CGA1Utils.baseVectorNames));
+        System.out.println("X="+X.toString(CGA1Metric.baseVectorNames));
         
         // scheint korrekt sum aus 3- und 1-blade
         CGA1Multivector Y = n0.ip(this, LEFT_CONTRACTION);
-        System.out.println("Y="+Y.toString(CGA1Utils.baseVectorNames));
+        System.out.println("Y="+Y.toString(CGA1Metric.baseVectorNames));
         CGA1Multivector Y3 = Y.extractGrade(3);
-        System.out.println("Y3="+Y3.toString(CGA1Utils.baseVectorNames));
+        System.out.println("Y3="+Y3.toString(CGA1Metric.baseVectorNames));
         
         CGA1Multivector X2 = X.extractGrade(2);
-        System.out.println("X2="+X2.toString(CGA1Utils.baseVectorNames));
+        System.out.println("X2="+X2.toString(CGA1Metric.baseVectorNames));
          // quatrieren und test auf !=0
         CGA1Multivector X22 = X2.gp(X2);
         
@@ -769,7 +769,7 @@ public class CGA1Multivector extends Multivector /*implements iCGAMultivector*/ 
         // skewed
         } else {
             CGA1Multivector d = new CGA1Multivector(Y3.gp(X2.reverse().gp(1d/X2.norm_e2())));
-            System.out.println("d="+d.toString(CGA1Utils.baseVectorNames));
+            System.out.println("d="+d.toString(CGA1Metric.baseVectorNames));
 
             double[] dValues = d.extractCoordinates(2);
          

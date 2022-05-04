@@ -23,14 +23,14 @@ public class CGA2Utils {
      */
     public static double angle(CGA2Multivector l1, CGA2Multivector l2){
         // Richtungsvektor von l1
-        CGA2Multivector a = (l1.ip(CGA2Multivector.defaultInstance.createBasisVectorOrigin(1d))).ip(
-                CGA2Multivector.defaultInstance.createBasisVectorEinf(1d));
+        CGA2Multivector a = (l1.ip(CGA2Multivector.defaultInstance.createOrigin(1d))).ip(
+                CGA2Multivector.defaultInstance.createInf(1d));
         System.out.println("a:\n"+a.toString());
         
         //FIXME bereits bei a sind alle Komponenten = 0
         
-        CGA2Multivector b = l2.ip(CGA2Multivector.defaultInstance.createBasisVectorOrigin(1d)).ip(
-                CGA2Multivector.defaultInstance.createBasisVectorEinf(1d));
+        CGA2Multivector b = l2.ip(CGA2Multivector.defaultInstance.createOrigin(1d)).ip(
+                CGA2Multivector.defaultInstance.createInf(1d));
         System.out.println("b:\n"+b.toString());
         CGA2Multivector an = new CGA2Multivector(a.normalized());
         CGA2Multivector bn = new CGA2Multivector(b.normalized());
@@ -56,7 +56,7 @@ public class CGA2Utils {
      */
     /*public static double angle2(CGA2Multivector l1, CGA2Multivector l2){
         CGA2Multivector l1l2 = l1.mul(l2);
-        CGA2Multivector x = l1l2.sub(CGA2Multivector.createE0().dot(l1l2).wedge(CGA2Multivector.createEinf()));
+        CGA2Multivector x = l1l2.sub(CGA2Multivector.createE0().dot(l1l2).wedge(CGA2Multivector.createInf()));
         CGA2Multivector y = CGA2Multivector.createE0().dot(l1l2);
 
         CGA2Multivector p = x.project(0).mul(y.project(3)).sub(x.project(1).mul(x.project(2)));

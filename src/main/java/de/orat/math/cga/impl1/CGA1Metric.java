@@ -1,25 +1,18 @@
 package de.orat.math.cga.impl1;
 
-import static de.orat.math.cga.impl1.CGA1Multivector.createPseudoscalar;
-import de.orat.math.cga.impl2.CGA2Multivector;
-import de.orat.math.cga.util.Decomposition3d;
-import static de.orat.math.ga.basis.InnerProductTypes.HESTENES_INNER_PRODUCT;
-import static de.orat.math.ga.basis.InnerProductTypes.LEFT_CONTRACTION;
+import de.orat.math.cga.api.CGAMultivector;
+import de.orat.math.cga.spi.iCGAMultivector;
 import de.orat.math.ga.basis.Metric;
-import de.orat.math.ga.basis.Multivector;
-import de.orat.math.ga.basis.ScaledBasisBlade;
-import de.orat.math.ga.basis.Util;
 import de.orat.math.ga.metric.MetricException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.jogamp.vecmath.Point3d;
-import org.jogamp.vecmath.Vector3d;
 
 /**
+ * CGA basis vectors and metric.
+ * 
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class CGA1Utils {
+public class CGA1Metric {
     
     public static final int IPNS = 0; // standard representation (inner product null space)
     public static final int OPNS = 1; // dual representation (outer product null space)
@@ -52,7 +45,7 @@ public class CGA1Utils {
                 {0.0, 0.0, 0.0 , 0.0, -1.0}});
         } catch (MetricException e){}
     }
-    private static CGA1Utils instance = null;
+    private static CGA1Metric instance = null;
     
     // key= bitset as int, value = index in the multivector
     private final Map<Integer, Integer> bitsetMap = new HashMap<>();
@@ -63,9 +56,9 @@ public class CGA1Utils {
     // besser hier die Dimension n übergeben und dann die Tabellen automatisch passend
     // generieren statt hier die Fixkodierung. Dann kann ich das auch allg. IndexTable nennen
     //FIXME
-    static CGA1Utils getInstance(){
+    static CGA1Metric getInstance(){
         if (instance == null){
-            instance = new CGA1Utils();
+            instance = new CGA1Metric();
         }
         return instance;
     }
@@ -85,7 +78,7 @@ public class CGA1Utils {
      * 
      * @Deprecated 
      */
-    private CGA1Utils(){
+    private CGA1Metric(){
         // scalar
         bitsetMap.put(0,0);
         gradeCoordinatesMap.put(0,0);
@@ -159,6 +152,7 @@ public class CGA1Utils {
     }
     
     // scheint zu stimmen
+    // braucht es hier vermutlich gar nicht? der faktor hängt aber von der Metrik ab?
     /**
      * Squared distance between two points.
      * 
@@ -168,83 +162,32 @@ public class CGA1Utils {
      * @param p2 normalized second point
      * @return squared distance between two normalized points
      */
-    public static double squareDistanceBetweenPoints(CGA1Multivector p1, CGA1Multivector p2){
-        return -2*p1.scp(p2, CGA_METRIC);
+    public static double squareDistanceBetweenPoints(CGAMultivector p1, CGAMultivector p2){
+        return -2*p1.scp(p2);
     }
     
+    
+    // base vector creation
+    
     /**
-      * Decompose l2l1 into angle, distance, direction.
-      * 
-      * A Covariant approach to Geometry using Geometric Algebra.
-      * Technical report. Universit of Cambridge Departement of Engineering, 
-      * Cambridge, UK (2004). 
-      * A. Lasenby, J. Lasenby, R. Wareham
-      * Formula 5.22, page 46
-      * 
-      * @param l2l1
-      * @return parameters describing the pose of two lines to each other
-      */
-    public static Decomposition3d.LinePairParameters decomposeLinePair(CGA1Multivector l2l1){
-        
-        System.out.println("l2l1:"+l2l1.toString(CGA1Utils.baseVectorNames));
-        
-        // Skalar
-        double cosalpha = l2l1.extractCoordinates(0)[0];
-        System.out.println("cosalpha="+String.valueOf(cosalpha));
-        System.out.println("alpha="+String.valueOf(Math.acos(cosalpha)*180/Math.PI));
-       
-        // Bivektoren 
-        double[] bivectors = l2l1.extractCoordinates(2);
-        double[] quadvectors = l2l1.extractCoordinates(4);
-        
-        // attitude zeigt von l1 nach l2?
-        
-        double dist = 0d;
-        double sinalpha = 0;
-        
-        org.jogamp.vecmath.Vector3d attitude = null;
-        
-        // Geraden nicht senkrecht zueinander
-        if (cosalpha != 0){
-            System.out.println("attitude aus e01, e02 und e03 bestimmen!");
-            attitude = new org.jogamp.vecmath.Vector3d(
-                -bivectors[0]/cosalpha, -bivectors[1]/cosalpha, -bivectors[2]/cosalpha);
-            System.out.println("d(vectors)= ("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+", "+String.valueOf(attitude.z)+")");
-            dist = attitude.length();
-            System.out.println("dist = "+dist);
-            attitude.normalize();
-            System.out.println("d(vectors) normiert= ("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+", "+String.valueOf(attitude.z)+")");
-            
-        } 
-            
-        // Geraden sind nicht parallel
-        if (cosalpha*cosalpha != 1){
-            System.out.println("attitude aus e23, e13, e12 und e0123 bestimmen!");
-            double cos2alpha = 1d-cosalpha*cosalpha;
-            attitude = new org.jogamp.vecmath.Vector3d(
-                -bivectors[7]*quadvectors[0]/cos2alpha, 
-                 bivectors[5]*quadvectors[0]/cos2alpha, 
-                -bivectors[4]*quadvectors[0]/cos2alpha);
-            System.out.println("d(vectors)= ("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+", "+String.valueOf(attitude.z)+")");
-            dist = attitude.length();
-            System.out.println("dist = "+dist);
-            attitude.normalize();
-            System.out.println("d(vectors) normiert= ("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+", "+String.valueOf(attitude.z)+")");
-            
-        } 
-         
-        // Geraden haben keinen Schnittpunkt
-        if (dist != 0d){
-            sinalpha = -quadvectors[0]/dist;
-        } else {
-            System.out.println("Geraden schneiden sich!");
-            //FIXME
-            // ist das so richtig?
-            sinalpha = 0d;
-        }
-        //TODO
-        Point3d location = null;
-        
-        return new Decomposition3d.LinePairParameters(Math.atan2(cosalpha, sinalpha), location, attitude);
+     * Create origin base vector.
+     * 
+     * @param scale
+     * @return origin base vector.
+     */
+    public static iCGAMultivector createOrigin(double scale){
+        return CGA1Multivector1a.createBasisVector(0, scale);
+    }
+    public static iCGAMultivector createEx(double scale){
+        return CGA1Multivector1a.createBasisVector(1, scale);
+    }
+    public static iCGAMultivector createEy(double scale){
+        return CGA1Multivector1a.createBasisVector(2, scale);
+    }
+    public static iCGAMultivector createEz(double scale){
+        return CGA1Multivector1a.createBasisVector(3, scale);
+    }
+    public static iCGAMultivector createBasisInf(double scale){
+        return CGA1Multivector1a.createBasisVector(4, scale);
     }
 }

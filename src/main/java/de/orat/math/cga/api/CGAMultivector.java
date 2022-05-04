@@ -16,13 +16,19 @@ import org.jogamp.vecmath.Vector3d;
  */
 public class CGAMultivector {
     
-    private static CGAMultivector defaultInstance = create();
-    private static int default_ip_type = LEFT_CONTRACTION;
+    private static CGAMultivector defaultInstance = new CGAMultivector();
     
-    private iCGAMultivector impl;
+    static int default_ip_type = LEFT_CONTRACTION;
+    iCGAMultivector impl;
     
-    static CGAMultivector create(){
-        return new CGAMultivector(new CGA1Multivector1a());
+    CGAMultivector(){
+        impl = new CGA1Multivector1a();
+    }
+    public CGAMultivector(Tuple3d p){
+        this.impl = defaultInstance.impl.createE(p);
+    }
+    public CGAMultivector(double d){
+        this.impl = defaultInstance.impl.createScalar(d);
     }
     
     CGAMultivector(iCGAMultivector impl){
@@ -30,33 +36,28 @@ public class CGAMultivector {
     }
     
     
-    public static CGAMultivector createBasisVectorOrigin(double scale){
-        return new CGAMultivector(defaultInstance.impl.createBasisVectorOrigin(scale));
+    public static CGAMultivector createOrigin(double scale){
+        return new CGAMultivector(defaultInstance.impl.createOrigin(scale));
     }
-    public static CGAMultivector createBasisVectorEinf(double scale){
-        return new CGAMultivector(defaultInstance.impl.createBasisVectorEinf(scale));
+    public static CGAMultivector createEinf(double scale){
+        return new CGAMultivector(defaultInstance.impl.createInf(scale));
     }
-    public static CGAMultivector createBasisVectorEx(double scale){
-        return new CGAMultivector(defaultInstance.impl.createBasisVectorEx(scale));
+    public static CGAMultivector createEx(double scale){
+        return new CGAMultivector(defaultInstance.impl.createEx(scale));
     }
-    public static CGAMultivector createBasisVectorEy(double scale){
-        return new CGAMultivector(defaultInstance.impl.createBasisVectorEy(scale));
+    public static CGAMultivector createEy(double scale){
+        return new CGAMultivector(defaultInstance.impl.createEy(scale));
     }
-    public static CGAMultivector createBasisVectorEz(double scale){
-        return new CGAMultivector(defaultInstance.impl.createBasisVectorEz(scale));
+    public static CGAMultivector createEz(double scale){
+        return new CGAMultivector(defaultInstance.impl.createEz(scale));
     }
-    public static CGAMultivector createBasisVectorE3(){
-        return createBasisVectorEx(1d).add(createBasisVectorEy(1d)).add(createBasisVectorEz(1d));
+    public static CGAVector createE3(){
+        return new CGAVector(createEx(1d).add(createEy(1d)).add(createEz(1d)));
     }
-    public static CGAMultivector createVector(Vector3d v){
-        return createBasisVectorEx(v.x).add(createBasisVectorEy(v.y)).add(createBasisVectorEz(v.z));
+    public static CGAVector createVector(Vector3d v){
+        return new CGAVector(createEx(v.x).add(createEy(v.y)).add(createEz(v.z)));
     }
     
-    
-    public double[] extractCoordinates(int grade){
-        return impl.extractCoordinates(grade);
-    }
-   
       
     // Create conformal algebra primitives
     
@@ -68,11 +69,11 @@ public class CGAMultivector {
      * real sphere in Hildenbrand2013.
      * 
      * @param o origin of the shphere
-     * @param r radius of the sphere (A negative radius does not create an imagninary 
-     *        sphere. Use the method createImaginarySphere() instead.)
+     * @param r radius of the sphere (A negative radius does not CGAMultivector an imagninary 
+        sphere. Use the method createImaginarySphere() instead.)
      * @return multivector representation of a sphere (e0, e1, e2, e3, einfM)
      */
-    public static CGAMultivector createSphere(Point3d o, double r){
+    public static CGAVector createSphere(Point3d o, double r){
         return createSphere(createPoint(o), r);
     }
     /**
@@ -83,14 +84,14 @@ public class CGAMultivector {
      * Dorst2007 page 363 == Hildenbrand1998 page 29
      * 
      * @param location multivector representing a result
-     * @param r radius of the sphere to create
+     * @param r radius of the sphere to CGAMultivector
      * @return multivector representing a sphere
      */
-    public static CGAMultivector createSphere(CGAMultivector location, double r){
-        return location.sub(createBasisVectorEinf(0.5*r*r));
+    public static CGAVector createSphere(CGAMultivector location, double r){
+        return new CGAVector(location.sub(createEinf(0.5*r*r)));
     }
-    public static CGAMultivector createImaginarySphere(CGAMultivector o, double r){
-        return o.add(createBasisVectorEinf(0.5*r*r));
+    public static CGAVector createImaginarySphere(CGAMultivector o, double r){
+        return new CGAVector(o.add(createEinf(0.5*r*r)));
     }
     /**
      * Create dual sphere.
@@ -101,8 +102,8 @@ public class CGAMultivector {
      * @param p result on the sphere
      * @return dual sphere (inner product null space representation) as a multivector of grade 4.
      */
-    public static CGAMultivector createDualSphere(Point3d o, Point3d p){
-        return createPoint(p).ip(createBasisVectorEinf(1d).op(createPoint(o)));
+    public static CGAQuadvector createDualSphere(Point3d o, Point3d p){
+        return new CGAQuadvector(createPoint(p).ip(createEinf(1d).op(createPoint(o))));
     }
     /**
      * Create dual sphere in outer product null space representation (grade 4 multivector).
@@ -140,12 +141,16 @@ public class CGAMultivector {
      * @return conformal result
      */
     public static CGAMultivector createPoint(Tuple3d p){
-        return createBasisVectorOrigin(1d)
-                .add(createBasisVectorEx(p.x))
-                .add(createBasisVectorEy(p.y))
-                .add(createBasisVectorEz(p.z))
-                .add(createBasisVectorEinf(0.5*(p.x*p.x+p.y*p.y+p.z*p.z)));
+        // old version
+        //return createOrigin(1d)
+        //        .add(createEx(p.x))
+        //        .add(createEy(p.y))
+        //        .add(createEz(p.z))
+        //        .add(createEinf(0.5*(p.x*p.x+p.y*p.y+p.z*p.z)));
+        CGAMultivector x = new CGAMultivector(p);
+        return x.add((new CGAMultivector(0.5)).gp(x.gp(x)).gp(createEinf(1d))).add(createOrigin(1d));
     }
+    
     /**
      * Create a conformal result in inner product null space representation (grade 4 multivector).
      * 
@@ -170,10 +175,10 @@ public class CGAMultivector {
      * @return conformal plane in inner product null space representation (e1, e2, e3, einfM).
      */
     public static CGAMultivector createPlane(Vector3d n, double d){
-        return createBasisVectorEx(n.x)
-            .add(createBasisVectorEy(n.y))
-            .add(createBasisVectorEz(n.z))
-            .add(createBasisVectorEinf(d));
+        return createEx(n.x)
+            .add(createEy(n.y))
+            .add(createEz(n.z))
+            .add(createEinf(d));
     }
     /**
      * Create plane in outer product null space representation (grade 4 multivector).
@@ -184,7 +189,7 @@ public class CGAMultivector {
      * @return conformal plane in outer product null space representation.
      */
     public static CGAMultivector createDualPlane(CGAMultivector p1, CGAMultivector p2, CGAMultivector p3){
-        return p1.op(p2).op(p3).op(createBasisVectorEinf(1d));
+        return p1.op(p2).op(p3).op(createEinf(1d));
     }
     /**
      * Create a dual plane as a mid plane between two given result (in outer product
@@ -195,7 +200,7 @@ public class CGAMultivector {
      * @return 
      */
     public static CGAMultivector createDualPlane(CGAMultivector p1, CGAMultivector p2){
-        return createBasisVectorEinf(1d).op((p1.op(p2)).dual());
+        return createEinf(1d).op((p1.op(p2)).dual());
     }
     /**
      * Create dual plane from a result on the plane an its normal vector (in outer product
@@ -208,7 +213,7 @@ public class CGAMultivector {
     public static CGAMultivector createDualPlane(Point3d p, Vector3d n){
         CGAMultivector cp = createPoint(p);
         CGAMultivector cn = createPoint(n);
-        return cp.ip(cn.op(createBasisVectorEinf(1d)));
+        return cp.ip(cn.op(createEinf(1d)));
     }
     /**
      * Create line in inner product null space representation (grade 2 multivector).
@@ -233,7 +238,7 @@ public class CGAMultivector {
      * @return conformal line in outer product null space representation (tri-vector: 
      * (e12inf, e13inf, e23inf, e10inf, e20inf, e30inf = tri-vector))
      */
-    public static CGAMultivector createDualLine(Point3d p1, Tuple3d p2){
+    public static CGATrivector createDualLine(Point3d p1, Tuple3d p2){
         return createDualLine(createPoint(p1), createPoint(p2));
     }
     /**
@@ -246,8 +251,8 @@ public class CGAMultivector {
      * Be careful: The representation is called dual in Hildenbrand213 but not
      * in Dorst2007.
      */
-    public static CGAMultivector createDualLine(CGAMultivector p1, CGAMultivector p2){
-        return p1.op(p2).op(createBasisVectorEinf(1d));
+    public static CGATrivector createDualLine(CGAMultivector p1, CGAMultivector p2){
+        return new CGATrivector(p1.op(p2).op(createEinf(1d)));
     }
     
     /**
@@ -315,9 +320,9 @@ public class CGAMultivector {
      * @return the multivector representing the pseudoscalar
      */
     public static CGAMultivector createPseudoscalar(){
-        return createBasisVectorOrigin(1d).op(createBasisVectorEx(1d))
-                .op(createBasisVectorEy(1d)).op(createBasisVectorEz(1d))
-                .op(createBasisVectorEinf(1d));
+        return createOrigin(1d).op(createEx(1d))
+                .op(createEy(1d)).op(createEz(1d))
+                .op(createEinf(1d));
     }
     
     /**
@@ -330,7 +335,7 @@ public class CGAMultivector {
      */
     public static CGAMultivector createTangentVector(Point3d p, Vector3d u){
         CGAMultivector cp = createPoint(p);
-        return cp.ip(cp.op(createPoint(u)).op(createBasisVectorEinf(1d)));
+        return cp.ip(cp.op(createPoint(u)).op(createEinf(1d)));
     }
     
     /**
@@ -376,18 +381,19 @@ public class CGAMultivector {
         // use dualFlat in Dorst2007
         // damit bekomme ich die attitude in der Form E.op(einfM)
         // für attitude ist ein Vorzeichen nach Dorst2007 zu erwarten, scheint aber nicht zu stimmen
-        CGAMultivector attitude = createBasisVectorEinf(1d).op(this).undual();
+        CGAMultivector attitude = createEinf(1d).op(this).undual();
         // attitude=-5.551115123125783E-17*no^e1^e2 + 0.9999999999999996*e1^e2^ni
         System.out.println("attitude="+String.valueOf(attitude.toString()));
                 
         // Dorst2007 - Formel für dual-flat verwenden
         // locations are determined as dual spheres
-        CGAMultivector loc = probePoint.op(this).gp(generalInverse());
+        CGAMultivector location = probePoint.op(this).gp(generalInverse());
         //CGAMultivector location = probePoint.ip(this, LEFT_CONTRACTION).gp(generalInverse());
-        double[] locationCoord = loc.extractCoordinates(1);
-       
+        
+        double[] locationCoord = location.impl.extractCoordinates(1);
+        int index = location.impl.getEStartIndex();
         return new Decomposition3d.FlatAndDirectionParameters(attitude.extractDirectionFromEeinfRepresentation(), 
-               new Point3d(locationCoord[1], locationCoord[2], locationCoord[3]));
+               new Point3d(locationCoord[index++], locationCoord[index++], locationCoord[index]));
     }
     
     /**
@@ -406,8 +412,8 @@ public class CGAMultivector {
         // Dorst2007
         //TODO funktioniert nicht - alle components sind 0
         // Ich brauchen undualize into the full space, macht das dual()?
-        //CGAMultivector vector = new CGA1Multivector(Multivector.createBasisVector(4).op(this).dual(CGA1Utils.CGA_METRIC));
-        //System.out.println("dirvec="+vector.toString(CGA1Utils.baseVectorNames)); // ==0
+        //CGAMultivector vector = new CGA1Multivector(Multivector.createBasisVector(4).op(this).dual(CGA1Metric.CGA_METRIC));
+        //System.out.println("dirvec="+vector.toString(CGA1Metric.baseVectorNames)); // ==0
         
         // Bestimmung von E einf M
         // stimmt nicht
@@ -415,17 +421,17 @@ public class CGAMultivector {
         // Vector3d attitude = dir.extractDirectionFromEeinfRepresentation();
         
         // Nach Kleppe2016
-        CGAMultivector dir = rc(createBasisVectorOrigin(1d)).rc(createBasisVectorEinf(1d));
+        CGAMultivector dir = rc(createOrigin(1d)).rc(createEinf(1d));
         // attitude=-0.9799999999999993*e1 statt (0.98,0.0,0.0) mit right contraction
         //FIXME Warum stimmt das Vorzeichen nicht?
         System.out.println("attitude Kleppe="+dir.toString()); 
-        Vector3d attitude = dir.extractDirection();
+        Vector3d attitude = dir.extractEuclidVector();
         System.out.println("attitude extraction=("+String.valueOf(attitude.x)+","+String.valueOf(attitude.y)+","+String.valueOf(attitude.z)+")");
         // Kleppe2016 adaptiert
         // oder left contraction?
         // left contraction ist null wenn k > l
         //dir = dualFlat.op(Multivector.createBasisVector(4)).ip(Multivector.createBasisVector(0), HESTENES_INNER_PRODUCT);
-        //System.out.println("dirvec2="+vector.toString(CGA1Utils.baseVectorNames)); // ==0
+        //System.out.println("dirvec2="+vector.toString(CGA1Metric.baseVectorNames)); // ==0
         
         // Dorst2007
         // das sieht richtig aus! ist aber die Formel von dualflat statt flat
@@ -438,18 +444,19 @@ public class CGAMultivector {
         System.out.println("location="+location.toString());
         
         // locations are determined as duals-spheres (e0, e1, e2, e3, einfM)
-        double[] locationCoord = location.extractCoordinates(1);
+        double[] locationCoord = location.impl.extractCoordinates(1);
         //System.out.println("locationCoord=("+String.valueOf(locationCoord[1])+", "+String.valueOf(locationCoord[2])+" ,"+
         //        String.valueOf(locationCoord[3])+")");
         
+        int index = location.impl.getEStartIndex();
         return new Decomposition3d.FlatAndDirectionParameters(attitude, 
-               new Point3d(locationCoord[1], locationCoord[2], locationCoord[3]));
+               new Point3d(locationCoord[index++], locationCoord[index++], locationCoord[index]));
     }
     
     public CGAMultivector decomposeTangentAndRoundDirectionAsMultivector(){
         // ungetestet
-        CGAMultivector einfM = CGAMultivector.createBasisVectorEinf(-1d);
-        CGAMultivector einf = CGAMultivector.createBasisVectorEinf(1d);
+        CGAMultivector einfM = CGAMultivector.createEinf(-1d);
+        CGAMultivector einf = CGAMultivector.createEinf(1d);
         return einfM.ip(undual()).op(einf);
     }
     /**
@@ -461,7 +468,7 @@ public class CGAMultivector {
      */
     private Vector3d decomposeTangentAndRoundDirection(){
         CGAMultivector attitude = decomposeTangentAndRoundDirectionAsMultivector();
-        //System.out.println("tangent(Eeinf)= "+attitude.toString(CGA1Utils.baseVectorNames));
+        //System.out.println("tangent(Eeinf)= "+attitude.toString(CGA1Metric.baseVectorNames));
         return attitude.extractDirectionFromEeinfRepresentation();
     }
     /**
@@ -472,7 +479,7 @@ public class CGAMultivector {
      * @return direction
      */
     private Vector3d decomposeDualTangentAndRoundDirection(){
-        CGAMultivector einf = CGAMultivector.createBasisVectorEinf(1d);
+        CGAMultivector einf = CGAMultivector.createEinf(1d);
         CGAMultivector attitude = einf.ip(this).op(einf);
         Vector3d result = attitude.extractDirectionFromEeinfRepresentation();
         //FIXME
@@ -520,7 +527,7 @@ public class CGAMultivector {
         // Vorzeichen wird unten gedreht
         // das sollte aber ein normalized dual sphere ergeben
         CGAMultivector location = 
-                gp(createBasisVectorEinf(1d).ip(this).generalInverse());
+                gp(createEinf(1d).ip(this).generalInverse());
         // das ergibt einen reinen vector (1-blade)
         System.out.println("location1="+location.toString());
         /*double[] vector = location.extractCoordinates(1);
@@ -528,10 +535,11 @@ public class CGAMultivector {
         result.negate();*/
         
         // Hildenbrand2004 (Tutorial)
-        location = gp(CGAMultivector.createBasisVectorEinf(1d)).gp(this).div((createBasisVectorEinf(1d).ip(this)).sqr()).gp(-0.5);
+        location = gp(CGAMultivector.createEinf(1d)).gp(this).div((createEinf(1d).ip(this)).sqr()).gp(-0.5);
         System.out.println("location="+location.toString());
-        double[] vector = location.extractCoordinates(1);
-        Point3d result = new Point3d(vector[1], vector[2], vector[3]);
+        double[] vector = location.impl.extractCoordinates(1);
+        int index = location.impl.getEStartIndex();
+        Point3d result = new Point3d(vector[index++], vector[index++], vector[index]);
         return result;
     }
     
@@ -559,9 +567,11 @@ public class CGAMultivector {
      * @return location and squared-radius, direction=(0,0,0)
      */
     public Decomposition3d.RoundAndTangentParameters decomposeSphere(){
-        double[] result = extractCoordinates(1);
+        double[] result = impl.extractCoordinates(1);
+        int index = impl.getEStartIndex();
+        int einfIndex = impl.getEinfIndex();
         return new Decomposition3d.RoundAndTangentParameters(new Vector3d(), 
-                new Point3d(result[1], result[2], result[3]), -2d*result[4]);
+                new Point3d(result[index++], result[index++], result[index]), -2d*result[einfIndex]);
     }
     
     /**
@@ -571,8 +581,9 @@ public class CGAMultivector {
      */
     public Quat4d decomposeRotation(){
         Quat4d result = new Quat4d();
-        result.w = extractCoordinates(0)[0];
-        double[] vector = extractCoordinates(2);
+        result.w = impl.extractCoordinates(0)[impl.getOriginIndex()];
+        double[] vector = impl.extractCoordinates(2);
+        //TODO weitere Indizes definieren
         result.x = -vector[4]; // i
         result.y = vector[5];  // j
         result.z = -vector[8]; // k
@@ -593,7 +604,7 @@ public class CGAMultivector {
      */
     private double roundSquaredSize(){
         CGAMultivector mvNumerator = gp(gradeInversion());
-        CGAMultivector mvDenominator = createBasisVectorEinf(1d).ip(this);
+        CGAMultivector mvDenominator = createEinf(1d).ip(this);
         
         // (-) d.h. das ist die Formel für dual-round nach Dorst2007. Das sieht also
         // richtig aus.
@@ -626,9 +637,9 @@ public class CGAMultivector {
         
         // X soll eine sum aus 1- und 2-blade sein
         // falsch da sind auch zwei 4-blades mit drin
-        CGAMultivector n0 = CGAMultivector.createBasisVectorOrigin(1d);
-        CGAMultivector ni = CGAMultivector.createBasisVectorEinf(1d);
-        CGAMultivector X = sub(n0.ip(this).op(createBasisVectorEinf(1d)));
+        CGAMultivector n0 = CGAMultivector.createOrigin(1d);
+        CGAMultivector ni = CGAMultivector.createEinf(1d);
+        CGAMultivector X = sub(n0.ip(this).op(createEinf(1d)));
         System.out.println("X="+X.toString());
         
         // scheint korrekt sum aus 3- und 1-blade
@@ -666,11 +677,12 @@ public class CGAMultivector {
             CGAMultivector d = Y3.gp(X2.reverse().gp(1d/X2.squaredNorm()));
             System.out.println("d="+d.toString());
 
-            double[] dValues = d.extractCoordinates(2);
+            double[] dValues = d.impl.extractCoordinates(2);
          
             double alpha = 0d;
             Vector3d p = new Vector3d(); 
             return new Decomposition3d.LinePairParameters(alpha, new Point3d(p.x,p.y,p.z), 
+                    //TODO indizes?
                     new Vector3d(dValues[0], dValues[1], dValues[2]));
         }
     }
@@ -719,19 +731,7 @@ public class CGAMultivector {
     
     
     
-    /**
-     * Extract direction from E einf multivector representation.
-     * 
-     * @return direction
-     */
-    private Vector3d extractDirectionFromEeinfRepresentation(){
-        double[] coordinates = extractCoordinates(3);
-        return new Vector3d(coordinates[9], coordinates[8], coordinates[7]);
-    }
-    private Vector3d extractDirection(){
-        double[] coordinates = extractCoordinates(1);
-        return new Vector3d(coordinates[1], coordinates[2], coordinates[3]);
-    }
+   
     
     
     // monadic operators
@@ -808,24 +808,121 @@ public class CGAMultivector {
         return new CGAMultivector(impl.sub(b.impl));
     }
     
+    public CGAMultivector abs(){
+        return new CGAMultivector(impl.abs());
+    }
+    
     public boolean isScalar(){
         return impl.isScalar();
     }
-    
     public CGAMultivector extractGrade(int grade){
         return new CGAMultivector(impl.extractGrade(grade));
     }
-    
     public CGAMultivector normalize(){
         return new CGAMultivector(impl.normalize());
     }
-    
     public CGAMultivector gradeInversion(){
         return new CGAMultivector(impl.gradeInversion());
     }
-
     @Override
     public String toString(){
         return impl.toString();
+    }
+    
+    
+    // coordinates extraction
+    
+    /**
+     * Extract direction from E einf multivector representation.
+     * 
+     * @return direction
+     */
+    private Vector3d extractDirectionFromEeinfRepresentation(){
+        double[] coordinates = impl.extractCoordinates(3);
+        //FIXME indizes hängen von der impl ab
+        return new Vector3d(coordinates[9], coordinates[8], coordinates[7]);
+    }
+    private Vector3d extractEuclidVector(){
+        double[] coordinates = impl.extractCoordinates(1);
+        int index = impl.getEStartIndex();
+        return new Vector3d(coordinates[index++], coordinates[index++], coordinates[index]);
+    }
+    
+    
+    
+    /**
+      * Decompose l2l1 into angle, distance, direction.
+      * 
+      * A Covariant approach to Geometry using Geometric Algebra.
+      * Technical report. Universit of Cambridge Departement of Engineering, 
+      * Cambridge, UK (2004). 
+      * A. Lasenby, J. Lasenby, R. Wareham
+      * Formula 5.22, page 46
+      * 
+      * @param l2l1
+      * @return parameters describing the pose of two lines to each other
+      */
+    public static Decomposition3d.LinePairParameters decomposeLinePair(CGAMultivector l2l1){
+        
+        System.out.println("l2l1:"+l2l1.toString());
+        
+        // Skalar
+        double cosalpha = l2l1.impl.extractCoordinates(0)[0];
+        System.out.println("cosalpha="+String.valueOf(cosalpha));
+        System.out.println("alpha="+String.valueOf(Math.acos(cosalpha)*180/Math.PI));
+       
+        // Bivektoren 
+        double[] bivectors = l2l1.impl.extractCoordinates(2);
+        double[] quadvectors = l2l1.impl.extractCoordinates(4);
+        
+        // attitude zeigt von l1 nach l2?
+        
+        double dist = 0d;
+        double sinalpha = 0;
+        
+        org.jogamp.vecmath.Vector3d attitude = null;
+        
+        // Geraden nicht senkrecht zueinander
+        if (cosalpha != 0){
+            System.out.println("attitude aus e01, e02 und e03 bestimmen!");
+            attitude = new org.jogamp.vecmath.Vector3d(
+                -bivectors[0]/cosalpha, -bivectors[1]/cosalpha, -bivectors[2]/cosalpha);
+            System.out.println("d(vectors)= ("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+", "+String.valueOf(attitude.z)+")");
+            dist = attitude.length();
+            System.out.println("dist = "+dist);
+            attitude.normalize();
+            System.out.println("d(vectors) normiert= ("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+", "+String.valueOf(attitude.z)+")");
+            
+        } 
+            
+        // Geraden sind nicht parallel
+        if (cosalpha*cosalpha != 1){
+            System.out.println("attitude aus e23, e13, e12 und e0123 bestimmen!");
+            double cos2alpha = 1d-cosalpha*cosalpha;
+            attitude = new org.jogamp.vecmath.Vector3d(
+                -bivectors[7]*quadvectors[0]/cos2alpha, 
+                 bivectors[5]*quadvectors[0]/cos2alpha, 
+                -bivectors[4]*quadvectors[0]/cos2alpha);
+            System.out.println("d(vectors)= ("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+", "+String.valueOf(attitude.z)+")");
+            dist = attitude.length();
+            System.out.println("dist = "+dist);
+            attitude.normalize();
+            System.out.println("d(vectors) normiert= ("+String.valueOf(attitude.x)+", "+String.valueOf(attitude.y)+", "+String.valueOf(attitude.z)+")");
+            
+        } 
+         
+        // Geraden haben keinen Schnittpunkt
+        if (dist != 0d){
+            sinalpha = -quadvectors[0]/dist;
+        } else {
+            System.out.println("Geraden schneiden sich!");
+            //FIXME
+            // ist das so richtig?
+            sinalpha = 0d;
+        }
+        //TODO
+        Point3d location = null;
+        
+        return new Decomposition3d.LinePairParameters(Math.atan2(cosalpha, sinalpha), location, attitude);
     }
 }

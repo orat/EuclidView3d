@@ -1,5 +1,6 @@
 package de.orat.math.cga.impl1;
 
+import de.orat.math.cga.api.CGAMultivector;
 import de.orat.math.cga.util.Decomposition3d;
 import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
 import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
@@ -19,10 +20,13 @@ import java.util.Map;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
-import static de.orat.math.cga.impl1.CGA1Utils.CGA_METRIC;
+import static de.orat.math.cga.impl1.CGA1Metric.CGA_METRIC;
 import de.orat.math.cga.spi.iCGAMultivector;
 import de.orat.math.ga.basis.MeetJoin;
 import org.jogamp.vecmath.Quat4d;
+import static de.orat.math.cga.api.CGAMultivector.createEx;
+import static de.orat.math.cga.api.CGAMultivector.createEy;
+import static de.orat.math.cga.api.CGAMultivector.createEz;
 
 /**
  * CGA Multivector reference implementation based on the reference implementation 
@@ -82,6 +86,25 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
         super(mv.getBlades());
     }
     
+    
+    // coordinate extaction
+    
+    @Override
+    public CGA1Multivector1a extractGrade(int g){
+        return new CGA1Multivector1a(super.extractGrade(g));
+    } 
+    @Override
+    public int getEStartIndex(){
+        return 1;
+    }
+    @Override
+    public int getEinfIndex(){
+        return 0;
+    }
+    @Override
+    public int getOriginIndex(){
+        return 4;
+    }
     /**
      * Extract the coordinates from all basis blades of the given grade
      * inclusive 0 values.
@@ -95,7 +118,7 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
     public double[] extractCoordinates(int grade){
         List<ScaledBasisBlade> gblades = extractBlades(new int[]{grade});
         int n =  5;//spaceDim();
-        CGA1Utils indexTable = CGA1Utils.getInstance();
+        CGA1Metric indexTable = CGA1Metric.getInstance();
         double[] result = new double[Util.binominal(n, grade)];
         for (int i=0;i<gblades.size();i++){
             ScaledBasisBlade basisBlade = gblades.get(i);
@@ -104,6 +127,9 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
         return result;
     }
     
+    
+    // base vector creation
+    
     /**
      * Create origin base vector.
      * 
@@ -111,38 +137,42 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
      * @return origin base vector.
      */
     @Override
-    public iCGAMultivector createBasisVectorOrigin(double scale){
-        return CGA1Multivector1a.createBasisVector(0, scale);
+    public iCGAMultivector createOrigin(double scale){
+        return CGA1Metric.createOrigin(scale);
     }
     @Override
-    public iCGAMultivector createBasisVectorEx(double scale){
-        return CGA1Multivector1a.createBasisVector(1, scale);
+    public iCGAMultivector createEx(double scale){
+        return CGA1Metric.createEx(scale);
     }
     @Override
-    public iCGAMultivector createBasisVectorEy(double scale){
-        return CGA1Multivector1a.createBasisVector(2, scale);
+    public iCGAMultivector createEy(double scale){
+        return CGA1Metric.createEy(scale);
     }
     @Override
-    public iCGAMultivector createBasisVectorEz(double scale){
-        return CGA1Multivector1a.createBasisVector(3, scale);
+    public iCGAMultivector createEz(double scale){
+        return CGA1Metric.createEz(scale);
     }
     @Override
-    public iCGAMultivector createBasisVectorEinf(double scale){
-        return CGA1Multivector1a.createBasisVector(4, scale);
+    public iCGAMultivector createInf(double scale){
+        return CGA1Metric.createBasisInf(scale);
+    }
+    @Override
+    public iCGAMultivector createE(Tuple3d p){
+        return createEx(p.x).add(createEy(p.y))
+                .add(createEz(p.z));
+    }
+    @Override
+    public iCGAMultivector createScalar(double d){
+        return new CGA1Multivector1a(d);
     }
     
     public static CGA1Multivector1a createBasisVector(int idx, double s){
-        if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
+        if (idx >= CGA1Metric.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector1a(Multivector.createBasisVector(idx, s));
     }
-    /*protected static CGA1Multivector1a createBasisVector(int idx) throws IllegalArgumentException {
-        if (idx >= CGA1Utils.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
-        return new CGA1Multivector1a(Multivector.createBasisVector(idx));
-    }*/
     
     
-    
-    // Operatoren
+    // Operators
     
     @Override
     public double scp(iCGAMultivector x) {
@@ -168,10 +198,12 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
     public CGA1Multivector1a gp(iCGAMultivector x){
         return new CGA1Multivector1a(super.gp((CGA1Multivector1a) x));
     }
+    
     @Override
     public CGA1Multivector1a gp(double x){
         return new CGA1Multivector1a(super.gp(x));
     }
+    
     /**
      * This plays an analogous role to transposition in matrix algebra.
      * 
@@ -181,10 +213,7 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
     public CGA1Multivector1a reverse() {
         return new CGA1Multivector1a(super.reverse());
     }
-    @Override
-    public CGA1Multivector1a extractGrade(int g){
-        return new CGA1Multivector1a(super.extractGrade(g));
-    } 
+    
     @Override
     public CGA1Multivector1a add(iCGAMultivector x){
         return new CGA1Multivector1a(super.add((CGA1Multivector1a) x));
@@ -272,6 +301,6 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
 
     @Override
     public String toString(){
-        return toString(CGA1Utils.baseVectorNames);
+        return toString(CGA1Metric.baseVectorNames);
     }
 }
