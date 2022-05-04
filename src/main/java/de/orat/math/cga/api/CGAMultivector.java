@@ -742,6 +742,18 @@ public class CGAMultivector {
     public CGAMultivector sqr(){
         return gp(this);
     }
+    /**
+     * The Duality operator implements Poincare duality, a definition and 
+     * implementation that works even if the pseudoscalar of the subspace in 
+     * consideration is degenerate. It is defined for any k-vector x of an 
+     * n-dimensional subspace as the n-k vector y containing all the basis
+     * vectors that are not in x. For non-degenerate metrics, you can use 
+     * multiplication with the pseudoscalar if so desired (although it will be 
+     * less efficient). This is not possible for CGA because of its degenerate
+     * metric.
+     * 
+     * @return the dual of this multivector
+     */
     public CGAMultivector dual(){
         return new CGAMultivector(impl.dual());
     }
@@ -767,17 +779,29 @@ public class CGAMultivector {
     
     // dual operators
     
+    /**
+     * @Deprectated brauche ich vermutlich gar nicht
+     * 
+     * @param x
+     * @return 
+     */
     public double scp(CGAMultivector x) {
         return impl.scp(x.impl);
     }
+    
     /**
-     * Inner product.
+     * Inner or dot product.
      * 
-     * @param x right side argument of the inner product
-     * @return inner product of this with a 'x' using metric 'M'
+     * The dot product implemented is per default the left contraction - without 
+     * any extensions or modifications. The geometric meaning is usually 
+     * formulated as the dot product between x and y gives the orthogonal
+     * complement in y of the projection of x onto y.<p>
+     * 
+     * @param y right side argument of the inner product
+     * @return inner product of this with a 'y'
      */
-    public CGAMultivector ip(CGAMultivector x){
-        return new CGAMultivector(impl.ip(x.impl, default_ip_type));
+    public CGAMultivector ip(CGAMultivector y){
+        return new CGAMultivector(impl.ip(y.impl, default_ip_type));
     }
     public CGAMultivector rc(CGAMultivector x){
          return new CGAMultivector(impl.ip(x.impl, RIGHT_CONTRACTION));

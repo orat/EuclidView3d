@@ -57,6 +57,15 @@ public interface iCGAMultivector {
 	return ip(x, LEFT_CONTRACTION).scalarPart();
     }
              
+    /**
+     * Vee or regressive product.
+     * 
+     * Overwrites this vee product with an optimized method if possible. The
+     * default impl caluclates the dual of the wedge of the duals.
+     * 
+     * @param x second argument of the vee product
+     * @return vee product
+     */
     default iCGAMultivector vee(iCGAMultivector x){
         return dual().op(x.dual()).undual();
     }

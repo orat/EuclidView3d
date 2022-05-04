@@ -42,10 +42,10 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
     /**
      * Vee product.
      * 
-     * The vee product is availabel as an optimized shorthand for the dual of 
-     * the wedge of the duals.
+     * Implements the vee product as an optimized shorthand for the dual of 
+     * the wedge of the duals.<p>
      * 
-     * @param b
+     * @param b second argument of the vee product
      * @return vee product
      */
     public CGA2Multivector vee(CGA2Multivector b){
@@ -308,18 +308,17 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
     }
 
 
-    //TODO
-    // unklar wie das implementiert werden könnte, da braucht es linear-algebra dazu
     @Override
     public iCGAMultivector generalInverse() {
+        // die generierte class sollte eigentlich auch die Methode Inverse()
+        // enthalten, eine matrix-freie Implementierung
+        //TODO
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    //TODO
-    // sollte sich auf basis bestehender Methoden implementieren lassen
     @Override
     public iCGAMultivector undual() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return dual().gp(-1d);
     }
 
     //TODO
@@ -332,6 +331,8 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
     // unklar, wie ich das implementieren soll
     @Override
     public iCGAMultivector exp() {
+        // eigentlich sollte die class CGA eine method Pow() zur Verfügung stellen
+        // unklar warum sie das nicht tut.
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
