@@ -242,6 +242,13 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param label the text of the label of the plane
      */
     public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, Color color, String label){
+        location = clipPoint(location);
+        Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
+        Point3d p2 = new Point3d(location.x+dir2.x,location.y+dir2.y, location.z+dir2.z);
+        p1 = clipPoint(p1);
+        p2 = clipPoint(p2);
+        dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
+        dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
         Plane plane = new Plane();
         plane.setData(location, dir1, dir2, color);
         plane.setPolygonOffsetFillEnable(false);
@@ -324,8 +331,9 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
         addCircle(new Point3d(0,0,0), new Vector3d(0,0,1),5,Color.RED, "Circle");
         
-        addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie"); 
+        addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         
+        addPlane(new Point3d(0,1,5), new Vector3d(0,-1,0), new Vector3d(-1,0,0), Color.ORANGE, "ClipPlane");
     }
        
 }
