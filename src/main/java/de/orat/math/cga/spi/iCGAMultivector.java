@@ -115,6 +115,11 @@ public interface iCGAMultivector {
         }
         return result;
     }
+    /**
+     * Calculate the squared euclidean norm. 
+     * 
+     * @return squared euclidean norm
+     */
     default double squaredNorm(){
         return gp(conjugate()).scalarPart();
     }

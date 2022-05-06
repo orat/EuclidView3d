@@ -131,7 +131,8 @@ public class CGAMultivector {
         return createPoint(p1).op(createPoint(p2)).op(createPoint(p3)).op(createPoint(p4));
     }
     /**
-     * Create a conformal point (grade 1 multivector).
+     * Create a conformal point (grade 1 multivector) by up-projecting an euclidian vector
+     * into a conformal vector.
      * 
      * Inner and outer product null space representation is identical.<p>
      * 
@@ -745,7 +746,9 @@ public class CGAMultivector {
     /**
      * The Duality operator implements Poincare duality, a definition and 
      * implementation that works even if the pseudoscalar of the subspace in 
-     * consideration is degenerate. It is defined for any k-vector x of an 
+     * consideration is degenerate. 
+     * 
+     * It is defined for any k-vector x of an 
      * n-dimensional subspace as the n-k vector y containing all the basis
      * vectors that are not in x. For non-degenerate metrics, you can use 
      * multiplication with the pseudoscalar if so desired (although it will be 
@@ -766,9 +769,30 @@ public class CGAMultivector {
     public double squaredNorm(){
         return impl.squaredNorm();
     }
+    /**
+     * Calculate the Euclidean norm. (strict positive).
+     * 
+     * @return euclidean norm
+     */
     public double norm(){
         return Math.sqrt(Math.abs(squaredNorm()));
     }
+    /**
+     * Calculate the Ideal norm. (signed)
+     * 
+     * FIXME das ist doch mit dieser Implementierung immer positiv. Der Code
+     * stammt aus ganja.js. Da stimmt irgendwas nicht und mir ist unklar wozu
+     * ich das überhaupt brauche.
+     * 
+     * inline float CGA::inorm() { return (!(*this)).norm(); }
+     * Was bedeutet das ! in ganja.js : dual
+     * 
+     * @return ideal norm
+     */
+    public double idealNorm(){
+        return dual().norm();
+    }
+    
     public boolean isNull(){
         return impl.isNull();
     }

@@ -1,32 +1,13 @@
 package de.orat.math.cga.impl1;
 
-import de.orat.math.cga.api.CGAMultivector;
-import de.orat.math.cga.util.Decomposition3d;
-import de.orat.math.cga.util.Decomposition3d.FlatAndDirectionParameters;
-import de.orat.math.cga.util.Decomposition3d.LinePairParameters;
-import de.orat.math.cga.util.Decomposition3d.RoundAndTangentParameters;
-import de.orat.math.cga.impl2.generated.CGA;
-import static de.orat.math.ga.basis.InnerProductTypes.LEFT_CONTRACTION;
-import static de.orat.math.ga.basis.InnerProductTypes.RIGHT_CONTRACTION;
-import de.orat.math.ga.basis.Metric;
 import de.orat.math.ga.basis.Multivector;
 import de.orat.math.ga.basis.ScaledBasisBlade;
 import de.orat.math.ga.basis.Util;
-import de.orat.math.ga.metric.MetricException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.jogamp.vecmath.Point3d;
-import org.jogamp.vecmath.Tuple3d;
-import org.jogamp.vecmath.Vector3d;
 import static de.orat.math.cga.impl1.CGA1Metric.CGA_METRIC;
 import de.orat.math.cga.spi.iCGAMultivector;
 import de.orat.math.ga.basis.MeetJoin;
-import org.jogamp.vecmath.Quat4d;
-import static de.orat.math.cga.api.CGAMultivector.createEx;
-import static de.orat.math.cga.api.CGAMultivector.createEy;
-import static de.orat.math.cga.api.CGAMultivector.createEz;
+import java.util.List;
+import org.jogamp.vecmath.Tuple3d;
 
 /**
  * CGA Multivector reference implementation based on the reference implementation 
@@ -275,13 +256,20 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
     /**
      * Squared norm.
      * 
-     * @return squared norm
+     * @return squared euclidean norm
      */
     @Override
     public double squaredNorm(){
+        // alternative implementation: use default implementation in the spi
         return super.norm_e2(CGA_METRIC);
     }
+    /**
+     * Calculate the Euclidean norm. (strict positive).
+     * 
+     * @return euclidean norm
+     */
     public double norm(){
+        // alternative implementation: return Math.sqrt(squaredNorm)
         return super.norm_e(CGA_METRIC);
     }
             

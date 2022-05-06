@@ -17,11 +17,15 @@ public class CGA1Metric {
     public static final int IPNS = 0; // standard representation (inner product null space)
     public static final int OPNS = 1; // dual representation (outer product null space)
  
-    //public static enum BaseVectorNames {"no", "e1", "e2", "e3", "ni"};
+    //public static enum BaseVectorNames {"eo", "e1", "e2", "e3", "ei"};
     
-    public static final String[] baseVectorNames = {"no", "e1", "e2", "e3", "ni"};
+    // ehemals n0, e1, e2, e3, ni
+    public static final String[] baseVectorNames = {"eo", "e1", "e2", "e3", "ei"};
     
     // representational space - Minkovski space
+    // e0, e1, e2, e3, einf
+    // e0=0.5*(e- - e+) und einf=e- + e+)
+    // corresponding to D. Hildenbrand2013, Kleppe2016
     public static Metric CGA_METRIC;
     static {
         try {
@@ -30,10 +34,11 @@ public class CGA1Metric {
                 {0.0, 0.0, 0.0, 0.0, -1.0},
                 {0.0, 1.0, 0.0, 0.0, 0.0},
                 {0.0, 0.0, 1.0, 0.0, 0.0},
-                {0.0, 0.0, 0.0 ,1.0, 0.0},
-                {-1.0, 0.0, 0.0 , 0.0, 0.0}});
+                {0.0, 0.0, 0.0, 1.0, 0.0},
+                {-1.0, 0.0, 0.0, 0.0, 0.0}});
         } catch (MetricException e){}
     }
+    // e+, e1, e2, e3, e-
     public static Metric CGA2_METRIC;
     static {
         try {
@@ -41,8 +46,8 @@ public class CGA1Metric {
                 {1.0, 0.0, 0.0, 0.0, 0.0},
                 {0.0, 1.0, 0.0, 0.0, 0.0},
                 {0.0, 0.0, 1.0, 0.0, 0.0},
-                {0.0, 0.0, 0.0 ,1.0, 0.0},
-                {0.0, 0.0, 0.0 , 0.0, -1.0}});
+                {0.0, 0.0, 0.0, 1.0, 0.0},
+                {0.0, 0.0, 0.0, 0.0, -1.0}});
         } catch (MetricException e){}
     }
     private static CGA1Metric instance = null;
@@ -167,7 +172,7 @@ public class CGA1Metric {
     }
     
     
-    // base vector creation
+    // base vector creation dependend on the used metric
     
     /**
      * Create origin base vector.

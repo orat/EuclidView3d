@@ -321,10 +321,14 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
         return dual().gp(-1d);
     }
 
-    //TODO
     @Override
     public boolean isNull() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        for (int i=0;i<_mVec.length;i++){
+            if (_mVec[i] != 0d){
+                return false;
+            }
+        }
+        return true;
     }
 
     //TODO
@@ -333,6 +337,9 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
     public iCGAMultivector exp() {
         // eigentlich sollte die class CGA eine method Pow() zur Verfügung stellen
         // unklar warum sie das nicht tut.
+        // Das scheint mir die js impl in ganja.js zu sein für n>=4
+        // var res = Element.Scalar(1), y=1, M= this.Scale(1), N=this.Scale(1); for (var x=1; x<15; x++) 
+        // { res=res.Add(M.Scale(1/y)); M=M.Mul(N); y=y*(x+1); }; return res;
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
