@@ -333,7 +333,8 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         
-        addPlane(new Point3d(0,1,5), new Vector3d(0,-1,0), new Vector3d(-1,0,0), Color.ORANGE, "ClipPlane");
+        addPlane(new Point3d(0,1,5), new Vector3d(0,-10,0), new Vector3d(-10,0,0), Color.ORANGE, "ClipPlane");
+        
     }
        
 }
