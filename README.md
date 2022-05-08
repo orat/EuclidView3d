@@ -6,4 +6,6 @@ This repository contains two implementations of CGA in java. One is based on cod
 
 This repository includes code to decompose multivectors into geometric 3d parameters like location, attitude, radius/size/squaredSize, weight etc. and specialized classes to represent Vectors, Bivectors, Trivectors etc.
 
+The project is used to learn about different possibilities to implement CGA and to find a good api as a basis to integrate CGA based on a DSL into the Java virtual machine. The overall aim is to integrate CGA polyglott into the VM, supported by a complete development toolig chain with syntax-highlighting and debugging etc.
+
 The code is in very early experimetal status.
