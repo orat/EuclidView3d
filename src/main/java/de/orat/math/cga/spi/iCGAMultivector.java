@@ -1,6 +1,5 @@
 package de.orat.math.cga.spi;
 
-import de.orat.math.cga.api.CGAMultivector;
 import static de.orat.math.ga.basis.InnerProductTypes.LEFT_CONTRACTION;
 import org.jogamp.vecmath.Tuple3d;
 
@@ -11,13 +10,23 @@ public interface iCGAMultivector {
     
     // base methods to create specific cga multivectors
     
+    /**
+     * Creates a multivector based on the values of all 32 blades.
+     * 
+     * @param values of 32 blades
+     * @return multivector
+     */
+    public iCGAMultivector create(double[] values);
     public iCGAMultivector createOrigin(double scale);
     public iCGAMultivector createEx(double scale);
     public iCGAMultivector createEy(double scale);
     public iCGAMultivector createEz(double scale);
     public iCGAMultivector createInf(double scale);
     
-    public iCGAMultivector createE(Tuple3d p);
+    default iCGAMultivector createE(Tuple3d p){
+        return createEx(p.x).add(createEy(p.y)).add(createEz(p.z));
+    }
+    
     public iCGAMultivector createScalar(double d);
     
     public boolean isScalar();
@@ -70,9 +79,36 @@ public interface iCGAMultivector {
         return dual().op(x.dual()).undual();
     }
     
-    // monadic operators
     
-    public iCGAMultivector generalInverse();
+    // monadic/unary operators
+    
+    default iCGAMultivector generalInverse(){
+        iCGAMultivector conjugate = conjugate();
+        iCGAMultivector gradeInversion = gradeInversion();
+        iCGAMultivector reversion = reverse();
+        iCGAMultivector negate14 = negate14();
+        iCGAMultivector part = gp(conjugate).gp(gradeInversion).gp(reversion);
+        double scalar = part.gp(negate14).gp(part).scalarPart();
+        return conjugate.gp(gradeInversion).gp(reversion).gp(negate14).gp(part).gp(1d/scalar);
+    }
+    
+    /**
+     * Negates only the signs of the vector and 4-vector parts of an multivector. 
+     * 
+     * Used only to implement general inverse functionality.
+     * 
+     * @return multivector with changed signs for vector and 4-vector parts
+     */
+    default iCGAMultivector negate14(){
+        double[] coordinates = extractCoordinates();
+        for (int i=1;i<6;i++){
+            coordinates[i] = -coordinates[i];
+        }
+        for (int i=26;i<31;i++){
+            coordinates[i] = -coordinates[i];
+        }
+        return create(coordinates);
+    }
     public iCGAMultivector dual();
     //TODO
     // implement default implementation
@@ -84,6 +120,8 @@ public interface iCGAMultivector {
     
     public iCGAMultivector conjugate();
     public iCGAMultivector reverse();
+    
+    // main grade involution
     public iCGAMultivector gradeInversion();
     
     public iCGAMultivector exp();
@@ -143,5 +181,7 @@ public interface iCGAMultivector {
     public int getEinfIndex();
     public int getOriginIndex();
     
+    public double[] extractCoordinates();
     public double[] extractCoordinates(int grade);
+    public void setCoordinates(int grade, double[] values);
 }

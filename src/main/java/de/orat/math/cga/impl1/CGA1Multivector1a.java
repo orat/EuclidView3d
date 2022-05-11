@@ -6,6 +6,7 @@ import de.orat.math.ga.basis.Util;
 import static de.orat.math.cga.impl1.CGA1Metric.CGA_METRIC;
 import de.orat.math.cga.spi.iCGAMultivector;
 import de.orat.math.ga.basis.MeetJoin;
+import java.util.ArrayList;
 import java.util.List;
 import org.jogamp.vecmath.Tuple3d;
 
@@ -108,6 +109,29 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
         return result;
     }
     
+    // ungetestet
+    public void setCoordinates(double[] values){
+        blades = new ArrayList<>();
+        for (int i=0;i<values.length;i++){
+            if (values[i] != 0){
+                blades.add(new ScaledBasisBlade(i, values[i]));
+            }
+        }
+    }
+    // ungetestet
+    @Override
+    public void setCoordinates(int grade, double[] values){
+        
+    }
+    // ungetested
+    @Override
+    public double[] extractCoordinates(){
+        return null;
+    }
+    @Override
+    public iCGAMultivector create(double[] values){
+        return null;
+    }
     
     // base vector creation
     
@@ -138,15 +162,17 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
         return CGA1Metric.createBasisInf(scale);
     }
     @Override
-    public iCGAMultivector createE(Tuple3d p){
-        return createEx(p.x).add(createEy(p.y))
-                .add(createEz(p.z));
-    }
-    @Override
     public iCGAMultivector createScalar(double d){
         return new CGA1Multivector1a(d);
     }
     
+    /**
+     * Create Basis vector.
+     * 
+     * @param idx 0..5
+     * @param s scale of the basis blade
+     * @return basis vector
+     */
     public static CGA1Multivector1a createBasisVector(int idx, double s){
         if (idx >= CGA1Metric.baseVectorNames.length) throw new IllegalArgumentException("Idx must be smaller than 5!");
         return new CGA1Multivector1a(Multivector.createBasisVector(idx, s));
@@ -179,7 +205,6 @@ public class CGA1Multivector1a extends Multivector implements iCGAMultivector {
     public CGA1Multivector1a gp(iCGAMultivector x){
         return new CGA1Multivector1a(super.gp((CGA1Multivector1a) x));
     }
-    
     @Override
     public CGA1Multivector1a gp(double x){
         return new CGA1Multivector1a(super.gp(x));

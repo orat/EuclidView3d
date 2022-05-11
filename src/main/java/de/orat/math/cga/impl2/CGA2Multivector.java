@@ -179,9 +179,59 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
                 return new double[]{_mVec[31]};
             }
         }
-        throw new IllegalArgumentException("Only 0 < grade > 32 ist allowed!");
+        throw new IllegalArgumentException("Only 0 < grade <= 5 is allowed!");
     }
     
+    @Override
+    /**
+     * Set the coordinates of the given grade.
+     * 
+     * @throws IllegalArgumentException if the given grade does not correspoind to the
+     * length of the value array or the given grade does correspond to CGA at all.
+     */
+    public void setCoordinates(int grade, double[] values){
+        if (grade < 0 || grade > 5)
+            throw new IllegalArgumentException("Only 0 < grade <= 5 is allowed!");
+        switch (grade){
+            case 0 -> {
+                if (values.length != 1) throw new IllegalArgumentException("Grade 0 must have only 1 value but \""+
+                        String.valueOf(values.length)+"\" found!");
+                _mVec[0] = values[0];
+                break;
+            }
+            case 1 -> {
+                if (values.length != 5) throw new IllegalArgumentException(
+                        "Grade 1 must have 5 value but found \""+String.valueOf(values.length)+"\"!");
+                System.arraycopy(values, 1, _mVec, 1, 5);
+                break;
+            }
+            case 2 -> {
+                if (values.length != 10) throw new IllegalArgumentException(
+                        "Grade 2 must have 10 value but found \""+String.valueOf(values.length)+"\"!");
+                System.arraycopy(values, 0, _mVec, 6, 10);
+                break;
+            }
+            case 3 -> {
+                if (values.length != 10) throw new IllegalArgumentException(
+                        "Grade 3 must have 10 value but found \""+String.valueOf(values.length)+"\"!");
+                System.arraycopy(values, 0, _mVec, 16, 10);
+                break;
+            }
+            case 4 -> {
+                if (values.length != 5) throw new IllegalArgumentException(
+                        "Grade 4 must have 5 value but found \""+String.valueOf(values.length)+"\"!");
+                System.arraycopy(values, 1, _mVec, 26, 5);
+                break;
+            }
+            case 5 -> {
+                if (values.length != 1) throw new IllegalArgumentException("Grade 5 must have only 1 value but \""+
+                        String.valueOf(values.length)+"\" found!");
+                _mVec[31] = values[0];
+                break;
+            }
+        }
+        
+    }
     /**
      * Grade projection/extraction.
      * 
@@ -225,7 +275,14 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
         return new CGA2Multivector(result);
     }
     
+    @Override
+    public double[] extractCoordinates(){
+        double[] result = new double[_mVec.length];
+        System.arraycopy(_mVec, 0, result, 0, _mVec.length);
+        return result;
+    }
 
+    
     // implementation of iCGAMultivector 
     
     @Override
@@ -271,6 +328,10 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
     }
 
     @Override
+    public iCGAMultivector create(double[] values){
+        return new CGA2Multivector(new CGA(values));
+    }
+    @Override
     public iCGAMultivector createOrigin(double scale) {
         return new CGA2Multivector(CGA.binop_Add(e4,e5));
     }
@@ -291,10 +352,6 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
         return new CGA2Multivector(CGA.binop_smul(0.5d, CGA.binop_Sub(e5, e4)));
     }
     @Override
-    public iCGAMultivector createE(Tuple3d p){
-        return createEx(p.x).add(createEy(p.y)).add(createEz(p.z));
-    }
-    @Override
     public iCGAMultivector createScalar(double scale){
         return new CGA2Multivector(new CGA(0, scale));
     }
@@ -305,15 +362,6 @@ public class CGA2Multivector extends de.orat.math.cga.impl2.generated.CGA implem
             if (_mVec[i] != 0d) return false;
         }
         return true;
-    }
-
-
-    @Override
-    public iCGAMultivector generalInverse() {
-        // die generierte class sollte eigentlich auch die Methode Inverse()
-        // enthalten, eine matrix-freie Implementierung
-        //TODO
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
