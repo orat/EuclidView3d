@@ -1,10 +1,15 @@
 package de.orat.math.view.euclidview3d;
+import java.util.List;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.analysis.AWTAbstractAnalysis;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.controllers.mouse.NewtMouseUtilities;
+import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
+import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
+import org.jzy3d.chart.controllers.mouse.picking.PickingSupport;
 import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.chart.factories.NewtChartFactory;
@@ -18,6 +23,7 @@ import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.Plane;
 import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Sphere;
+import org.jzy3d.plot3d.primitives.pickable.PickableSphere;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
@@ -25,10 +31,21 @@ import org.jzy3d.plot3d.text.drawable.DrawableText;
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class GeometryView3d extends AWTAbstractAnalysis {
+public class GeometryView3d extends AbstractAnalysis {
 
     //private Chart chart;
     private final float labelOffset = 0.5f;
+    private int pickingId = 0;
+    private List<? extends Object> pickableObjects;
+    private PickingSupport pickingSupport;
+    
+    /**
+     * Constructor for a GeometryView3d to get created by a NewtChartFactory.
+     */
+    public GeometryView3d(){
+        super(new NewtChartFactory());
+    }
+    
     
     public static void main(String[] args) throws Exception {
         AnalysisLauncher.open(new GeometryView3d());
@@ -46,9 +63,11 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      */
     public void addPoint(Point3d location, Color color, float width, String label){
         //double radius = 0.6;
-        Sphere sphere = new Sphere(new Coord3d(location.x,location.x,location.z),(float) (width/2), 20, color);
+        PickableSphere sphere = new PickableSphere(new Coord3d(location.x,location.y,location.z),(float) (width/2), 20, color);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeDisplayed(false);
+        sphere.setPickingId(pickingId++);
+        pickingSupport.registerDrawableObject(sphere, sphere);
         //Point point = new Point(new Coord3d(location.x,location.x,location.z), color, width);
         chart.add(sphere);
         Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - labelOffset);
@@ -310,17 +329,22 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         q.setAnimated(false); 
         q.setHiDPIEnabled(true); 
         
-        chart = initializeChart(q);
+        //chart = initializeChart(q);       
         
+        chart = new Chart(this.getFactory(), q);
+        System.out.println(chart.getFactory().toString());
         
         //chart = myfactory.newChart(q);
         chart.getView().setSquared(false);
         chart.getView().setBackgroundColor(Color.WHITE);
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
 
+        
+        setUpMouse();
         //Light light = chart.addLightOnCamera();
         Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         
+        /*
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
@@ -334,6 +358,69 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         
         addPlane(new Point3d(0,1,5), new Vector3d(0,-10,0), new Vector3d(-10,0,0), Color.ORANGE, "ClipPlane");
+        */
+        addPoint(new Point3d(0,0,0), Color.BLUE, 0.6f, "Point1");
+        addPoint(new Point3d(1,10,1), Color.BLUE, 0.6f, "Point3");
+        addPoint(new Point3d(10,10,10), Color.BLUE, 0.6f, "Point2");
+        
+    }
+    
+    private void setUpMouse(){
+        pickingSupport = new PickingSupport();
+        pickingSupport.addObjectPickedListener(new EuclidPickListener());
+        NewtMouse m = new NewtMouse();
+        m.setPickingSupport(pickingSupport);
+        m.register(chart);
+    }
+    
+    private class NewtMouse extends NewtMousePickingController{
+        
+        @Override
+        public void mouseMoved(com.jogamp.newt.event.MouseEvent e){
+            //So hovering over a pickable Object doesn't select it when hovering over a pickable object
+        }
+        
+        @Override
+        public void mouseClicked(com.jogamp.newt.event.MouseEvent e){
+            int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
+            Coord3d pos = chart.getView().projectMouse(e.getX(), (int) chart.flip(e.getY()));
+            //projectMouse is off by about 10 so we add that to the position.
+            pos = new Coord3d(pos.x+10,pos.y+10,pos.z+10);
+            System.out.println(pos);
+        }
+        
+        @Override
+        public void mouseReleased(com.jogamp.newt.event.MouseEvent e){
+            int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
+            Coord3d pos = chart.getView().projectMouse(e.getX(), yflip);
+            //projectMouse is off by about 10 so we add that to the position.
+            pos = new Coord3d(pos.x+10,pos.y+10,pos.z+10);
+            Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));
+            //On right click move picked objects to the mouse position
+            if(e.getButton() == 1){
+                if(pickableObjects != null && pickableObjects.size() > 0){
+                    for(Object o:pickableObjects){
+                        PickableSphere sphere = (PickableSphere) o;
+                        sphere.setPosition(new Coord3d(clippedPos.x, clippedPos.y, clippedPos.z));
+                        chart.updateProjectionsAndRender();
+                    }
+                    System.out.println("Object was moved to: " + clippedPos);
+                    pickableObjects.clear();
+                    chart.getMouse().setUpdateViewDefault(true); 
+                }
+            }
+        }
+    }
+    
+    private class EuclidPickListener implements IObjectPickedListener{
+
+        @Override
+        public void objectPicked(List<? extends Object> list, PickingSupport ps) {
+            if(list.size()>0){
+                pickableObjects = list;
+                chart.getMouse().setUpdateViewDefault(false);
+            }
+        }
         
     }
        
