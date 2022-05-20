@@ -40,20 +40,22 @@ public class GeometryViewCGA extends GeometryView3d {
      * Add a point to the 3d view.
      * 
      * @param location location of the point
+     * @param label
      */
-    public void addPoint(Point3d location){
-        addPoint(location, COLOR_GRADE_1, POINT_RADIUS*2); // oder grade 4?
+    public void addPoint(Point3d location, String label){
+        addPoint(location, COLOR_GRADE_1, POINT_RADIUS*2, label); // oder grade 4?
     }
     /**
      * Add a line to the 3d view.
      * 
      * @param attitude
      * @param location 
+     * @param label 
      */
-    public void addLine(Vector3d attitude, Point3d location){
+    public void addLine(Vector3d attitude, Point3d location, String label){
         //FIXME
         float length = 1;
-        addLine(attitude, location, COLOR_GRADE_2, LINE_RADIUS, length); 
+        addLine(attitude, location, COLOR_GRADE_2, LINE_RADIUS, length, label); 
     }
     
     /**
@@ -61,9 +63,10 @@ public class GeometryViewCGA extends GeometryView3d {
      * 
      * @param location
      * @param attitude 
+     * @param label 
      */
-    public void addTangent(Point3d location, Vector3d attitude){
-        addArrow(location, attitude, TANGENT_LENGTH, LINE_RADIUS, COLOR_TANGENT);
+    public void addTangent(Point3d location, Vector3d attitude, String label){
+        addArrow(location, attitude, TANGENT_LENGTH, LINE_RADIUS, COLOR_TANGENT, label);
     }
     
     public void addSphere(Point3d location, double radius){};
