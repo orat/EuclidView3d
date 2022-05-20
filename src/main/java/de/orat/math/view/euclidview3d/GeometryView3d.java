@@ -100,6 +100,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param color
      * @param radius
      * @param length weglassen und die Länge anhand des Volumens der view bestimmen
+     * @param label
      */
     public void addLine(Vector3d attitude, Point3d location, Color color, float radius, float length, String label){
         addLine(location, 
@@ -132,26 +133,28 @@ public class GeometryView3d extends AbstractAnalysis {
     }
     
     /**
-     * Clips a point to the Axis
+     * Clips a point.
+     * 
+     * Projection of the point to the bounding box.
      * 
      * @param point The point which should be clipped
      * @return the clipped point
      */
     public Point3d clipPoint(Point3d point){
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
-        if(point.x < bounds.getXmin()){
+        if (point.x < bounds.getXmin()){
             point.x = bounds.getXmin();
-        }else if(point.x > bounds.getXmax()){
+        } else if (point.x > bounds.getXmax()){
             point.x = bounds.getXmax();
         }
-        if(point.y < bounds.getYmin()){
+        if (point.y < bounds.getYmin()){
             point.y = bounds.getYmin();
-        }else if(point.y > bounds.getYmax()){
+        } else if (point.y > bounds.getYmax()){
             point.y = bounds.getYmax();
         } 
-        if(point.z < bounds.getZmin()){
+        if (point.z < bounds.getZmin()){
             point.z = bounds.getZmin();
-        }else if(point.z > bounds.getZmax()){
+        } else if (point.z > bounds.getZmax()){
             point.z = bounds.getZmax();
         }
         return point;
@@ -165,6 +168,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param direction normal vector of the plane the circle lays in
      * @param radius radius of the circle
      * @param color color of the circle
+     * @param label
      */
     public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color, String label){
         float rings = 100.f;
@@ -207,22 +211,23 @@ public class GeometryView3d extends AbstractAnalysis {
         orthogonals[0] = direction;
         int smalest = 0;
         float smalest_value = (float) direction.x; 
-        if(smalest_value > direction.y){
+        if (smalest_value > direction.y){
             smalest = 1; 
             smalest_value = (float) direction.y;
         }
-        if(smalest_value > direction.z){
+        if (smalest_value > direction.z){
             smalest = 2; 
             smalest_value = (float) direction.z;
         }
-        Vector3d w = new Vector3d(1,0,0);
-        if(smalest == 0){
-            w = new Vector3d(1,0,0);
-        } else if(smalest == 1){
-            w = new Vector3d(0,1,0);
-        } else {
-            w = new Vector3d(0,0,1);
-        }
+        
+        //FIXME
+        // smalest_value not used
+        
+        Vector3d w = switch (smalest) {
+            case 0 -> new Vector3d(1,0,0);
+            case 1 -> new Vector3d(0,1,0);
+            default -> new Vector3d(0,0,1);
+        };
         Vector3d u = new Vector3d(0,0,0);
         u.cross(w, direction);
         orthogonals[1] = u;
@@ -240,7 +245,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param length length of the arrow
      * @param radius radius of the arrow
      * @param color color of the arrow
-     * * @param label the text of the label of the arrow
+     * @param label the text of the label of the arrow
      */
     public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color, String label){
         Arrow arrow = new Arrow();
@@ -398,7 +403,7 @@ public class GeometryView3d extends AbstractAnalysis {
             Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));
             //On right click move picked objects to the mouse position
             if(e.getButton() == 1){
-                if(pickableObjects != null && pickableObjects.size() > 0){
+                if (pickableObjects != null && !pickableObjects.isEmpty()){
                     for(Object o:pickableObjects){
                         PickableSphere sphere = (PickableSphere) o;
                         sphere.setPosition(new Coord3d(clippedPos.x, clippedPos.y, clippedPos.z));
@@ -412,16 +417,13 @@ public class GeometryView3d extends AbstractAnalysis {
         }
     }
     
-    private class EuclidPickListener implements IObjectPickedListener{
-
+    private class EuclidPickListener implements IObjectPickedListener {
         @Override
         public void objectPicked(List<? extends Object> list, PickingSupport ps) {
-            if(list.size()>0){
+            if(!list.isEmpty()){
                 pickableObjects = list;
                 chart.getMouse().setUpdateViewDefault(false);
             }
         }
-        
     }
-       
 }
