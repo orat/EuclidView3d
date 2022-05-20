@@ -112,26 +112,28 @@ public class GeometryView3d extends AWTAbstractAnalysis {
     }
     
     /**
-     * Clips a point to the Axis
+     * Clips a point.
+     * 
+     * The given point is projected onto the bounding box.
      * 
      * @param point The point which should be clipped
      * @return the clipped point
      */
     public Point3d clipPoint(Point3d point){
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
-        if(point.x < bounds.getXmin()){
+        if (point.x < bounds.getXmin()){
             point.x = bounds.getXmin();
-        }else if(point.x > bounds.getXmax()){
+        } else if (point.x > bounds.getXmax()){
             point.x = bounds.getXmax();
         }
-        if(point.y < bounds.getYmin()){
+        if (point.y < bounds.getYmin()){
             point.y = bounds.getYmin();
-        }else if(point.y > bounds.getYmax()){
+        } else if (point.y > bounds.getYmax()){
             point.y = bounds.getYmax();
         } 
-        if(point.z < bounds.getZmin()){
+        if (point.z < bounds.getZmin()){
             point.z = bounds.getZmin();
-        }else if(point.z > bounds.getZmax()){
+        } else if (point.z > bounds.getZmax()){
             point.z = bounds.getZmax();
         }
         return point;
@@ -244,7 +246,8 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param color color of the plane
      * @param label the text of the label of the plane, null if no label needed
      */
-    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, Color color, String label){
+    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, 
+                         Color color, String label){
         location = clipPoint(location);
         Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
         Point3d p2 = new Point3d(location.x+dir2.x,location.y+dir2.y, location.z+dir2.z);
@@ -277,10 +280,10 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param color color of the text
      */
     void addLabel(Point3d location, String text, Color color){
-         Coord3d coord3d = new Coord3d();
-         coord3d.set((float) location.x, (float) location.y, (float) location.z);
-         DrawableText label = new DrawableText(text, coord3d, color);
-         chart.add(label);
+        Coord3d coord3d = new Coord3d();
+        coord3d.set((float) location.x, (float) location.y, (float) location.z);
+        DrawableText label = new DrawableText(text, coord3d, color);
+        chart.add(label);
     }
     
     
