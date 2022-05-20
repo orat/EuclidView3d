@@ -19,6 +19,7 @@ import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
+import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.Plane;
 import org.jzy3d.plot3d.primitives.Point;
@@ -63,7 +64,7 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public void addPoint(Point3d location, Color color, float width, String label){
         //double radius = 0.6;
-        PickableSphere sphere = new PickableSphere(new Coord3d(location.x,location.y,location.z),(float) (width/2), 20, color);
+        EuclidSphere sphere = new EuclidSphere(new Coord3d(location.x,location.y,location.z),(float) (width/2), 20, color);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeDisplayed(false);
         sphere.setPickingId(pickingId++);
@@ -83,7 +84,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param label the text of the label of the sphere
      */
     public void addSphere(Point3d location, double squaredSize, Color color, String label){
-        Sphere sphere = new Sphere(new Coord3d(location.x,location.x,location.z),
+        EuclidSphere sphere = new EuclidSphere(new Coord3d(location.x,location.x,location.z),
                 (float) Math.sqrt(Math.abs(squaredSize)),10, color);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
@@ -405,8 +406,8 @@ public class GeometryView3d extends AbstractAnalysis {
             if(e.getButton() == 1){
                 if (pickableObjects != null && !pickableObjects.isEmpty()){
                     for(Object o:pickableObjects){
-                        PickableSphere sphere = (PickableSphere) o;
-                        sphere.setPosition(new Coord3d(clippedPos.x, clippedPos.y, clippedPos.z));
+                        EuclidSphere sphere = (EuclidSphere) o;
+                        sphere.setNewPosition(new Coord3d(clippedPos.x, clippedPos.y, clippedPos.z));
                         chart.updateProjectionsAndRender();
                     }
                     System.out.println("Object was moved to: " + clippedPos);
