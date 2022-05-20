@@ -4,6 +4,7 @@ import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.analysis.AWTAbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.colors.Color;
+import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.plot3d.primitives.Arrow;
@@ -97,6 +98,8 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param label the label of the line
      */
     public void addLine(Point3d p1, Point3d p2, float radius, Color color, String label){
+        p1 = clipPoint(p1);
+        p2 = clipPoint(p2);
         org.jzy3d.maths.Vector3d vec = 
                 new org.jzy3d.maths.Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
         Line line = new Line();
@@ -107,6 +110,33 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
         addLabel(labelLocation, label, Color.BLACK);
     }
+    
+    /**
+     * Clips a point to the Axis
+     * 
+     * @param point The point which should be clipped
+     * @return the clipped point
+     */
+    public Point3d clipPoint(Point3d point){
+        BoundingBox3d bounds = chart.getView().getAxis().getBounds();
+        if(point.x < bounds.getXmin()){
+            point.x = bounds.getXmin();
+        }else if(point.x > bounds.getXmax()){
+            point.x = bounds.getXmax();
+        }
+        if(point.y < bounds.getYmin()){
+            point.y = bounds.getYmin();
+        }else if(point.y > bounds.getYmax()){
+            point.y = bounds.getYmax();
+        } 
+        if(point.z < bounds.getZmin()){
+            point.z = bounds.getZmin();
+        }else if(point.z > bounds.getZmax()){
+            point.z = bounds.getZmax();
+        }
+        return point;
+    }
+    
     
     /**
      * add circle to the 3d view.
@@ -215,6 +245,13 @@ public class GeometryView3d extends AWTAbstractAnalysis {
      * @param label the text of the label of the plane, null if no label needed
      */
     public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, Color color, String label){
+        location = clipPoint(location);
+        Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
+        Point3d p2 = new Point3d(location.x+dir2.x,location.y+dir2.y, location.z+dir2.z);
+        p1 = clipPoint(p1);
+        p2 = clipPoint(p2);
+        dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
+        dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
         Plane plane = new Plane();
         plane.setData(location, dir1, dir2, color);
         plane.setPolygonOffsetFillEnable(false);
@@ -299,7 +336,10 @@ public class GeometryView3d extends AWTAbstractAnalysis {
         addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
         addCircle(new Point3d(0,0,0), new Vector3d(0,0,1),5,Color.RED, "Circle");
         
-        addLine(new Vector3d(0d,0d,-1d), new Point3d(-4d,-4d,-4d), Color.CYAN, 0.2f, 10f, "Linie");
+        addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
+        
+        addPlane(new Point3d(0,1,5), new Vector3d(0,-10,0), new Vector3d(-10,0,0), Color.ORANGE, "ClipPlane");
+        
     }
        
 }
