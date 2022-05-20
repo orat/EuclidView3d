@@ -19,15 +19,11 @@ import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
-import org.jzy3d.plot3d.primitives.Drawable;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
-import org.jzy3d.plot3d.primitives.Point;
-import org.jzy3d.plot3d.primitives.Sphere;
-import org.jzy3d.plot3d.primitives.pickable.PickableSphere;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
@@ -429,8 +425,8 @@ public class GeometryView3d extends AbstractAnalysis {
     
     /**
      * Moves a pickableObject
-     * @param position
-     * @param o 
+     * @param position the position to which the object should be moved
+     * @param object the object
      */
     public void moveObject(Coord3d position, PickableObjects object){
         if(object != null){
