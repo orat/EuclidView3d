@@ -4,18 +4,25 @@ import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.primitives.pickable.PickablePolygon;
 import org.jzy3d.plot3d.primitives.textured.TranslucentQuad;
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2022
  */
-public class Plane extends Quad /*TranslucentQuadComposite*/ {	
+public class EuclidPlane extends PickablePolygon implements PickableObjects {	
     
     //protected /*Translucent*/Quad quad;
+    private Vector3d dir1;
+    private Vector3d dir2;
     
     public void setData(Point3d location, Vector3d dir1, Vector3d dir2, Color color){
         //quad = new /*Translucent*/Quad(); 
      
+        this.dir1 = dir1;
+        this.dir2 = dir2;
+        this.color = color;
+        
         Coord3d coord3d = new Coord3d();
         coord3d.set((float) location.x, (float) location.y, (float) location.z);
         Point firstPoint = new Point(coord3d, color);
@@ -39,4 +46,17 @@ public class Plane extends Quad /*TranslucentQuadComposite*/ {
 
         /*quad.*/setColor(color);
     }
+
+    @Override
+    public DrawableTypes getType() {
+        return DrawableTypes.PLANE;
+    }
+
+    @Override
+    public void setNewPosition(Coord3d position) {
+        Color color = this.getColor();
+        this.getPoints().clear();
+        this.setData(new Point3d(position.x,position.y,position.z), dir1, dir2, color);
+    }
+    
 }

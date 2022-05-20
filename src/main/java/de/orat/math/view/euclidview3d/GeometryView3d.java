@@ -19,9 +19,12 @@ import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
+import org.jzy3d.plot3d.primitives.Drawable;
+import org.jzy3d.plot3d.primitives.DrawableTypes;
+import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.Line;
-import org.jzy3d.plot3d.primitives.Plane;
+import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Sphere;
 import org.jzy3d.plot3d.primitives.pickable.PickableSphere;
@@ -274,10 +277,12 @@ public class GeometryView3d extends AbstractAnalysis {
         p2 = clipPoint(p2);
         dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
         dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
-        Plane plane = new Plane();
+        EuclidPlane plane = new EuclidPlane();
         plane.setData(location, dir1, dir2, color);
         plane.setPolygonOffsetFillEnable(false);
         plane.setWireframeDisplayed(true);
+        pickingSupport.registerDrawableObject(plane, plane);
+        plane.setPickingId(pickingId++);
         chart.add(plane);
         Coord3d lowestPoint = plane.getCoordArray()[0];
         for(Coord3d coord: plane.getCoordArray()){
@@ -338,7 +343,6 @@ public class GeometryView3d extends AbstractAnalysis {
         //chart = initializeChart(q);       
         
         chart = new Chart(this.getFactory(), q);
-        System.out.println(chart.getFactory().toString());
         
         //chart = myfactory.newChart(q);
         chart.getView().setSquared(false);
@@ -367,8 +371,8 @@ public class GeometryView3d extends AbstractAnalysis {
         */
         addPoint(new Point3d(0,0,0), Color.BLUE, 0.6f, "Point1");
         addPoint(new Point3d(1,10,1), Color.BLUE, 0.6f, "Point3");
-        addPoint(new Point3d(10,10,10), Color.BLUE, 0.6f, "Point2");
-        
+        addPoint(new Point3d(20,20,20), Color.BLUE, 0.6f, "Point2");    
+        addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
     }
     
     private void setUpMouse(){
@@ -390,8 +394,6 @@ public class GeometryView3d extends AbstractAnalysis {
         public void mouseClicked(com.jogamp.newt.event.MouseEvent e){
             int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
             Coord3d pos = chart.getView().projectMouse(e.getX(), (int) chart.flip(e.getY()));
-            //projectMouse is off by about 10 so we add that to the position.
-            pos = new Coord3d(pos.x+10,pos.y+10,pos.z+10);
             System.out.println(pos);
         }
         
@@ -399,18 +401,15 @@ public class GeometryView3d extends AbstractAnalysis {
         public void mouseReleased(com.jogamp.newt.event.MouseEvent e){
             int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
             Coord3d pos = chart.getView().projectMouse(e.getX(), yflip);
-            //projectMouse is off by about 10 so we add that to the position.
-            pos = new Coord3d(pos.x+10,pos.y+10,pos.z+10);
             Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));
             //On right click move picked objects to the mouse position
             if(e.getButton() == 1){
                 if (pickableObjects != null && !pickableObjects.isEmpty()){
-                    for(Object o:pickableObjects){
-                        EuclidSphere sphere = (EuclidSphere) o;
-                        sphere.setNewPosition(new Coord3d(clippedPos.x, clippedPos.y, clippedPos.z));
-                        chart.updateProjectionsAndRender();
+                    for(Object o: pickableObjects){
+                        moveObject(new Coord3d(clippedPos.x,clippedPos.y,clippedPos.z),(PickableObjects) o);
                     }
-                    System.out.println("Object was moved to: " + clippedPos);
+                    chart.updateProjectionsAndRender();
+                    //System.out.println("Object was moved to: " + clippedPos);
                     pickableObjects.clear();
                     chart.getMouse().setUpdateViewDefault(true); 
                 }
@@ -424,6 +423,20 @@ public class GeometryView3d extends AbstractAnalysis {
             if(!list.isEmpty()){
                 pickableObjects = list;
                 chart.getMouse().setUpdateViewDefault(false);
+            }
+        }
+    }
+    
+    /**
+     * Moves a pickableObject
+     * @param position
+     * @param o 
+     */
+    public void moveObject(Coord3d position, PickableObjects object){
+        if(object != null){
+            object.setNewPosition(position);
+            if(object.getType().equals(DrawableTypes.PLANE)){
+                pickingSupport.registerDrawableObject((EuclidPlane) object, (EuclidPlane) object);
             }
         }
     }
