@@ -1,9 +1,11 @@
 package org.jzy3d.plot3d.primitives;
 
+import org.jogamp.vecmath.Point3d;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.maths.Vector3d;
+import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Transform;
 import org.jzy3d.plot3d.transform.Translate;
@@ -11,11 +13,26 @@ import org.jzy3d.plot3d.transform.Translate;
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2019
  */
-public class Line extends Composite {	
+public class Line extends Composite implements Pickable, PickableObjects{	
     
     protected Cylinder cylinder;
+    private int pickingId;
+    private float radius;
+    private int slices;
+    private int rings;
+    private Point3d p1;
+    private Point3d p2;
+    private Vector3d vec;
     
-    public void setData(Vector3d vec, float radius, int slices, int rings, Color color){
+    public void setData(Point3d p1, Point3d p2, float radius, int slices, int rings, Color color){
+        this.radius = radius;
+        this.slices = slices;
+        this.rings = rings;
+        this.p1 = p1;
+        this.p2 = p2; 
+        
+        this.vec =  new Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
+        
         Coord3d position = vec.getCenter();
         float length = vec.norm();  
         
@@ -41,5 +58,33 @@ public class Line extends Composite {
         Coord3d v = Utils2.cross(from,to);
         v.normalizeTo(1);
         return new Rotate(angle, v);
+    }
+
+    @Override
+    public void setPickingId(int i) {
+       this.pickingId = i;
+    }
+
+    @Override
+    public int getPickingId() {
+        return this.pickingId;
+    }
+
+    @Override
+    public DrawableTypes getType() {
+        return DrawableTypes.LINE;
+    }
+
+    @Override
+    public void setNewPosition(Coord3d position) {
+        Transform trans1 = this.getTransform();
+        Translate translate1 = new Translate(new Coord3d(-vec.getCenter().x, -vec.getCenter().y,-vec.getCenter().z));
+        trans1.add(translate1);
+        applyGeometryTransform(trans1);
+        
+        Transform trans = this.getTransform();
+        Translate translate = new Translate(position);
+        trans.add(translate);
+        applyGeometryTransform(trans);
     }
 }

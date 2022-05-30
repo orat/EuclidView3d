@@ -124,7 +124,9 @@ public class GeometryView3d extends AbstractAnalysis {
         org.jzy3d.maths.Vector3d vec = 
                 new org.jzy3d.maths.Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
         Line line = new Line();
-        line.setData(vec, radius, 10, 0, color);
+        line.setData(p1,p2, radius, 10, 0, color);
+        line.setPickingId(pickingId++);
+        pickingSupport.registerDrawableObject(line, line);
         chart.add(line);
         Vector3d negative_direction = new Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
         negative_direction.scale((2*labelOffset)/negative_direction.length());
@@ -369,6 +371,7 @@ public class GeometryView3d extends AbstractAnalysis {
         addPoint(new Point3d(1,10,1), Color.BLUE, 0.6f, "Point3");
         addPoint(new Point3d(20,20,20), Color.BLUE, 0.6f, "Point2");    
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
+        addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
     }
     
     private void setUpMouse(){
