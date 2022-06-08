@@ -9,6 +9,7 @@ import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Transform;
 import org.jzy3d.plot3d.transform.Translate;
+import org.jzy3d.plot3d.transform.TranslateDrawable;
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2019
@@ -17,19 +18,9 @@ public class Line extends Composite implements Pickable, PickableObjects{
     
     protected Cylinder cylinder;
     private int pickingId;
-    private float radius;
-    private int slices;
-    private int rings;
-    private Point3d p1;
-    private Point3d p2;
     private Vector3d vec;
-    
+
     public void setData(Point3d p1, Point3d p2, float radius, int slices, int rings, Color color){
-        this.radius = radius;
-        this.slices = slices;
-        this.rings = rings;
-        this.p1 = p1;
-        this.p2 = p2; 
         
         this.vec =  new Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
         
@@ -74,17 +65,19 @@ public class Line extends Composite implements Pickable, PickableObjects{
     public DrawableTypes getType() {
         return DrawableTypes.LINE;
     }
-
+    
     @Override
     public void setNewPosition(Coord3d position) {
-        Transform trans1 = this.getTransform();
-        Translate translate1 = new Translate(new Coord3d(-vec.getCenter().x, -vec.getCenter().y,-vec.getCenter().z));
-        trans1.add(translate1);
-        applyGeometryTransform(trans1);
-        
-        Transform trans = this.getTransform();
-        Translate translate = new Translate(position);
+        //Translate to origin to translate from there to new position
+        Coord3d bottom = new Coord3d(this.getBounds().getXmin(), this.getBounds().getYmin(), this.getBounds().getZmin());
+        Transform trans = this.getTransform();    
+        Translate translate = new Translate(new Coord3d(-bottom.x,-bottom.y,-bottom.z));
         trans.add(translate);
-        applyGeometryTransform(trans);
+        this.applyGeometryTransform(trans);
+        
+        Transform trans2 = this.getTransform();
+        Translate translate2 = new Translate(position);
+        trans2.add(translate2);
+        this.applyGeometryTransform(trans2);
     }
 }
