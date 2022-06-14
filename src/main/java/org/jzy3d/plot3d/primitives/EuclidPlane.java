@@ -6,6 +6,8 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.pickable.PickablePolygon;
 import org.jzy3d.plot3d.primitives.textured.TranslucentQuad;
+import org.jzy3d.plot3d.transform.Transform;
+import org.jzy3d.plot3d.transform.Translate;
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2022
@@ -54,9 +56,17 @@ public class EuclidPlane extends PickablePolygon implements PickableObjects {
 
     @Override
     public void setNewPosition(Coord3d position) {
-        Color color = this.getColor();
-        this.getPoints().clear();
-        this.setData(new Point3d(position.x,position.y,position.z), dir1, dir2, color);
+        //Translate to origin to translate from there to new position
+        Coord3d bottom = new Coord3d(this.getBounds().getXmin(), this.getBounds().getYmin(), this.getBounds().getZmin());
+        Transform trans = this.getTransform();    
+        Translate translate = new Translate(new Coord3d(-bottom.x,-bottom.y,-bottom.z));
+        trans.add(translate);
+        this.applyGeometryTransform(trans);
+        
+        Transform trans2 = this.getTransform();
+        Translate translate2 = new Translate(position);
+        trans2.add(translate2);
+        this.applyGeometryTransform(trans2);
     }
     
 }

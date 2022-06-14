@@ -443,9 +443,6 @@ public class GeometryView3d extends AbstractAnalysis {
     public void moveObject(Coord3d position, PickableObjects object){
         if(object != null){
             object.setNewPosition(position);
-            if(object.getType().equals(DrawableTypes.PLANE)){
-                pickingSupport.registerDrawableObject((EuclidPlane) object, (EuclidPlane) object);
-            }
         }
     }
     
