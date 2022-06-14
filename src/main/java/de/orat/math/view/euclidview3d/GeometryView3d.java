@@ -1,15 +1,18 @@
 package de.orat.math.view.euclidview3d;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.analysis.AWTAbstractAnalysis;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.controllers.mouse.NewtMouseUtilities;
 import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
 import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
 import org.jzy3d.chart.controllers.mouse.picking.PickingSupport;
+import org.jzy3d.chart.controllers.thread.camera.CameraThreadController;
 import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.chart.factories.NewtChartFactory;
@@ -36,7 +39,7 @@ public class GeometryView3d extends AbstractAnalysis {
     //private Chart chart;
     private final float labelOffset = 0.5f;
     private int pickingId = 0;
-    private List<? extends Object> pickableObjects;
+    private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private PickingSupport pickingSupport;
     
     /**
@@ -386,8 +389,8 @@ public class GeometryView3d extends AbstractAnalysis {
         
         @Override
         public void mouseMoved(com.jogamp.newt.event.MouseEvent e){
-            //So hovering over a pickable Object doesn't select it when hovering over a pickable object
-        }
+           //So hovering over a pickable Object doesn't select it when hovering over a pickable object
+        }   
         
         @Override
         public void mouseClicked(com.jogamp.newt.event.MouseEvent e){
@@ -396,23 +399,27 @@ public class GeometryView3d extends AbstractAnalysis {
             System.out.println(pos);
         }
         
+
         @Override
-        public void mouseReleased(com.jogamp.newt.event.MouseEvent e){
+        public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
             int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
             Coord3d pos = chart.getView().projectMouse(e.getX(), yflip);
             Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));
-            //On right click move picked objects to the mouse position
-            if(e.getButton() == 1){
-                if (pickableObjects != null && !pickableObjects.isEmpty()){
-                    for(Object o: pickableObjects){
-                        moveObject(new Coord3d(clippedPos.x,clippedPos.y,clippedPos.z),(PickableObjects) o);
+            if (!pickableObjects.isEmpty()){
+                if(e.getButton() == 1){
+                    for(PickableObjects p: pickableObjects){
+                        moveObject(new Coord3d(clippedPos.x,clippedPos.y,clippedPos.z), p);
                     }
-                    chart.updateProjectionsAndRender();
-                    //System.out.println("Object was moved to: " + clippedPos);
-                    pickableObjects.clear();
-                    chart.getMouse().setUpdateViewDefault(true); 
+                    chart.render();
                 }
             }
+        }
+
+        @Override
+        public void mouseReleased(com.jogamp.newt.event.MouseEvent e){
+            if (!pickableObjects.isEmpty()){ 
+                    pickableObjects.clear();
+            }    
         }
     }
     
@@ -420,8 +427,10 @@ public class GeometryView3d extends AbstractAnalysis {
         @Override
         public void objectPicked(List<? extends Object> list, PickingSupport ps) {
             if(!list.isEmpty()){
-                pickableObjects = list;
-                chart.getMouse().setUpdateViewDefault(false);
+                pickableObjects.clear();
+                for(Object o: list){
+                    pickableObjects.add((PickableObjects) o);
+                }
             }
         }
     }
@@ -439,4 +448,5 @@ public class GeometryView3d extends AbstractAnalysis {
             }
         }
     }
+    
 }
