@@ -9,6 +9,7 @@ import org.jzy3d.analysis.AWTAbstractAnalysis;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.controllers.mouse.camera.NewtCameraMouseController;
 import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
 import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
 import org.jzy3d.chart.controllers.mouse.picking.PickingSupport;
@@ -41,6 +42,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private int pickingId = 0;
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private PickingSupport pickingSupport;
+    private NewtCameraMouseController cameraMouse;
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
@@ -419,6 +421,7 @@ public class GeometryView3d extends AbstractAnalysis {
         public void mouseReleased(com.jogamp.newt.event.MouseEvent e){
             if (!pickableObjects.isEmpty()){ 
                     pickableObjects.clear();
+                    cameraMouse.register(chart);
             }    
         }
     }
@@ -431,6 +434,10 @@ public class GeometryView3d extends AbstractAnalysis {
                 for(Object o: list){
                     pickableObjects.add((PickableObjects) o);
                 }
+                if(cameraMouse == null){
+                    cameraMouse = (NewtCameraMouseController) chart.getMouse();   
+                }
+                cameraMouse.unregister(chart);
             }
         }
     }
