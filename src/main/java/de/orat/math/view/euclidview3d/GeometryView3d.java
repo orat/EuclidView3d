@@ -404,10 +404,10 @@ public class GeometryView3d extends AbstractAnalysis {
 
         @Override
         public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
-            int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
-            Coord3d pos = chart.getView().projectMouse(e.getX(), yflip);
-            Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));
             if (!pickableObjects.isEmpty()){
+                int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
+                Coord3d pos = chart.getView().projectMouse(e.getX(), yflip);
+                Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));
                 if(e.getButton() == 1){
                     for(PickableObjects p: pickableObjects){
                         moveObject(new Coord3d(clippedPos.x,clippedPos.y,clippedPos.z), p);
