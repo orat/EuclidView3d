@@ -68,5 +68,10 @@ public class EuclidPlane extends PickablePolygon implements PickableObjects {
         trans2.add(translate2);
         this.applyGeometryTransform(trans2);
     }
+
+    @Override
+    public Coord3d getPosition() {
+        return this.getBounds().getCenter();
+    }
     
 }

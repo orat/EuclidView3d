@@ -80,4 +80,9 @@ public class Line extends Composite implements Pickable, PickableObjects{
         trans2.add(translate2);
         this.applyGeometryTransform(trans2);
     }
+    
+    @Override
+    public Coord3d getPosition() {
+        return this.getBounds().getCenter();
+    }
 }

@@ -21,6 +21,7 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
+import org.jzy3d.painters.IPainter;
 import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
@@ -30,6 +31,7 @@ import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
+import org.jzy3d.plot3d.rendering.view.Camera;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
 
 /**
@@ -389,27 +391,33 @@ public class GeometryView3d extends AbstractAnalysis {
     
     private class NewtMouse extends NewtMousePickingController{
         
+        Coord3d currentMouse = null;
+        
         @Override
         public void mouseMoved(com.jogamp.newt.event.MouseEvent e){
            //So hovering over a pickable Object doesn't select it when hovering over a pickable object
         }   
         
-        @Override
-        public void mouseClicked(com.jogamp.newt.event.MouseEvent e){
-            int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
-            Coord3d pos = chart.getView().projectMouse(e.getX(), (int) chart.flip(e.getY()));
-            System.out.println(pos);
-        }
-        
 
         @Override
         public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
             if (!pickableObjects.isEmpty()){
-                int yflip = -e.getY() +  chart.getCanvas().getRendererHeight();
-                Coord3d pos = chart.getView().projectMouse(e.getX(), yflip);
-                Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));
                 if(e.getButton() == 1){
                     for(PickableObjects p: pickableObjects){
+                        int yflip = -e.getY() + chart.getCanvas().getRendererHeight();
+                        Camera camera = chart.getView().getCamera();
+                        IPainter painter = chart.getPainter();
+			    
+                        painter.acquireGL();
+
+                        // 2D to 3D
+                        //TODO calculate the right depthRange value for the mouse projection.
+                        float depthRange = 1;// between 0 and 1, see gluUnproject
+                        currentMouse = new Coord3d(e.getX(), yflip, depthRange);
+                
+                        Coord3d pos = camera.screenToModel(chart.getPainter(), currentMouse);
+                        painter.releaseGL();
+                        Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));
                         moveObject(new Coord3d(clippedPos.x,clippedPos.y,clippedPos.z), p);
                     }
                     chart.render();

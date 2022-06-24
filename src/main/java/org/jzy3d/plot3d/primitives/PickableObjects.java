@@ -24,4 +24,6 @@ public interface PickableObjects {
      */
     public void setNewPosition(Coord3d position);
     
+    public Coord3d getPosition();
+    
 }
