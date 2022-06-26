@@ -389,6 +389,9 @@ public class GeometryView3d extends AbstractAnalysis {
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
     }
     
+    /**
+     * Sets up the mouse for picking
+     */
     private void setUpMouse(){
         pickingSupport = new PickingSupport();
         pickingSupport.addObjectPickedListener(new EuclidPickListener());
@@ -397,6 +400,9 @@ public class GeometryView3d extends AbstractAnalysis {
         m.register(chart);
     }
     
+    /**
+     * The MouseController for the picking
+     */
     private class NewtMouse extends NewtMousePickingController{
         
         Coord3d currentMouse = null;
@@ -456,6 +462,9 @@ public class GeometryView3d extends AbstractAnalysis {
         }
     }
     
+    /**
+     * The Listener on a picked object.
+     */
     private class EuclidPickListener implements IObjectPickedListener {
         @Override
         public void objectPicked(List<? extends Object> list, PickingSupport ps) {
@@ -483,7 +492,10 @@ public class GeometryView3d extends AbstractAnalysis {
         }
     }
     
-    
+    /**
+     * Adds a moved object to the pickingSupport.
+     * @param plane the moved object
+     */
     private void pickObject(PickableObjects plane){
         pickingSupport.unRegisterAllPickableObjects();
         PickableObjects removeObject = null;

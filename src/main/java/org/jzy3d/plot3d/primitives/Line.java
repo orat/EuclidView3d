@@ -82,19 +82,6 @@ public class Line extends Composite implements Pickable, PickableObjects{
     
     @Override
     public void setNewPosition(Coord3d position) {
-        /*
-        //Translate to origin to translate from there to new position
-        Coord3d bottom = new Coord3d(this.getBounds().getXmin(), this.getBounds().getYmin(), this.getBounds().getZmin());
-        Transform trans = this.getTransform();    
-        Translate translate = new Translate(new Coord3d(-bottom.x,-bottom.y,-bottom.z));
-        trans.add(translate);
-        this.applyGeometryTransform(trans);
-        
-        Transform trans2 = this.getTransform();
-        Translate translate2 = new Translate(position);
-        trans2.add(translate2);
-        this.applyGeometryTransform(trans2);
-        */  
         this.clear();
         this.setData(new Point3d(position.x,position.y,position.z), new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, pickingId, pickingId, color);
     }
