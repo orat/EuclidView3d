@@ -29,6 +29,7 @@ import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
+import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.view.Camera;
@@ -43,6 +44,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private final float labelOffset = 0.5f;
     private int pickingId = 0;
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
+    private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
     private PickingSupport pickingSupport;
     private NewtCameraMouseController cameraMouse;
     
@@ -77,6 +79,7 @@ public class GeometryView3d extends AbstractAnalysis {
         pickingSupport.registerDrawableObject(sphere, sphere);
         //Point point = new Point(new Coord3d(location.x,location.x,location.z), color, width);
         chart.add(sphere);
+        pickingSupportList.add(sphere);
         Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - labelOffset);
         addLabel(labelLocation,label, Color.BLACK);
     }
@@ -94,7 +97,10 @@ public class GeometryView3d extends AbstractAnalysis {
                 (float) Math.sqrt(Math.abs(squaredSize)),10, color);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
+        sphere.setPickingId(pickingId++);
+        pickingSupport.registerDrawableObject(sphere, sphere);
         chart.add(sphere);
+        pickingSupportList.add(sphere);
         Point3d labelLocation = new Point3d(location.x,location.y, location.z - Math.sqrt(Math.abs(squaredSize)) - labelOffset);
         addLabel(labelLocation, label, Color.BLACK);
     }
@@ -135,6 +141,7 @@ public class GeometryView3d extends AbstractAnalysis {
         line.setPickingId(pickingId++);
         pickingSupport.registerDrawableObject(line, line);
         chart.add(line);
+        pickingSupportList.add(line);
         Vector3d negative_direction = new Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
         negative_direction.scale((2*labelOffset)/negative_direction.length());
         Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
@@ -289,6 +296,7 @@ public class GeometryView3d extends AbstractAnalysis {
         pickingSupport.registerDrawableObject(plane, plane);
         plane.setPickingId(pickingId++);
         chart.add(plane);
+        pickingSupportList.add(plane);
         Coord3d lowestPoint = plane.getCoordArray()[0];
         for(Coord3d coord: plane.getCoordArray()){
             if(coord.z < lowestPoint.z){
@@ -398,9 +406,18 @@ public class GeometryView3d extends AbstractAnalysis {
            //So hovering over a pickable Object doesn't select it when hovering over a pickable object
         }   
         
-
+        private float clampToOneZero(float x){
+            if(x>1.f){
+                return 1.f;
+            } else if(x<0.f){
+                return 0.f;
+            }
+            return x;
+        }
+        
         @Override
         public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
+            BoundingBox3d bounds = chart.getView().getBounds();          
             if (!pickableObjects.isEmpty()){
                 if(e.getButton() == 1){
                     for(PickableObjects p: pickableObjects){
@@ -412,7 +429,7 @@ public class GeometryView3d extends AbstractAnalysis {
 
                         // 2D to 3D
                         //TODO calculate the right depthRange value for the mouse projection.
-                        float depthRange = 1;// between 0 and 1, see gluUnproject
+                        float depthRange = 0.5f;// between 0 and 1, see gluUnproject
                         currentMouse = new Coord3d(e.getX(), yflip, depthRange);
                 
                         Coord3d pos = camera.screenToModel(chart.getPainter(), currentMouse);
@@ -427,9 +444,14 @@ public class GeometryView3d extends AbstractAnalysis {
 
         @Override
         public void mouseReleased(com.jogamp.newt.event.MouseEvent e){
-            if (!pickableObjects.isEmpty()){ 
-                    pickableObjects.clear();
-                    cameraMouse.register(chart);
+            if (!pickableObjects.isEmpty()){
+                for(PickableObjects object: pickableObjects){
+                    if(object.getType().equals(DrawableTypes.PLANE)){
+                        pickObject(object);
+                    }
+                }
+                pickableObjects.clear();
+                cameraMouse.register(chart);
             }    
         }
     }
@@ -461,4 +483,21 @@ public class GeometryView3d extends AbstractAnalysis {
         }
     }
     
+    
+    private void pickObject(PickableObjects plane){
+        pickingSupport.unRegisterAllPickableObjects();
+        PickableObjects removeObject = null;
+        for(PickableObjects object: pickingSupportList){
+            if(object.getPickingId() == plane.getPickingId()){
+                removeObject = object;
+            }
+        }
+        if(removeObject != null){
+            pickingSupportList.remove(removeObject);
+            pickingSupportList.add(plane);
+        }
+        for(PickableObjects object: pickingSupportList){
+            pickingSupport.registerPickableObject((Pickable) object, (Pickable) object);
+        }
+    }
 }

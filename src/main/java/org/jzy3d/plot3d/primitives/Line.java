@@ -19,13 +19,27 @@ public class Line extends Composite implements Pickable, PickableObjects{
     protected Cylinder cylinder;
     private int pickingId;
     private Vector3d vec;
+    private Point3d dif;
+    private float length;
+    private float radius;
+    private float slices;
+    private float rings;
 
     public void setData(Point3d p1, Point3d p2, float radius, int slices, int rings, Color color){
+        
+        this.radius = radius;
+        this.slices = slices;
+        this.rings = rings;
+        this.color = color;
+        
+        if(dif == null){
+           dif = new Point3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z); 
+        }
         
         this.vec =  new Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
         
         Coord3d position = vec.getCenter();
-        float length = vec.norm();  
+        length = vec.norm();  
         
         cylinder = new Cylinder();
         cylinder.setData(new Coord3d(0, 0, -length/2f),
@@ -68,6 +82,7 @@ public class Line extends Composite implements Pickable, PickableObjects{
     
     @Override
     public void setNewPosition(Coord3d position) {
+        /*
         //Translate to origin to translate from there to new position
         Coord3d bottom = new Coord3d(this.getBounds().getXmin(), this.getBounds().getYmin(), this.getBounds().getZmin());
         Transform trans = this.getTransform();    
@@ -79,6 +94,9 @@ public class Line extends Composite implements Pickable, PickableObjects{
         Translate translate2 = new Translate(position);
         trans2.add(translate2);
         this.applyGeometryTransform(trans2);
+        */  
+        this.clear();
+        this.setData(new Point3d(position.x,position.y,position.z), new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, pickingId, pickingId, color);
     }
     
     @Override

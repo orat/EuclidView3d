@@ -26,4 +26,6 @@ public interface PickableObjects {
     
     public Coord3d getPosition();
     
+    public int getPickingId();
+    
 }
