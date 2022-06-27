@@ -268,6 +268,8 @@ public class GeometryView3d extends AbstractAnalysis {
         arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
                     new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color);
         arrow.setWireframeDisplayed(false);
+        arrow.setPickingId(pickingId++);
+        pickingSupport.registerPickableObject(arrow, arrow);
         chart.add(arrow);
         Point3d labelLocation = new Point3d(location.x, location.y - radius - labelOffset, location.z);
         addLabel(labelLocation, label, Color.BLACK);
@@ -387,6 +389,7 @@ public class GeometryView3d extends AbstractAnalysis {
         addPoint(new Point3d(20,20,20), Color.BLUE, 0.6f, "Point2");    
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
+        addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
     }
     
     /**
@@ -434,7 +437,6 @@ public class GeometryView3d extends AbstractAnalysis {
                         painter.acquireGL();
 
                         // 2D to 3D
-                        //TODO calculate the right depthRange value for the mouse projection.
                         float depthRange = 0.5f;// between 0 and 1, see gluUnproject
                         if(chart.getView().getCamera().getEye().x<0){
                             depthRange = 0.66f;
