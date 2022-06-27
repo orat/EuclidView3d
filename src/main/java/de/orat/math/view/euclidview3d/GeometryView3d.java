@@ -436,6 +436,9 @@ public class GeometryView3d extends AbstractAnalysis {
                         // 2D to 3D
                         //TODO calculate the right depthRange value for the mouse projection.
                         float depthRange = 0.5f;// between 0 and 1, see gluUnproject
+                        if(chart.getView().getCamera().getEye().x<0){
+                            depthRange = 0.66f;
+                        }
                         currentMouse = new Coord3d(e.getX(), yflip, depthRange);
                 
                         Coord3d pos = camera.screenToModel(chart.getPainter(), currentMouse);
