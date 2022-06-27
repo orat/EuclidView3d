@@ -22,8 +22,8 @@ public class Line extends Composite implements Pickable, PickableObjects{
     private Point3d dif;
     private float length;
     private float radius;
-    private float slices;
-    private float rings;
+    private int slices;
+    private int rings;
 
     public void setData(Point3d p1, Point3d p2, float radius, int slices, int rings, Color color){
         
@@ -83,7 +83,7 @@ public class Line extends Composite implements Pickable, PickableObjects{
     @Override
     public void setNewPosition(Coord3d position) {
         this.clear();
-        this.setData(new Point3d(position.x,position.y,position.z), new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, pickingId, pickingId, color);
+        this.setData(new Point3d(position.x,position.y,position.z), new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, slices, rings, color);
     }
     
     @Override
