@@ -271,6 +271,7 @@ public class GeometryView3d extends AbstractAnalysis {
         arrow.setPickingId(pickingId++);
         pickingSupport.registerPickableObject(arrow, arrow);
         chart.add(arrow);
+        pickingSupportList.add(arrow);
         Point3d labelLocation = new Point3d(location.x, location.y - radius - labelOffset, location.z);
         addLabel(labelLocation, label, Color.BLACK);
     }
