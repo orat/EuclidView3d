@@ -441,6 +441,8 @@ public class GeometryView3d extends AbstractAnalysis {
                         float depthRange = 0.5f;// between 0 and 1, see gluUnproject
                         if(chart.getView().getCamera().getEye().x<0){
                             depthRange = 0.66f;
+                        } else if(chart.getView().getCamera().getEye().y>chart.getView().getBounds().getYmax()){
+                            depthRange = 0.4f;
                         }
                         currentMouse = new Coord3d(e.getX(), yflip, depthRange);
                 
