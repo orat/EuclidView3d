@@ -1,5 +1,6 @@
 package org.jzy3d.plot3d.primitives;
 
+import org.jogamp.vecmath.Point3d;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
@@ -21,18 +22,19 @@ public class Arrow extends Composite implements Pickable, PickableObjects {
     private int slices;
     private int rings;
     private Vector3d vec;
+    private String label;
     
-    public void setData(Vector3d vec, float radius, int slices, int rings, Color color){
-        Coord3d position = vec.getCenter();
-        float length = vec.norm();  
-        float coneHeight = radius*2.5f;
-        float cylinderHeight = length-coneHeight;
-        
+    public void setData(Vector3d vec, float radius, int slices, int rings, Color color, String label){
         this.radius = radius;
         this.slices = slices;
         this.rings = rings;
         this.vec = vec;
         this.color = color;
+        
+        Coord3d position = vec.getCenter();
+        float length = vec.norm();  
+        float coneHeight = radius*2.5f;
+        float cylinderHeight = length-coneHeight;
         
         cylinder = new Cylinder();
         cylinder.setData(new Coord3d(0, 0, -length/2f),
@@ -52,11 +54,8 @@ public class Arrow extends Composite implements Pickable, PickableObjects {
         trans.add(translate);
         applyGeometryTransform(trans);
         
-        //TODO label anfügen, im Methodenaufruf zustäzlich argument String label einfügen ...
-        //Coord3d labelP = new Coord3d(position.x + (border1.x + border2.x) / 2,
-        //position.y + (border1.y + border2.y) / 2, position.z + height / 2);
-        //DrawableTextBitmap txt3d = new DrawableTextBitmap("Face " + (i + 1), labelP, Color.BLACK);
-        //add(txt3d);
+        Point3d labelLocation = new Point3d(position.x, position.y - radius - LabelFactory.getInstance().getOffset(), position.z);
+        this.add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
     }
     
     private static Rotate createRotateTo(Coord3d from, Coord3d to){
@@ -108,10 +107,15 @@ public class Arrow extends Composite implements Pickable, PickableObjects {
         Translate translate = new Translate(position);
         trans.add(translate);
         applyGeometryTransform(trans);
+        
+        //TODO label disappears after moving. Needs fixing.
+        Point3d labelLocation = new Point3d(position.x, position.y - radius - LabelFactory.getInstance().getOffset(), position.z);
+        add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        
     }
 
     @Override
     public Coord3d getPosition() {
-        return this.getPosition();
+        return this.getBounds().getCenter();
     }
 }

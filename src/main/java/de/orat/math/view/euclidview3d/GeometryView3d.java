@@ -27,6 +27,7 @@ import org.jzy3d.plot3d.primitives.CroppableLineStrip;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
+import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
@@ -72,7 +73,9 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public void addPoint(Point3d location, Color color, float width, String label){
         //double radius = 0.6;
-        EuclidSphere sphere = new EuclidSphere(new Coord3d(location.x,location.y,location.z),(float) (width/2), 20, color);
+        Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - LabelFactory.getInstance().getOffset());
+        EuclidSphere sphere = new EuclidSphere();
+        sphere.setData(location, (float) (width/2), 20, color, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeDisplayed(false);
         sphere.setPickingId(pickingId++);
@@ -80,8 +83,6 @@ public class GeometryView3d extends AbstractAnalysis {
         //Point point = new Point(new Coord3d(location.x,location.x,location.z), color, width);
         chart.add(sphere);
         pickingSupportList.add(sphere);
-        Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - labelOffset);
-        addLabel(labelLocation,label, Color.BLACK);
     }
     
     /**
@@ -93,16 +94,15 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param label the text of the label of the sphere
      */
     public void addSphere(Point3d location, double squaredSize, Color color, String label){
-        EuclidSphere sphere = new EuclidSphere(new Coord3d(location.x,location.x,location.z),
-                (float) Math.sqrt(Math.abs(squaredSize)),10, color);
+        EuclidSphere sphere = new EuclidSphere();
+        Point3d labelLocation = new Point3d(location.x,location.y, location.z - Math.sqrt(Math.abs(squaredSize)) - LabelFactory.getInstance().getOffset());
+        sphere.setData(location,(float) Math.sqrt(Math.abs(squaredSize)),10, color, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
         sphere.setPickingId(pickingId++);
         pickingSupport.registerDrawableObject(sphere, sphere);
         chart.add(sphere);
         pickingSupportList.add(sphere);
-        Point3d labelLocation = new Point3d(location.x,location.y, location.z - Math.sqrt(Math.abs(squaredSize)) - labelOffset);
-        addLabel(labelLocation, label, Color.BLACK);
     }
   
     /**
@@ -137,15 +137,17 @@ public class GeometryView3d extends AbstractAnalysis {
         org.jzy3d.maths.Vector3d vec = 
                 new org.jzy3d.maths.Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
         Line line = new Line();
-        line.setData(p1,p2, radius, 10, 0, color);
+        line.setData(p1,p2, radius, 10, 0, color, label);
         line.setPickingId(pickingId++);
         pickingSupport.registerDrawableObject(line, line);
         chart.add(line);
         pickingSupportList.add(line);
+        /*
         Vector3d negative_direction = new Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
         negative_direction.scale((2*labelOffset)/negative_direction.length());
         Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
         addLabel(labelLocation, label, Color.BLACK);
+        */
     }
     
     /**
@@ -265,15 +267,14 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color, String label){
         Arrow arrow = new Arrow();
+        Point3d labelLocation = new Point3d(location.x, location.y - radius - LabelFactory.getInstance().getOffset(), location.z);
         arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
-                    new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color);
+                    new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color, label);
         arrow.setWireframeDisplayed(false);
         arrow.setPickingId(pickingId++);
         pickingSupport.registerPickableObject(arrow, arrow);
         chart.add(arrow);
         pickingSupportList.add(arrow);
-        Point3d labelLocation = new Point3d(location.x, location.y - radius - labelOffset, location.z);
-        addLabel(labelLocation, label, Color.BLACK);
     }
     /**
      * Add a plane to the 3d view.
@@ -293,13 +294,14 @@ public class GeometryView3d extends AbstractAnalysis {
         dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
         dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
         EuclidPlane plane = new EuclidPlane();
-        plane.setData(location, dir1, dir2, color);
+        plane.setData(location, dir1, dir2, color, label);
         plane.setPolygonOffsetFillEnable(false);
         plane.setWireframeDisplayed(true);
         pickingSupport.registerDrawableObject(plane, plane);
         plane.setPickingId(pickingId++);
         chart.add(plane);
         pickingSupportList.add(plane);
+        /*
         Coord3d lowestPoint = plane.getCoordArray()[0];
         for(Coord3d coord: plane.getCoordArray()){
             if(coord.z < lowestPoint.z){
@@ -308,6 +310,7 @@ public class GeometryView3d extends AbstractAnalysis {
         }
         Point3d labelLocation = new Point3d(lowestPoint.x, lowestPoint.y, lowestPoint.z - labelOffset);
         addLabel(labelLocation, label, Color.BLACK);   
+        */
     }
     
     /**
