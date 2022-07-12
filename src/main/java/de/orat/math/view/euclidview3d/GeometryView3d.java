@@ -1,4 +1,5 @@
 package de.orat.math.view.euclidview3d;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,23 +19,37 @@ import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.chart.factories.NewtChartFactory;
 import org.jzy3d.colors.Color;
+import org.jzy3d.io.obj.OBJFileLoader;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.painters.IPainter;
 import org.jzy3d.plot3d.primitives.Arrow;
+import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
+import org.jzy3d.plot3d.primitives.Drawable;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
+import org.jzy3d.plot3d.primitives.LineStrip;
 import org.jzy3d.plot3d.primitives.PickableObjects;
+import org.jzy3d.plot3d.primitives.Polygon;
+import org.jzy3d.plot3d.primitives.Scatter;
+import org.jzy3d.plot3d.primitives.SimplePolygon;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
+import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.view.Camera;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.assimp.AIMaterial;
+import org.lwjgl.assimp.AIMesh;
+import org.lwjgl.assimp.AIScene;
+import org.lwjgl.assimp.AIVector3D;
+import static org.lwjgl.assimp.Assimp.aiImportFile;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
@@ -387,14 +402,87 @@ public class GeometryView3d extends AbstractAnalysis {
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         
         addPlane(new Point3d(0,1,5), new Vector3d(0,-10,0), new Vector3d(-10,0,0), Color.ORANGE, "ClipPlane");
-        */
         addPoint(new Point3d(0,0,0), Color.BLUE, 0.6f, "Point1");
         addPoint(new Point3d(1,10,1), Color.BLUE, 0.6f, "Point3");
         addPoint(new Point3d(20,20,20), Color.BLUE, 0.6f, "Point2");    
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
+        */
+        String path = "data/objfiles/base.dae";
+        addCOLLADA(path);
     }
+    
+    /**
+     * Add a COLLADA (.dae) File Object to the Scene
+     * @param path the path to the COLLADA File
+     */
+    public void addCOLLADA(String path){
+        //Load COLLADA files
+        AIScene aiScene = aiImportFile(path, 252);
+        
+        //Get the Meshes from the File
+        PointerBuffer aiMeshes = aiScene.mMeshes();
+        AIMesh[] meshes = new AIMesh[aiScene.mNumMeshes()];
+        List<Composite> objects = new ArrayList<>();
+        //Make objects from the vertices from the 
+        for(int i = 0; i < aiScene.mNumMeshes();i++){
+            meshes[i] = AIMesh.create(aiMeshes.get(i));
+            List<Float> vertices = new ArrayList<>();
+            processVertices(meshes[i], vertices);
+            objects.add(getCOLLADAObject(vertices, Color.GRAY)); 
+        }
+        
+        //Combine Objects into one composite
+        Composite composite = new Composite();
+        for(Composite o: objects){
+            composite.add(o);
+        }
+        chart.add(composite);
+    }
+    
+    /**
+     * Get the object from the vertices, that were extracted from a COLLADA file
+     * @param vertices the vertieces
+     * @param color the color of the object
+     * @return the combined object
+     */
+    public Composite getCOLLADAObject(List<Float> vertices, Color color){
+        Composite composite = new Composite();
+        Polygon s = new Polygon();
+        int triangle_counter = 0;
+        //Iterate over vertieces and create triangles and add them to the object
+        for(int i=0; i<vertices.size();i = i  + 3){
+            s.add(new Coord3d(vertices.get(i),vertices.get(i+1),vertices.get(i+2)));
+            triangle_counter = triangle_counter + 1;
+            //after 3 points are added. Add triangle to compsite and setup a new triangle
+            if(triangle_counter==3){
+                composite.add(s);
+                s = new Polygon();
+                triangle_counter = 0;
+            }
+        }
+        //set up and return the object
+        composite.setColor(color);
+        composite.setWireframeDisplayed(false);
+        composite.setWireframeColor(Color.CYAN);
+        return composite;
+    }
+    
+    /**
+     * Process the vertices from an aim#Mesh to get float value of the vertices
+     * @param aiMesh the aiMesh with the vertices
+     * @param vertices the list where the vertices will be stored
+     */
+    private static void processVertices(AIMesh aiMesh, List<Float> vertices) {
+        AIVector3D.Buffer aiVertices = aiMesh.mVertices();
+        while (aiVertices.remaining() > 0) {
+            AIVector3D aiVertex = aiVertices.get();
+            vertices.add(aiVertex.x());
+            vertices.add(aiVertex.y());
+            vertices.add(aiVertex.z());
+        }
+    } 
     
     /**
      * Sets up the mouse for picking
