@@ -446,6 +446,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //Load COLLADA files
         AIScene aiScene = aiImportFile(path, 0);
         
+        //process Materials
         int numMaterials = aiScene.mNumMaterials();
         PointerBuffer aiMaterials = aiScene.mMaterials();
         List<Material> materials = new ArrayList<>();
@@ -471,10 +472,6 @@ public class GeometryView3d extends AbstractAnalysis {
         for(Composite o: objects){
             composite.add(o);
         }
-        Transform transform = new Transform();
-        Rotate rot = createRotateTo(composite.getBarycentre(), new Coord3d(0d,0d,1d));
-        transform.add(rot);
-        composite.setTransform(transform);
         chart.add(composite);
     }
     
@@ -517,9 +514,7 @@ public class GeometryView3d extends AbstractAnalysis {
         composite.setMaterialSpecularReflection(new Color(specular.x, specular.y, specular.z, material.getAlpha()));
         composite.setColor(new Color(ambient.x,ambient.y,ambient.z,material.getAlpha()));
         //set up and return the object
-        //composite.setColor(Color.GRAY);
         composite.setWireframeDisplayed(false);
-        //composite.setWireframeColor(Color.CYAN);
         return composite;
     }
     
