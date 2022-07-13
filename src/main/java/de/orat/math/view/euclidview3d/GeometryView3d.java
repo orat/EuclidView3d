@@ -1,4 +1,5 @@
 package de.orat.math.view.euclidview3d;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
+import org.jogamp.vecmath.Vector4f;
 import org.jzy3d.analysis.AWTAbstractAnalysis;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
@@ -44,12 +46,20 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.view.Camera;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
+import org.jzy3d.plot3d.transform.Rotate;
+import org.jzy3d.plot3d.transform.Transform;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.assimp.AIColor4D;
 import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIMesh;
 import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIVector3D;
+import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_AMBIENT;
+import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_DIFFUSE;
+import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_SPECULAR;
+import static org.lwjgl.assimp.Assimp.aiGetMaterialColor;
 import static org.lwjgl.assimp.Assimp.aiImportFile;
+import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
@@ -409,8 +419,23 @@ public class GeometryView3d extends AbstractAnalysis {
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         */
+        /*
         String path = "data/objfiles/base.dae";
         addCOLLADA(path);
+        path = "data/objfiles/forarm.dae";
+        addCOLLADA(path);
+        path = "data/objfiles/shoulder.dae";
+        addCOLLADA(path);
+        path = "data/objfiles/upperarm.dae";
+        addCOLLADA(path);
+        path = "data/objfiles/wrist1.dae";
+        addCOLLADA(path);
+        path = "data/objfiles/wrist2.dae";
+        addCOLLADA(path);
+        */
+        String path = "data/objfiles/wrist3.dae";
+        addCOLLADA(path);
+       
     }
     
     /**
@@ -419,7 +444,15 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public void addCOLLADA(String path){
         //Load COLLADA files
-        AIScene aiScene = aiImportFile(path, 252);
+        AIScene aiScene = aiImportFile(path, 0);
+        
+        int numMaterials = aiScene.mNumMaterials();
+        PointerBuffer aiMaterials = aiScene.mMaterials();
+        List<Material> materials = new ArrayList<>();
+        for (int i = 0; i < numMaterials; i++) {
+            AIMaterial aiMaterial = AIMaterial.create(aiMaterials.get(i));
+            processMaterial(aiMaterial, materials);
+        }
         
         //Get the Meshes from the File
         PointerBuffer aiMeshes = aiScene.mMeshes();
@@ -430,7 +463,7 @@ public class GeometryView3d extends AbstractAnalysis {
             meshes[i] = AIMesh.create(aiMeshes.get(i));
             List<Float> vertices = new ArrayList<>();
             processVertices(meshes[i], vertices);
-            objects.add(getCOLLADAObject(vertices, Color.GRAY)); 
+            objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
         }
         
         //Combine Objects into one composite
@@ -438,7 +471,21 @@ public class GeometryView3d extends AbstractAnalysis {
         for(Composite o: objects){
             composite.add(o);
         }
+        Transform transform = new Transform();
+        Rotate rot = createRotateTo(composite.getBarycentre(), new Coord3d(0d,0d,1d));
+        transform.add(rot);
+        composite.setTransform(transform);
         chart.add(composite);
+    }
+    
+    private static Rotate createRotateTo(Coord3d from, Coord3d to){
+        double fromMag =  (float) Math.sqrt(from.x * from.x + from.y * from.y + from.z * from.z);
+        double toMag =  (float) Math.sqrt(to.x * to.x + to.y * to.y + to.z * to.z);
+        double angle = Math.acos(from.dot(to)/(fromMag*toMag))*180f/Math.PI;
+        //System.out.println(angle);
+        Coord3d v = Utils2.cross(from,to);
+        v.normalizeTo(1);
+        return new Rotate(angle, v);
     }
     
     /**
@@ -447,7 +494,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param color the color of the object
      * @return the combined object
      */
-    public Composite getCOLLADAObject(List<Float> vertices, Color color){
+    public Composite getCOLLADAObject(List<Float> vertices, Material material){
         Composite composite = new Composite();
         Polygon s = new Polygon();
         int triangle_counter = 0;
@@ -462,10 +509,17 @@ public class GeometryView3d extends AbstractAnalysis {
                 triangle_counter = 0;
             }
         }
+        Vector4f ambient = material.getAmbient();
+        Vector4f diffuse = material.getDiffuse();
+        Vector4f specular = material.getSpecular();
+        composite.setMaterialAmbiantReflection(new Color(ambient.x,ambient.y,ambient.z,material.getAlpha()));
+        composite.setMaterialDiffuseReflection(new Color(diffuse.x, diffuse.y, diffuse.z, material.getAlpha()));
+        composite.setMaterialSpecularReflection(new Color(specular.x, specular.y, specular.z, material.getAlpha()));
+        composite.setColor(new Color(ambient.x,ambient.y,ambient.z,material.getAlpha()));
         //set up and return the object
-        composite.setColor(color);
+        //composite.setColor(Color.GRAY);
         composite.setWireframeDisplayed(false);
-        composite.setWireframeColor(Color.CYAN);
+        //composite.setWireframeColor(Color.CYAN);
         return composite;
     }
     
@@ -483,6 +537,40 @@ public class GeometryView3d extends AbstractAnalysis {
             vertices.add(aiVertex.z());
         }
     } 
+    
+    /**
+     * Process the Materials in a assimp loaded object
+     * @param aiMaterial the aiMaterial from the assimp object
+     * @param materials the list where the materials will be added
+     */
+    private void processMaterial(AIMaterial aiMaterial, List<Material> materials){
+        AIColor4D colour = AIColor4D.create();
+        
+        //set ambient value of the material
+        Vector4f ambient = new Vector4f(0,0,0,0);
+        int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, aiTextureType_NONE, 0, colour);
+        if (result == 0) {
+            ambient = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
+        }
+        
+        //set the diffuse value of the material
+        Vector4f diffuse = new Vector4f(0,0,0,0);
+        result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, colour);
+        if (result == 0) {
+            diffuse = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
+        }
+       
+        //set the specular value of the material
+        Vector4f specular = new Vector4f(0,0,0,0);
+        result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, colour);
+        if (result == 0) {
+            specular = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
+        }
+       
+        //combine the values
+        Material material = new Material(ambient, diffuse, specular, 1.0f);
+        materials.add(material);
+    }
     
     /**
      * Sets up the mouse for picking
