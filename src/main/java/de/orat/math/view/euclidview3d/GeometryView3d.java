@@ -475,16 +475,6 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.add(composite);
     }
     
-    private static Rotate createRotateTo(Coord3d from, Coord3d to){
-        double fromMag =  (float) Math.sqrt(from.x * from.x + from.y * from.y + from.z * from.z);
-        double toMag =  (float) Math.sqrt(to.x * to.x + to.y * to.y + to.z * to.z);
-        double angle = Math.acos(from.dot(to)/(fromMag*toMag))*180f/Math.PI;
-        //System.out.println(angle);
-        Coord3d v = Utils2.cross(from,to);
-        v.normalizeTo(1);
-        return new Rotate(angle, v);
-    }
-    
     /**
      * Get the object from the vertices, that were extracted from a COLLADA file
      * @param vertices the vertieces
