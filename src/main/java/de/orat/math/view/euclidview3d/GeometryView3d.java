@@ -1,6 +1,5 @@
 package de.orat.math.view.euclidview3d;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -21,7 +20,6 @@ import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.chart.factories.NewtChartFactory;
 import org.jzy3d.colors.Color;
-import org.jzy3d.io.obj.OBJFileLoader;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
@@ -35,13 +33,15 @@ import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
-import org.jzy3d.plot3d.primitives.LineStrip;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.Polygon;
-import org.jzy3d.plot3d.primitives.Scatter;
-import org.jzy3d.plot3d.primitives.SimplePolygon;
+import org.jzy3d.plot3d.primitives.Sphere;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
-import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO;
+import org.jzy3d.plot3d.primitives.vbo.builders.VBOBuilderListCoord3d;
+import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
+import org.jzy3d.plot3d.primitives.vbo.drawable.PolygonVBO;
+import org.jzy3d.plot3d.primitives.vbo.drawable.SphereVBO;
+import org.jzy3d.plot3d.primitives.vbo.drawable.TriangleVBO;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.view.Camera;
@@ -419,7 +419,6 @@ public class GeometryView3d extends AbstractAnalysis {
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         */
-        /*
         String path = "data/objfiles/base.dae";
         addCOLLADA(path);
         path = "data/objfiles/forarm.dae";
@@ -432,10 +431,8 @@ public class GeometryView3d extends AbstractAnalysis {
         addCOLLADA(path);
         path = "data/objfiles/wrist2.dae";
         addCOLLADA(path);
-        */
-        String path = "data/objfiles/wrist3.dae";
-        addCOLLADA(path);
-       
+        path = "data/objfiles/wrist3.dae";
+        addCOLLADA(path); 
     }
     
     /**
@@ -458,54 +455,83 @@ public class GeometryView3d extends AbstractAnalysis {
         //Get the Meshes from the File
         PointerBuffer aiMeshes = aiScene.mMeshes();
         AIMesh[] meshes = new AIMesh[aiScene.mNumMeshes()];
-        List<Composite> objects = new ArrayList<>();
+        List<DrawableVBO2> objects = new ArrayList<>();
+        List<List<Float>> allVertices = new ArrayList<>();
+        List<Material> verticesMaterial = new ArrayList<>();
         //Make objects from the vertices from the 
         for(int i = 0; i < aiScene.mNumMeshes();i++){
             meshes[i] = AIMesh.create(aiMeshes.get(i));
             List<Float> vertices = new ArrayList<>();
             processVertices(meshes[i], vertices);
-            objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
+            allVertices.add(vertices);
+            verticesMaterial.add(materials.get(meshes[i].mMaterialIndex()));
+            //objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
         }
-        
+        objects.add(getCOLLADAObject(allVertices, verticesMaterial));
         //Combine Objects into one composite
         Composite composite = new Composite();
-        for(Composite o: objects){
-            composite.add(o);
+        for(DrawableVBO2 o: objects){
+            o.setWireframeDisplayed(false);
+            chart.add(o);
         }
-        chart.add(composite);
+        
     }
     
     /**
      * Get the object from the vertices, that were extracted from a COLLADA file
      * @param vertices the vertieces
-     * @param color the color of the object
+     * @param material the Material of the object
      * @return the combined object
      */
-    public Composite getCOLLADAObject(List<Float> vertices, Material material){
-        Composite composite = new Composite();
-        Polygon s = new Polygon();
-        int triangle_counter = 0;
-        //Iterate over vertieces and create triangles and add them to the object
-        for(int i=0; i<vertices.size();i = i  + 3){
-            s.add(new Coord3d(vertices.get(i),vertices.get(i+1),vertices.get(i+2)));
-            triangle_counter = triangle_counter + 1;
-            //after 3 points are added. Add triangle to compsite and setup a new triangle
-            if(triangle_counter==3){
-                composite.add(s);
-                s = new Polygon();
-                triangle_counter = 0;
+    public DrawableVBO2 getCOLLADAObject(List<Float> vertices, Material material){   
+        //translate the Floats to an array
+        float[] verticesFloat = new float[vertices.size()];
+        for(int i = 0; i < vertices.size(); i++){
+            verticesFloat[i]  = vertices.get(i).floatValue();
+        }
+        //set up and return the object
+        DrawableVBO2 vbo = new DrawableVBO2(verticesFloat, 3);
+        
+        vbo.setWireframeDisplayed(false);
+        vbo.setColor(Color.BLUE);
+        chart.add(vbo);
+        return vbo;
+    }
+    
+    List<List<Float>> allVertices = new ArrayList<>();
+        List<Material> verticesMaterial = new ArrayList<>();
+    
+    /**
+     * Get the object from the vertices, that were extracted from a COLLADA file
+     * @param allVertices the vertieces
+     * @param verticesMaterial the Materials of the object
+     * @return the combined object
+     */
+    public DrawableVBO2 getCOLLADAObject(List<List<Float>> allVertices, List<Material> verticesMaterial){
+        List<Polygon> composite = new ArrayList<>();
+        //calculate the object
+        for(int v = 0; v < allVertices.size(); v++){
+            Polygon polygon = new Polygon();
+            int triangle_counter = 0;
+            List<Float> vertices = allVertices.get(v);
+            //calculate the polygon of one mesh
+            for(int i = 0; i < vertices.size(); i = i + 3){
+                polygon.add(new Coord3d(vertices.get(i),vertices.get(i+1),vertices.get(i+2)));
+                triangle_counter = triangle_counter + 1;
+                //add a triangle to the composite
+                if(triangle_counter == 3){
+                    composite.add(polygon);
+                    polygon = new Polygon();
+                    triangle_counter = 0;
+                    polygon.setColor(Color.BLUE);
+                }
             }
         }
-        Vector4f ambient = material.getAmbient();
-        Vector4f diffuse = material.getDiffuse();
-        Vector4f specular = material.getSpecular();
-        composite.setMaterialAmbiantReflection(new Color(ambient.x,ambient.y,ambient.z,material.getAlpha()));
-        composite.setMaterialDiffuseReflection(new Color(diffuse.x, diffuse.y, diffuse.z, material.getAlpha()));
-        composite.setMaterialSpecularReflection(new Color(specular.x, specular.y, specular.z, material.getAlpha()));
-        composite.setColor(new Color(ambient.x,ambient.y,ambient.z,material.getAlpha()));
         //set up and return the object
-        composite.setWireframeDisplayed(false);
-        return composite;
+        DrawableVBO2 vbo = new DrawableVBO2(composite);
+        vbo.setColor(Color.BLUE);
+        System.out.println(vbo.getColor());
+        return vbo;
     }
     
     /**
