@@ -1,5 +1,9 @@
 package de.orat.math.view.euclidview3d;
 
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -24,6 +28,7 @@ import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.painters.IPainter;
+import org.jzy3d.painters.NativeDesktopPainter;
 import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
@@ -43,7 +48,10 @@ import org.jzy3d.plot3d.primitives.vbo.drawable.PolygonVBO;
 import org.jzy3d.plot3d.primitives.vbo.drawable.SphereVBO;
 import org.jzy3d.plot3d.primitives.vbo.drawable.TriangleVBO;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
+import org.jzy3d.plot3d.rendering.lights.Attenuation;
 import org.jzy3d.plot3d.rendering.lights.Light;
+import org.jzy3d.plot3d.rendering.lights.LightModel;
+import org.jzy3d.plot3d.rendering.lights.MaterialProperty;
 import org.jzy3d.plot3d.rendering.view.Camera;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
 import org.jzy3d.plot3d.transform.Rotate;
@@ -59,6 +67,8 @@ import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_DIFFUSE;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_SPECULAR;
 import static org.lwjgl.assimp.Assimp.aiGetMaterialColor;
 import static org.lwjgl.assimp.Assimp.aiImportFile;
+import static org.lwjgl.assimp.Assimp.aiLightSource_DIRECTIONAL;
+import static org.lwjgl.assimp.Assimp.aiTextureType_AMBIENT;
 import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 
 /**
@@ -73,19 +83,24 @@ public class GeometryView3d extends AbstractAnalysis {
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
     private PickingSupport pickingSupport;
     private NewtCameraMouseController cameraMouse;
+    private static boolean b = true;
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
      */
     public GeometryView3d(){
         super(new NewtChartFactory());
+        
     }
     
     
     public static void main(String[] args) throws Exception {
-        AnalysisLauncher.open(new GeometryView3d());
+        GeometryView3d gv = new GeometryView3d();
+        AnalysisLauncher.open(gv);
+        gv.makeGL();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
+        
     }
     
     /**
@@ -392,11 +407,10 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().setSquared(false);
         chart.getView().setBackgroundColor(Color.WHITE);
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
-
         
         setUpMouse();
-        //Light light = chart.addLightOnCamera();
         Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
+        light.setType(Light.Type.DIRECTIONAL);
         
         /*
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
@@ -421,6 +435,7 @@ public class GeometryView3d extends AbstractAnalysis {
         */
         String path = "data/objfiles/base.dae";
         addCOLLADA(path);
+        /*
         path = "data/objfiles/forarm.dae";
         addCOLLADA(path);
         path = "data/objfiles/shoulder.dae";
@@ -433,6 +448,14 @@ public class GeometryView3d extends AbstractAnalysis {
         addCOLLADA(path);
         path = "data/objfiles/wrist3.dae";
         addCOLLADA(path); 
+        */
+    }
+    
+    private void makeGL(){
+        NativeDesktopPainter painter = (NativeDesktopPainter) chart.getPainter();
+        painter.acquireGL();
+        painter.getGL().getGL4().glEnable(GL4.GL_LIGHTEN);
+        painter.releaseGL();
     }
     
     /**
@@ -456,20 +479,14 @@ public class GeometryView3d extends AbstractAnalysis {
         PointerBuffer aiMeshes = aiScene.mMeshes();
         AIMesh[] meshes = new AIMesh[aiScene.mNumMeshes()];
         List<DrawableVBO2> objects = new ArrayList<>();
-        List<List<Float>> allVertices = new ArrayList<>();
-        List<Material> verticesMaterial = new ArrayList<>();
         //Make objects from the vertices from the 
         for(int i = 0; i < aiScene.mNumMeshes();i++){
             meshes[i] = AIMesh.create(aiMeshes.get(i));
             List<Float> vertices = new ArrayList<>();
             processVertices(meshes[i], vertices);
-            allVertices.add(vertices);
-            verticesMaterial.add(materials.get(meshes[i].mMaterialIndex()));
-            //objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
+            objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
         }
-        objects.add(getCOLLADAObject(allVertices, verticesMaterial));
         //Combine Objects into one composite
-        Composite composite = new Composite();
         for(DrawableVBO2 o: objects){
             o.setWireframeDisplayed(false);
             chart.add(o);
@@ -488,49 +505,14 @@ public class GeometryView3d extends AbstractAnalysis {
         float[] verticesFloat = new float[vertices.size()];
         for(int i = 0; i < vertices.size(); i++){
             verticesFloat[i]  = vertices.get(i).floatValue();
+            
         }
         //set up and return the object
         DrawableVBO2 vbo = new DrawableVBO2(verticesFloat, 3);
-        
-        vbo.setWireframeDisplayed(false);
-        vbo.setColor(Color.BLUE);
-        chart.add(vbo);
-        return vbo;
-    }
-    
-    List<List<Float>> allVertices = new ArrayList<>();
-        List<Material> verticesMaterial = new ArrayList<>();
-    
-    /**
-     * Get the object from the vertices, that were extracted from a COLLADA file
-     * @param allVertices the vertieces
-     * @param verticesMaterial the Materials of the object
-     * @return the combined object
-     */
-    public DrawableVBO2 getCOLLADAObject(List<List<Float>> allVertices, List<Material> verticesMaterial){
-        List<Polygon> composite = new ArrayList<>();
-        //calculate the object
-        for(int v = 0; v < allVertices.size(); v++){
-            Polygon polygon = new Polygon();
-            int triangle_counter = 0;
-            List<Float> vertices = allVertices.get(v);
-            //calculate the polygon of one mesh
-            for(int i = 0; i < vertices.size(); i = i + 3){
-                polygon.add(new Coord3d(vertices.get(i),vertices.get(i+1),vertices.get(i+2)));
-                triangle_counter = triangle_counter + 1;
-                //add a triangle to the composite
-                if(triangle_counter == 3){
-                    composite.add(polygon);
-                    polygon = new Polygon();
-                    triangle_counter = 0;
-                    polygon.setColor(Color.BLUE);
-                }
-            }
-        }
-        //set up and return the object
-        DrawableVBO2 vbo = new DrawableVBO2(composite);
-        vbo.setColor(Color.BLUE);
-        System.out.println(vbo.getColor());
+        vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z, material.getAlpha()));
+        vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z, material.getAlpha()));
+        vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z, material.getAlpha()));
+        vbo.setColor(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z));
         return vbo;
     }
     
@@ -617,6 +599,7 @@ public class GeometryView3d extends AbstractAnalysis {
         
         @Override
         public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
+
             BoundingBox3d bounds = chart.getView().getBounds();          
             if (!pickableObjects.isEmpty()){
                 if(e.getButton() == 1){
@@ -624,7 +607,7 @@ public class GeometryView3d extends AbstractAnalysis {
                         int yflip = -e.getY() + chart.getCanvas().getRendererHeight();
                         Camera camera = chart.getView().getCamera();
                         IPainter painter = chart.getPainter();
-			    
+
                         painter.acquireGL();
 
                         // 2D to 3D
