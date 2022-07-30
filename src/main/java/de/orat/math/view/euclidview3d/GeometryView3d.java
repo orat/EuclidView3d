@@ -23,6 +23,7 @@ import org.jzy3d.chart.controllers.thread.camera.CameraThreadController;
 import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.chart.factories.NewtChartFactory;
+import org.jzy3d.chart.factories.SwingChartFactory; 
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
@@ -39,8 +40,10 @@ import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
+import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Polygon;
 import org.jzy3d.plot3d.primitives.Sphere;
+import org.jzy3d.plot3d.primitives.enlightables.EnlightablePolygon;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.primitives.vbo.builders.VBOBuilderListCoord3d;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
@@ -395,7 +398,7 @@ public class GeometryView3d extends AbstractAnalysis {
         
         Quality q = Quality.Advanced(); 
         q.setDepthActivated(true);
-        q.setAlphaActivated(true);
+        q.setAlphaActivated(false);
         q.setAnimated(false); 
         q.setHiDPIEnabled(true); 
         
@@ -408,9 +411,10 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().setBackgroundColor(Color.WHITE);
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
         
-        setUpMouse();
-        Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
-        light.setType(Light.Type.DIRECTIONAL);
+        //setUpMouse();
+        //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax(), Color.WHITE, Color.WHITE, Color.WHITE);
+        //light.setType(Light.Type.POSITIONAL);
+        Light light = chart.addLightOnCamera(Color.WHITE);
         
         /*
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
@@ -433,8 +437,11 @@ public class GeometryView3d extends AbstractAnalysis {
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         */
+        
+        
         String path = "data/objfiles/base.dae";
         addCOLLADA(path);
+        
         /*
         path = "data/objfiles/forarm.dae";
         addCOLLADA(path);
@@ -449,13 +456,12 @@ public class GeometryView3d extends AbstractAnalysis {
         path = "data/objfiles/wrist3.dae";
         addCOLLADA(path); 
         */
+        
     }
     
     private void makeGL(){
         NativeDesktopPainter painter = (NativeDesktopPainter) chart.getPainter();
-        painter.acquireGL();
-        painter.getGL().getGL4().glEnable(GL4.GL_LIGHTEN);
-        painter.releaseGL();
+        
     }
     
     /**
