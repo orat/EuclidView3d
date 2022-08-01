@@ -443,7 +443,7 @@ public class GeometryView3d extends AbstractAnalysis {
         addCOLLADA(path);
         
         /*
-        path = "data/objfiles/forarm.dae";
+        path = "data/objfiles/forearm.dae";
         addCOLLADA(path);
         path = "data/objfiles/shoulder.dae";
         addCOLLADA(path);
