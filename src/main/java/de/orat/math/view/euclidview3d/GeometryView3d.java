@@ -414,7 +414,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //setUpMouse();
         //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax(), Color.WHITE, Color.WHITE, Color.WHITE);
         //light.setType(Light.Type.POSITIONAL);
-        Light light = chart.addLightOnCamera(Color.WHITE);
+        Light light = chart.addLightOnCamera();
         
         /*
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
@@ -518,7 +518,11 @@ public class GeometryView3d extends AbstractAnalysis {
         vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z, material.getAlpha()));
         vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z, material.getAlpha()));
         vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z, material.getAlpha()));
-        vbo.setColor(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z));
+        //vbo.setColor(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z));
+        Color color = new Color(material.getAmbient().x+material.getDiffuse().x+material.getSpecular().x,
+                                material.getAmbient().y+material.getDiffuse().y+material.getSpecular().y,
+                                material.getAmbient().z+material.getDiffuse().z+material.getSpecular().z);
+        vbo.setColor(color);
         return vbo;
     }
     
