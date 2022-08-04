@@ -92,15 +92,13 @@ public class GeometryView3d extends AbstractAnalysis {
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
      */
     public GeometryView3d(){
-        super(new NewtChartFactory());
-        
+        super(new NewtChartFactory());  
     }
     
     
     public static void main(String[] args) throws Exception {
         GeometryView3d gv = new GeometryView3d();
         AnalysisLauncher.open(gv);
-        gv.makeGL();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
         
@@ -461,11 +459,6 @@ public class GeometryView3d extends AbstractAnalysis {
         
     }
     
-    private void makeGL(){
-        NativeDesktopPainter painter = (NativeDesktopPainter) chart.getPainter();
-        
-    }
-    
     /**
      * Add a COLLADA (.dae) File Object to the Scene
      * @param path the path to the COLLADA File
@@ -518,14 +511,12 @@ public class GeometryView3d extends AbstractAnalysis {
         }
         //set up and return the object
         DrawableVBO2 vbo = new DrawableVBO2(verticesFloat, 3);
-        //vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z, material.getAlpha()));
-        //vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z, material.getAlpha()));
-        //vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z, material.getAlpha()));
-        //vbo.setColor(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z));
+        vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z, material.getAlpha()));
+        vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z, material.getAlpha()));
+        vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z, material.getAlpha()));
         Color color = new Color((material.getAmbient().x+material.getDiffuse().x+material.getSpecular().x)*1/4,
                                 (material.getAmbient().y+material.getDiffuse().y+material.getSpecular().y)*1/4,
                                 (material.getAmbient().z+material.getDiffuse().z+material.getSpecular().z)*1/4);
-        System.out.println(color);
         vbo.setColor(color);
         return vbo;
     }
