@@ -104,7 +104,6 @@ public class GeometryView3d extends AbstractAnalysis {
         AnalysisLauncher.open(gv);
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
-        
     }
     
     /**
@@ -124,7 +123,6 @@ public class GeometryView3d extends AbstractAnalysis {
         sphere.setWireframeDisplayed(false);
         sphere.setPickingId(pickingId++);
         pickingSupport.registerDrawableObject(sphere, sphere);
-        //Point point = new Point(new Coord3d(location.x,location.x,location.z), color, width);
         chart.add(sphere);
         pickingSupportList.add(sphere);
     }
@@ -178,20 +176,12 @@ public class GeometryView3d extends AbstractAnalysis {
     public void addLine(Point3d p1, Point3d p2, float radius, Color color, String label){
         p1 = clipPoint(p1);
         p2 = clipPoint(p2);
-        org.jzy3d.maths.Vector3d vec = 
-                new org.jzy3d.maths.Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
         Line line = new Line();
         line.setData(p1,p2, radius, 10, 0, color, label);
         line.setPickingId(pickingId++);
         pickingSupport.registerDrawableObject(line, line);
         chart.add(line);
         pickingSupportList.add(line);
-        /*
-        Vector3d negative_direction = new Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
-        negative_direction.scale((2*labelOffset)/negative_direction.length());
-        Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
-        addLabel(labelLocation, label, Color.BLACK);
-        */
     }
     
     /**
@@ -345,16 +335,6 @@ public class GeometryView3d extends AbstractAnalysis {
         plane.setPickingId(pickingId++);
         chart.add(plane);
         pickingSupportList.add(plane);
-        /*
-        Coord3d lowestPoint = plane.getCoordArray()[0];
-        for(Coord3d coord: plane.getCoordArray()){
-            if(coord.z < lowestPoint.z){
-                lowestPoint = coord;
-            }
-        }
-        Point3d labelLocation = new Point3d(lowestPoint.x, lowestPoint.y, lowestPoint.z - labelOffset);
-        addLabel(labelLocation, label, Color.BLACK);   
-        */
     }
     
     /**
@@ -595,15 +575,6 @@ public class GeometryView3d extends AbstractAnalysis {
         public void mouseMoved(MouseEvent e){
            //So hovering over a pickable Object doesn't select it when hovering over a pickable object
         }   
-        
-        private float clampToOneZero(float x){
-            if(x>1.f){
-                return 1.f;
-            } else if(x<0.f){
-                return 0.f;
-            }
-            return x;
-        }
         
         @Override
         public void mouseDragged(MouseEvent e){
