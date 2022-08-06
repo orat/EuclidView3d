@@ -3,7 +3,6 @@ package de.orat.math.view.euclidview3d;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL4;
-import java.awt.event.MouseEvent;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +15,7 @@ import org.jzy3d.analysis.AWTAbstractAnalysis;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.controllers.mouse.camera.AWTCameraMouseController;
 import org.jzy3d.chart.controllers.mouse.camera.NewtCameraMouseController;
-import org.jzy3d.chart.controllers.mouse.picking.AWTMousePickingController;
 import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
 import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
 import org.jzy3d.chart.controllers.mouse.picking.PickingSupport;
@@ -88,14 +85,14 @@ public class GeometryView3d extends AbstractAnalysis {
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
     private PickingSupport pickingSupport;
-    private AWTCameraMouseController cameraMouse;
+    private NewtCameraMouseController cameraMouse;
     private static boolean b = true;
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
      */
     public GeometryView3d(){
-        super(new AWTChartFactory());  
+        super(new NewtChartFactory());  
     }
     
     
@@ -567,17 +564,17 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * The MouseController for the picking
      */
-    private class NewtMouse extends AWTMousePickingController{
+    private class NewtMouse extends NewtMousePickingController{
         
         Coord3d currentMouse = null;
         
         @Override
-        public void mouseMoved(MouseEvent e){
+        public void mouseMoved(com.jogamp.newt.event.MouseEvent e){
            //So hovering over a pickable Object doesn't select it when hovering over a pickable object
         }   
         
         @Override
-        public void mouseDragged(MouseEvent e){
+        public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
 
             BoundingBox3d bounds = chart.getView().getBounds();          
             if (!pickableObjects.isEmpty()){
@@ -609,7 +606,7 @@ public class GeometryView3d extends AbstractAnalysis {
         }
 
         @Override
-        public void mouseReleased(MouseEvent e){
+        public void mouseReleased(com.jogamp.newt.event.MouseEvent e){
             if (!pickableObjects.isEmpty()){
                 for(PickableObjects object: pickableObjects){
                     if(object.getType().equals(DrawableTypes.PLANE)){
@@ -634,7 +631,7 @@ public class GeometryView3d extends AbstractAnalysis {
                     pickableObjects.add((PickableObjects) o);
                 }
                 if(cameraMouse == null){
-                    cameraMouse = (AWTCameraMouseController) chart.getMouse();   
+                    cameraMouse = (NewtCameraMouseController) chart.getMouse();   
                 }
                 cameraMouse.unregister(chart);
             }
