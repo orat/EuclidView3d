@@ -31,6 +31,7 @@ import org.jzy3d.maths.Utils2;
 import org.jzy3d.painters.IPainter;
 import org.jzy3d.painters.NativeDesktopPainter;
 import org.jzy3d.plot3d.primitives.Arrow;
+import org.jzy3d.plot3d.primitives.ChessFloor;
 import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
 import org.jzy3d.plot3d.primitives.Drawable;
@@ -50,6 +51,7 @@ import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.jzy3d.plot3d.primitives.vbo.drawable.PolygonVBO;
 import org.jzy3d.plot3d.primitives.vbo.drawable.SphereVBO;
 import org.jzy3d.plot3d.primitives.vbo.drawable.TriangleVBO;
+import org.jzy3d.plot3d.rendering.canvas.ICanvasListener;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Attenuation;
 import org.jzy3d.plot3d.rendering.lights.Light;
@@ -376,7 +378,7 @@ public class GeometryView3d extends AbstractAnalysis {
         
         Quality q = Quality.Advanced(); 
         q.setDepthActivated(true);
-        q.setAlphaActivated(false);
+        //q.setAlphaActivated(false);
         q.setAnimated(false); 
         q.setHiDPIEnabled(true); 
         
@@ -394,7 +396,8 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        /*
+        ChessFloor.getSingelton(chart, 40.f);
+        
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
@@ -414,11 +417,12 @@ public class GeometryView3d extends AbstractAnalysis {
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
-        */
         
+        //addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         
-        String path = "data/objfiles/upperarm.dae";
-        addCOLLADA(path);
+        //ChessFloor.getSingelton(this.chart, 20.0f);
+        //String path = "data/objfiles/upperarm.dae";
+        //addCOLLADA(path);
         
         /*
         String path = "data/objfiles/base.dae";
@@ -437,6 +441,7 @@ public class GeometryView3d extends AbstractAnalysis {
         addCOLLADA(path); 
         */
         
+        ChessFloor.getSingelton(chart, 20.0f);
     }
     
     /**
@@ -486,17 +491,16 @@ public class GeometryView3d extends AbstractAnalysis {
         //translate the Floats to an array
         float[] verticesFloat = new float[vertices.size()];
         for(int i = 0; i < vertices.size(); i++){
-            verticesFloat[i]  = vertices.get(i).floatValue();
-            
+            verticesFloat[i]  = vertices.get(i).floatValue();         
         }
         //set up and return the object
         DrawableVBO2 vbo = new DrawableVBO2(verticesFloat, 3);
-        vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z, material.getAlpha()));
-        vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z, material.getAlpha()));
-        vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z, material.getAlpha()));
+        //vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z, material.getAlpha()));
+        //vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z, material.getAlpha()));
+        //vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z, material.getAlpha()));
         Color color = new Color((material.getAmbient().x+material.getDiffuse().x+material.getSpecular().x)*1/4,
                                 (material.getAmbient().y+material.getDiffuse().y+material.getSpecular().y)*1/4,
-                                (material.getAmbient().z+material.getDiffuse().z+material.getSpecular().z)*1/4);
+                                (material.getAmbient().z+material.getDiffuse().z+material.getSpecular().z)*1/4, 10.0f);
         vbo.setColor(color);
         return vbo;
     }
@@ -559,6 +563,7 @@ public class GeometryView3d extends AbstractAnalysis {
         NewtMouse m = new NewtMouse();
         m.setPickingSupport(pickingSupport);
         m.register(chart);
+        //chart.removeController(chart.getMouse());
     }
     
     /**
@@ -571,11 +576,10 @@ public class GeometryView3d extends AbstractAnalysis {
         @Override
         public void mouseMoved(com.jogamp.newt.event.MouseEvent e){
            //So hovering over a pickable Object doesn't select it when hovering over a pickable object
-        }   
+        }  
         
         @Override
         public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
-
             BoundingBox3d bounds = chart.getView().getBounds();          
             if (!pickableObjects.isEmpty()){
                 if(e.getButton() == 1){
