@@ -378,7 +378,7 @@ public class GeometryView3d extends AbstractAnalysis {
         
         Quality q = Quality.Advanced(); 
         q.setDepthActivated(true);
-        //q.setAlphaActivated(false);
+        q.setAlphaActivated(false);
         q.setAnimated(false); 
         q.setHiDPIEnabled(true); 
         
@@ -396,8 +396,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        ChessFloor.getSingelton(chart, 40.f);
-        
+        /*
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
@@ -417,12 +416,13 @@ public class GeometryView3d extends AbstractAnalysis {
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
+        */
         
         //addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         
         //ChessFloor.getSingelton(this.chart, 20.0f);
-        //String path = "data/objfiles/upperarm.dae";
-        //addCOLLADA(path);
+        String path = "data/objfiles/upperarm.dae";
+        addCOLLADA(path);
         
         /*
         String path = "data/objfiles/base.dae";
@@ -577,6 +577,11 @@ public class GeometryView3d extends AbstractAnalysis {
         public void mouseMoved(com.jogamp.newt.event.MouseEvent e){
            //So hovering over a pickable Object doesn't select it when hovering over a pickable object
         }  
+        
+        @Override
+        public void mouseClicked(com.jogamp.newt.event.MouseEvent e){
+            ChessFloor.getSingelton(chart).update();
+        }
         
         @Override
         public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
