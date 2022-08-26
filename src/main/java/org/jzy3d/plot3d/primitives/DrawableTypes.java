@@ -15,5 +15,6 @@ public enum DrawableTypes {
     CUBE,
     LINE,
     PLANE,
-    SPHERE
+    SPHERE,
+    CIRCLE
 }

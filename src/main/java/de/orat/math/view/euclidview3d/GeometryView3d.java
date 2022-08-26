@@ -36,6 +36,7 @@ import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.CroppableLineStrip;
 import org.jzy3d.plot3d.primitives.Drawable;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
+import org.jzy3d.plot3d.primitives.EuclidCircle;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
@@ -222,70 +223,10 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param label
      */
     public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color, String label){
-        float rings = 100.f;
-        CroppableLineStrip lineStrip = new CroppableLineStrip();
-        //get the orthogonal vectors to the direction to get the plane for the circle
-        direction.normalize();
-        Vector3d[] plane = getOrthogonalsToDirection(direction);
-        Coord3d p1 = new Coord3d(origin.x+plane[1].x, origin.y+plane[1].y, origin.z+plane[1].z);
-        //Calculate the first point from the circle. Scale the vector between the origin and a point p1 on the plane to the radius.
-        Vector3d vec_p1_origin = new Vector3d(p1.x-origin.x, p1.y-origin.y, p1.z-origin.z);
-        double length = vec_p1_origin.length();
-        float ratio = (float) radius/ (float) length;
-        vec_p1_origin.scale(ratio);
-        //rotate the first point around the direction and the points to the strip
-        Coord3d firstPoint = new Coord3d(origin.x+vec_p1_origin.x, origin.y+vec_p1_origin.y, origin.z+vec_p1_origin.z);
-        Coord3d rotateAround = new Coord3d(direction.x, direction.y, direction.z);
-        float rotationStep = 360.f/rings;
-        float degree_now = 0.f;
-        for (int i=0;i<rings;i++){
-            lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
-            degree_now += rotationStep;
-        }
-        lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
-        lineStrip.setWireframeColor(color);
-        chart.add(lineStrip);
-        Vector3d origin_firstPoint = new Vector3d(origin.x+firstPoint.x, origin.y+firstPoint.y, origin.z+firstPoint.z);
-        ratio = (float) (labelOffset+origin_firstPoint.length())/(float) origin_firstPoint.length();
-        vec_p1_origin.scale(ratio);
-        Point3d labelLocation = new Point3d(p1.x+vec_p1_origin.x, p1.y+vec_p1_origin.y,p1.z+vec_p1_origin.z);
-        addLabel(labelLocation, label, Color.BLACK);
-    }
-    
-    /**Calculates the orthogonal vectors to a normalized vector
-     * 
-     * @param direction the vector to which the orthogonal vectors should be calculated
-     * @return the orthogonal basis with the direction and its 2 orthogonal vectors
-     */
-    private Vector3d[] getOrthogonalsToDirection(Vector3d direction){
-        Vector3d[] orthogonals = new Vector3d[3];
-        orthogonals[0] = direction;
-        int smalest = 0;
-        float smalest_value = (float) direction.x; 
-        if (smalest_value > direction.y){
-            smalest = 1; 
-            smalest_value = (float) direction.y;
-        }
-        if (smalest_value > direction.z){
-            smalest = 2; 
-            smalest_value = (float) direction.z;
-        }
-        
-        //FIXME
-        // smalest_value not used
-        
-        Vector3d w = switch (smalest) {
-            case 0 -> new Vector3d(1,0,0);
-            case 1 -> new Vector3d(0,1,0);
-            default -> new Vector3d(0,0,1);
-        };
-        Vector3d u = new Vector3d(0,0,0);
-        u.cross(w, direction);
-        orthogonals[1] = u;
-        Vector3d v = new Vector3d(0,0,0);
-        v.cross(direction, u);
-        orthogonals[2] = v;
-        return orthogonals;
+        EuclidCircle circle = new EuclidCircle();
+        circle.setData(origin, direction, radius, color, label);
+        chart.add(circle);
+        //TODO add moving circle with mouse
     }
     
     /**
@@ -396,7 +337,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        /*
+        
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
@@ -416,13 +357,13 @@ public class GeometryView3d extends AbstractAnalysis {
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
-        */
+        
         
         //addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         
         //ChessFloor.getSingelton(this.chart, 20.0f);
-        String path = "data/objfiles/upperarm.dae";
-        addCOLLADA(path);
+        //String path = "data/objfiles/upperarm.dae";
+        //addCOLLADA(path);
         
         /*
         String path = "data/objfiles/base.dae";
