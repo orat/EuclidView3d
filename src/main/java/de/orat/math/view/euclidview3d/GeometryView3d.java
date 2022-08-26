@@ -25,6 +25,8 @@ import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.chart.factories.NewtChartFactory;
 import org.jzy3d.chart.factories.SwingChartFactory; 
 import org.jzy3d.colors.Color;
+import org.jzy3d.events.DrawableChangedEvent;
+import org.jzy3d.events.IDrawableListener;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
@@ -58,6 +60,7 @@ import org.jzy3d.plot3d.rendering.lights.Attenuation;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.lights.LightModel;
 import org.jzy3d.plot3d.rendering.lights.MaterialProperty;
+import org.jzy3d.plot3d.rendering.scene.Graph.GraphListener;
 import org.jzy3d.plot3d.rendering.view.Camera;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
 import org.jzy3d.plot3d.transform.Rotate;
@@ -331,6 +334,8 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().setSquared(false);
         chart.getView().setBackgroundColor(Color.WHITE);
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
+        this.setUpChessFloor(20.f);
+        chart.getScene().getGraph().addGraphListener(new FloorListener());
         
         setUpMouse();
         //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax(), Color.WHITE, Color.WHITE, Color.WHITE);
@@ -358,10 +363,6 @@ public class GeometryView3d extends AbstractAnalysis {
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         
-        
-        //addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
-        
-        //ChessFloor.getSingelton(this.chart, 20.0f);
         //String path = "data/objfiles/upperarm.dae";
         //addCOLLADA(path);
         
@@ -382,7 +383,14 @@ public class GeometryView3d extends AbstractAnalysis {
         addCOLLADA(path); 
         */
         
-        ChessFloor.getSingelton(chart, 20.0f);
+    }
+
+    private class FloorListener implements GraphListener{
+
+        @Override
+        public void onMountAll() {
+            updateChessFloor();
+        }
     }
     
     /**
@@ -419,7 +427,6 @@ public class GeometryView3d extends AbstractAnalysis {
             //o.setWireframeColor(Color.RED);
             chart.add(o);
         }
-        
     }
     
     /**
@@ -520,13 +527,7 @@ public class GeometryView3d extends AbstractAnalysis {
         }  
         
         @Override
-        public void mouseClicked(com.jogamp.newt.event.MouseEvent e){
-            ChessFloor.getSingelton(chart).update();
-        }
-        
-        @Override
-        public void mouseDragged(com.jogamp.newt.event.MouseEvent e){
-            BoundingBox3d bounds = chart.getView().getBounds();          
+        public void mouseDragged(com.jogamp.newt.event.MouseEvent e){          
             if (!pickableObjects.isEmpty()){
                 if(e.getButton() == 1){
                     for(PickableObjects p: pickableObjects){
@@ -618,5 +619,13 @@ public class GeometryView3d extends AbstractAnalysis {
         for(PickableObjects object: pickingSupportList){
             pickingSupport.registerPickableObject((Pickable) object, (Pickable) object);
         }
+    }
+    
+    private void setUpChessFloor(float length){
+        ChessFloor.getSingelton(chart, length);
+    }
+    
+    private void updateChessFloor(){
+        ChessFloor.getSingelton(chart);
     }
 }
