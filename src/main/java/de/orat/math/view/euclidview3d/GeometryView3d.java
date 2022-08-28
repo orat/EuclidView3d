@@ -292,9 +292,10 @@ public class GeometryView3d extends AbstractAnalysis {
         
         Quality q = Quality.Advanced(); 
         q.setDepthActivated(true);
-        q.setAlphaActivated(false);
+        //q.setAlphaActivated(false);
         q.setAnimated(false); 
         q.setHiDPIEnabled(true); 
+        q.setDisableDepthBufferWhenAlpha(false);
         
         //chart = initializeChart(q);       
         
@@ -308,11 +309,11 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getScene().getGraph().addGraphListener(new FloorListener());
         
         setUpMouse();
-        //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax(), Color.WHITE, Color.WHITE, Color.WHITE);
+        //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        
+        /*
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
@@ -332,9 +333,9 @@ public class GeometryView3d extends AbstractAnalysis {
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
-        
-        //String path = "data/objfiles/upperarm.dae";
-        //addCOLLADA(path);
+        */
+        String path = "data/objfiles/upperarm.dae";
+        addCOLLADA(path);
         
         /*
         String path = "data/objfiles/base.dae";
@@ -413,13 +414,14 @@ public class GeometryView3d extends AbstractAnalysis {
         }
         //set up and return the object
         DrawableVBO2 vbo = new DrawableVBO2(verticesFloat, 3);
-        //vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z, material.getAlpha()));
-        //vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z, material.getAlpha()));
-        //vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z, material.getAlpha()));
-        Color color = new Color((material.getAmbient().x+material.getDiffuse().x+material.getSpecular().x)*1/4,
-                                (material.getAmbient().y+material.getDiffuse().y+material.getSpecular().y)*1/4,
-                                (material.getAmbient().z+material.getDiffuse().z+material.getSpecular().z)*1/4, 10.0f);
+        vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z));
+        vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z));
+        vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z));
+        Color color = new Color((material.getAmbient().x+material.getDiffuse().x+material.getSpecular().x)*1/3,
+                                (material.getAmbient().y+material.getDiffuse().y+material.getSpecular().y)*1/3,
+                                (material.getAmbient().z+material.getDiffuse().z+material.getSpecular().z)*1/3, 1.0f);
         vbo.setColor(color);
+        vbo.setPolygonWireframeDepthTrick(false);
         return vbo;
     }
     

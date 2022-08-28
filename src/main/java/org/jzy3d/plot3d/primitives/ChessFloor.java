@@ -54,6 +54,7 @@ public class ChessFloor extends Composite{
         this.removeChart();
         this.clear();
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
+        //BoundingBox3d bounds = chart.getScene().getGraph().getBounds();
         int numLength = (int) Math.ceil((bounds.getXmax()-bounds.getXmin())/length); 
         int numHeight = (int) Math.ceil((bounds.getYmax()-bounds.getYmin())/length);
         Point3d lengthStart = new Point3d(0,0,0);
@@ -70,10 +71,8 @@ public class ChessFloor extends Composite{
                 Point3d p4 = clipPoint(new Point3d(heightCoord.x+length, heightCoord.y+length, 0));
                 //create plane
                 float[] a = getVBOArray(p1,p2,p3,p4);
-                float[] a1 = {a[0],a[1],a[2]};
-                float[] a2 = {a[3],a[4],a[5]};
                 DrawableVBO2 vbo = new DrawableVBO2(getVBOArray(p1,p2,p3,p4), 3);
-                vbo.setColor(new Color(heightColor.r, heightColor.g, heightColor.b, 0.4f));
+                vbo.setColor(new Color(heightColor.r, heightColor.g, heightColor.b, 0.65f));
                 vbo.setWireframeDisplayed(false);
                 this.add(vbo);
                 if(heightColor == Color.BLACK){
