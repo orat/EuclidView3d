@@ -250,11 +250,9 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param color color of the text
      */
     public void addLabel(Point3d location, String text, Color color){
-         Coord3d coord3d = new Coord3d();
-         coord3d.set((float) location.x, (float) location.y, (float) location.z);
-         DrawableText label = new DrawableText(text, coord3d, color);
-         chart.add(label);
+         chart.add(LabelFactory.getInstance().addLabel(location, text, Color.BLACK));
     }
+    
     
     /**
      * Add a COLLADA (.dae) File Object to the Scene
@@ -346,6 +344,7 @@ public class GeometryView3d extends AbstractAnalysis {
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         */
+        
         String path = "data/objfiles/upperarm.dae";
         addCOLLADA(path);
         
