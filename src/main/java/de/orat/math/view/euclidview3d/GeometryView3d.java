@@ -9,6 +9,7 @@ import org.jzy3d.analysis.AWTAbstractAnalysis;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.controllers.ControllerType;
 import org.jzy3d.chart.controllers.mouse.camera.NewtCameraMouseController;
 import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
 import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
@@ -17,6 +18,8 @@ import org.jzy3d.chart.factories.AWTChartFactory;
 import org.jzy3d.chart.factories.ChartFactory;
 import org.jzy3d.chart.factories.NewtChartFactory;
 import org.jzy3d.colors.Color;
+import org.jzy3d.events.ControllerEvent;
+import org.jzy3d.events.ControllerEventListener;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
@@ -305,8 +308,14 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().setSquared(false);
         chart.getView().setBackgroundColor(Color.WHITE);
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
+        //Add the ChessFloor and set size
         this.setUpChessFloor(20.f);
-        chart.getScene().getGraph().addGraphListener(new FloorListener());
+        chart.getScene().getGraph().addGraphListener(new GraphListener() {
+            @Override
+            public void onMountAll() {
+                updateChessFloor();
+            }
+        });
         
         setUpMouse();
         //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
@@ -354,14 +363,6 @@ public class GeometryView3d extends AbstractAnalysis {
         addCOLLADA(path); 
         */
         
-    }
-
-    private class FloorListener implements GraphListener{
-
-        @Override
-        public void onMountAll() {
-            updateChessFloor();
-        }
     }
     
     /**
@@ -483,7 +484,6 @@ public class GeometryView3d extends AbstractAnalysis {
         NewtMouse m = new NewtMouse();
         m.setPickingSupport(pickingSupport);
         m.register(chart);
-        //chart.removeController(chart.getMouse());
     }
     
     /**
