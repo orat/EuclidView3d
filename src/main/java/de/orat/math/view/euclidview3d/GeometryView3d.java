@@ -185,13 +185,15 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param direction normal vector of the plane the circle lays in
      * @param radius radius of the circle
      * @param color color of the circle
-     * @param label
+     * @param label the label for the circle
      */
     public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color, String label){
         EuclidCircle circle = new EuclidCircle();
         circle.setData(origin, direction, radius, color, label);
+        circle.setPickingId(pickingId++);
+        pickingSupport.registerPickableObject(circle, circle);
         chart.add(circle);
-        //TODO add moving circle with mouse
+        pickingSupportList.add(circle);
     }
     
     /**
@@ -323,7 +325,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        /*
+        
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
@@ -332,7 +334,7 @@ public class GeometryView3d extends AbstractAnalysis {
         addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         
         addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
-        addCircle(new Point3d(0,0,0), new Vector3d(0,0,1),5,Color.RED, "Circle");
+        addCircle(new Point3d(20,20,20), new Vector3d(0,0,1),10,Color.RED, "Circle");
         
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         
@@ -343,10 +345,10 @@ public class GeometryView3d extends AbstractAnalysis {
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
-        */
         
-        String path = "data/objfiles/upperarm.dae";
-        addCOLLADA(path);
+        
+        //String path = "data/objfiles/upperarm.dae";
+        //addCOLLADA(path);
         
         /*
         String path = "data/objfiles/base.dae";
@@ -408,7 +410,6 @@ public class GeometryView3d extends AbstractAnalysis {
                             depthRange = 0.4f;
                         }
                         currentMouse = new Coord3d(e.getX(), yflip, depthRange);
-                
                         Coord3d pos = camera.screenToModel(chart.getPainter(), currentMouse);
                         painter.releaseGL();
                         Point3d clippedPos = clipPoint(new Point3d(pos.x,pos.y,pos.z));

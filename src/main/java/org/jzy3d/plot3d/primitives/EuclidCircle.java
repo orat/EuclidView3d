@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package org.jzy3d.plot3d.primitives;
 
 import org.jogamp.vecmath.Point3d;
@@ -9,6 +5,9 @@ import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
+import org.jzy3d.plot3d.text.drawable.DrawableText;
+import org.jzy3d.plot3d.transform.Transform;
+import org.jzy3d.plot3d.transform.Translate;
 
 /**
  *
@@ -18,20 +17,48 @@ public class EuclidCircle extends Composite implements Pickable, PickableObjects
 
     private int pickingID = 0;
     private float rings = 100.f;
+    private Vector3d direction;
+    private float radius;
+    private Color ringColor;
+    private String label;
+    private boolean notNormalized = true;
+    Vector3d[] plane;
+    
+    public Vector3d getDirection(){
+        return this.direction;
+    }
+    
+    public float getRadius(){
+        return this.radius;
+    }
+    
+    public Color getRingColor(){
+        return this.ringColor;
+    }
+    
+    public String getLabel(){
+        return this.label;
+    }  
     
     public void setData(Point3d origin, Vector3d direction, float radius ,Color color, String label){
+        this.direction = direction;
+        this.radius = radius;
+        this.ringColor = color;
+        this.label = label;
         CroppableLineStrip lineStrip = new CroppableLineStrip();
         //get the orthogonal vectors to the direction to get the plane for the circle
-        direction.normalize();
-        Vector3d[] plane = getOrthogonalsToDirection(direction);
-        Coord3d p1 = new Coord3d(origin.x+plane[1].x, origin.y+plane[1].y, origin.z+plane[1].z);
+        if(notNormalized){
+            direction.normalize();
+            plane = getOrthogonalsToDirection(direction);
+        }
+        //Vector3d[] plane = getOrthogonalsToDirection(direction);
+        Coord3d p1 = new Coord3d(plane[1].x, plane[1].y, plane[1].z);
         //Calculate the first point from the circle. Scale the vector between the origin and a point p1 on the plane to the radius.
-        Vector3d vec_p1_origin = new Vector3d(p1.x-origin.x, p1.y-origin.y, p1.z-origin.z);
-        double length = vec_p1_origin.length();
-        float ratio = (float) radius/ (float) length;
+        Vector3d vec_p1_origin = new Vector3d(plane[1].x, plane[1].y, plane[1].z);
+        float ratio = (float) radius;
         vec_p1_origin.scale(ratio);
         //rotate the first point around the direction and the points to the strip
-        Coord3d firstPoint = new Coord3d(origin.x+vec_p1_origin.x, origin.y+vec_p1_origin.y, origin.z+vec_p1_origin.z);
+        Coord3d firstPoint = new Coord3d(vec_p1_origin.x, vec_p1_origin.y, vec_p1_origin.z);
         Coord3d rotateAround = new Coord3d(direction.x, direction.y, direction.z);
         float rotationStep = 360.f/rings;
         float degree_now = 0.f;
@@ -41,12 +68,20 @@ public class EuclidCircle extends Composite implements Pickable, PickableObjects
         }
         lineStrip.add(firstPoint.rotate(degree_now, rotateAround));
         lineStrip.setWireframeColor(color);
+        //Transform the lineStrip to the Right position
+        Transform trans = new Transform(); 
+        Translate translate = new Translate(new Coord3d(origin.x, origin.y, origin.z));
+        trans.add(translate);
+        lineStrip.applyGeometryTransform(trans);
         this.add(lineStrip);
+        //Add label
         Vector3d origin_firstPoint = new Vector3d(origin.x+firstPoint.x, origin.y+firstPoint.y, origin.z+firstPoint.z);
         ratio = (float) (LabelFactory.getInstance().getOffset()+origin_firstPoint.length())/(float) origin_firstPoint.length();
         vec_p1_origin.scale(ratio);
         Point3d labelLocation = new Point3d(p1.x+vec_p1_origin.x, p1.y+vec_p1_origin.y,p1.z+vec_p1_origin.z);
-        this.add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        DrawableText labelText = LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK);
+        labelText.applyGeometryTransform(trans);
+        this.add(labelText);
     }
     
     /**Calculates the orthogonal vectors to a normalized vector
@@ -102,8 +137,8 @@ public class EuclidCircle extends Composite implements Pickable, PickableObjects
 
     @Override
     public void setNewPosition(Coord3d position) {
-        //TODO move circle with the mouse.
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+       this.clear();
+       this.setData(new Point3d(position.x, position.y, position.z), direction, radius, ringColor, label);
     }
 
     @Override
