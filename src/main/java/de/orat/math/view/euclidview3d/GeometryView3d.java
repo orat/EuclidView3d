@@ -28,6 +28,7 @@ import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.ChessFloor;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidCircle;
+import org.jzy3d.plot3d.primitives.EuclidColladaVBO;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
@@ -262,7 +263,7 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public void addCOLLADA(String path){
         ColladaLoader l = new ColladaLoader();
-        List<DrawableVBO2> objects = l.getCOLLADA(path); 
+        List<EuclidColladaVBO> objects = l.getCOLLADA(path); 
         for(DrawableVBO2 o: objects){
             o.setWireframeDisplayed(false);
             chart.add(o);
@@ -325,7 +326,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        
+        /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
         
@@ -345,10 +346,10 @@ public class GeometryView3d extends AbstractAnalysis {
         addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
         addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
+        **/
         
-        
-        //String path = "data/objfiles/upperarm.dae";
-        //addCOLLADA(path);
+        String path = "data/objfiles/upperarm.dae";
+        addCOLLADA(path);
         
         /*
         String path = "data/objfiles/base.dae";
