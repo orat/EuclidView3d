@@ -26,10 +26,12 @@ import org.jzy3d.maths.Utils2;
 import org.jzy3d.painters.IPainter;
 import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.ChessFloor;
+import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidCircle;
 import org.jzy3d.plot3d.primitives.EuclidColladaVBO;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
+import org.jzy3d.plot3d.primitives.EuclidRobot;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
@@ -263,11 +265,20 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public void addCOLLADA(String path){
         ColladaLoader l = new ColladaLoader();
-        List<EuclidColladaVBO> objects = l.getCOLLADA(path); 
+        Composite object = l.getCOLLADA(path); 
+        chart.add(object);
+        /*
         for(DrawableVBO2 o: objects){
             o.setWireframeDisplayed(false);
             chart.add(o);
         }
+        */
+    }
+    
+    public void addRobot(List<String> paths){
+        EuclidRobot robot = new EuclidRobot();
+        robot.setData(paths);
+        robot.addToChart(chart);
     }
     
     /*public GeometryView3d(){
@@ -348,8 +359,15 @@ public class GeometryView3d extends AbstractAnalysis {
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         **/
         
-        String path = "data/objfiles/upperarm.dae";
-        addCOLLADA(path);
+        ArrayList<String> pathList = new ArrayList<String>();
+        pathList.add("data/objfiles/base.dae");
+        pathList.add("data/objfiles/forearm.dae");
+        pathList.add("data/objfiles/shoulder.dae");
+        pathList.add("data/objfiles/upperarm.dae");
+        pathList.add("data/objfiles/wrist1.dae");
+        pathList.add("data/objfiles/wrist2.dae");
+        pathList.add("data/objfiles/wrist3.dae");
+        addRobot(pathList);
         
         /*
         String path = "data/objfiles/base.dae";
@@ -366,7 +384,7 @@ public class GeometryView3d extends AbstractAnalysis {
         addCOLLADA(path);
         path = "data/objfiles/wrist3.dae";
         addCOLLADA(path); 
-        */  
+        */
     }
     
     /**

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jogamp.vecmath.Vector4f;
 import org.jzy3d.colors.Color;
+import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.EuclidColladaVBO;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.lwjgl.PointerBuffer;
@@ -29,7 +30,7 @@ public class ColladaLoader {
      * Add a COLLADA (.dae) File Object to the Scene
      * @param path the path to the COLLADA File
      */
-    public List<EuclidColladaVBO> getCOLLADA(String path){
+    public Composite getCOLLADA(String path){
         //Load COLLADA files
         AIScene aiScene = aiImportFile(path, 0);
         
@@ -53,8 +54,13 @@ public class ColladaLoader {
             processVertices(meshes[i], vertices);
             objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
         }
+        Composite comp = new Composite();
+        for(EuclidColladaVBO object: objects){
+            comp.add(object);
+        }
+        comp.setWireframeDisplayed(false);
         //Combine Objects into one composite
-        return objects;
+        return comp;
     }
     
     /**
