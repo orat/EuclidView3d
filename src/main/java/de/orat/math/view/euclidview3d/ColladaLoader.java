@@ -5,7 +5,6 @@ import java.util.List;
 import org.jogamp.vecmath.Vector4f;
 import org.jzy3d.colors.Color;
 import org.jzy3d.plot3d.primitives.Composite;
-import org.jzy3d.plot3d.primitives.EuclidColladaVBO;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIColor4D;
@@ -30,7 +29,7 @@ public class ColladaLoader {
      * Add a COLLADA (.dae) File Object to the Scene
      * @param path the path to the COLLADA File
      */
-    public Composite getCOLLADA(String path){
+    public List<DrawableVBO2> getCOLLADA(String path){
         //Load COLLADA files
         AIScene aiScene = aiImportFile(path, 0);
         
@@ -46,7 +45,7 @@ public class ColladaLoader {
         //Get the Meshes from the File
         PointerBuffer aiMeshes = aiScene.mMeshes();
         AIMesh[] meshes = new AIMesh[aiScene.mNumMeshes()];
-        List<EuclidColladaVBO> objects = new ArrayList<>();
+        List<DrawableVBO2> objects = new ArrayList<>();
         //Make objects from the vertices from the 
         for(int i = 0; i < aiScene.mNumMeshes();i++){
             meshes[i] = AIMesh.create(aiMeshes.get(i));
@@ -54,13 +53,11 @@ public class ColladaLoader {
             processVertices(meshes[i], vertices);
             objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
         }
-        Composite comp = new Composite();
-        for(EuclidColladaVBO object: objects){
-            comp.add(object);
+        for(DrawableVBO2 o: objects){
+            o.setWireframeDisplayed(false);
         }
-        comp.setWireframeDisplayed(false);
         //Combine Objects into one composite
-        return comp;
+        return objects;
     }
     
     /**
@@ -69,14 +66,14 @@ public class ColladaLoader {
      * @param material the Material of the object
      * @return the combined object
      */
-    public EuclidColladaVBO getCOLLADAObject(List<Float> vertices, Material material){   
+    public DrawableVBO2 getCOLLADAObject(List<Float> vertices, Material material){   
         //translate the Floats to an array
         float[] verticesFloat = new float[vertices.size()];
         for(int i = 0; i < vertices.size(); i++){
             verticesFloat[i]  = vertices.get(i).floatValue();         
         }
         //set up and return the object
-        EuclidColladaVBO vbo = new EuclidColladaVBO(verticesFloat, 3);
+        DrawableVBO2 vbo = new DrawableVBO2(verticesFloat, 3);
         vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z));
         vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z));
         vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z));

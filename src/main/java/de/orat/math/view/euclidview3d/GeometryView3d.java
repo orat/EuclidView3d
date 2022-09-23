@@ -29,7 +29,6 @@ import org.jzy3d.plot3d.primitives.ChessFloor;
 import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidCircle;
-import org.jzy3d.plot3d.primitives.EuclidColladaVBO;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidRobot;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
@@ -50,13 +49,11 @@ import org.jzy3d.plot3d.text.drawable.DrawableText;
 public class GeometryView3d extends AbstractAnalysis {
 
     //private Chart chart;
-    private final float labelOffset = 0.5f;
     private int pickingId = 0;
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
     private PickingSupport pickingSupport;
     private NewtCameraMouseController cameraMouse;
-    private static boolean b = true;
     private ColladaLoader colladaLoader;
     
     /**
@@ -264,15 +261,12 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param path the path to the COLLADA File
      */
     public void addCOLLADA(String path){
-        ColladaLoader l = new ColladaLoader();
-        Composite object = l.getCOLLADA(path); 
-        chart.add(object);
-        /*
+        List<DrawableVBO2> objects = colladaLoader.getCOLLADA(path); 
         for(DrawableVBO2 o: objects){
             o.setWireframeDisplayed(false);
             chart.add(o);
         }
-        */
+        
     }
     
     public void addRobot(List<String> paths){
@@ -305,6 +299,8 @@ public class GeometryView3d extends AbstractAnalysis {
 
     @Override
     public void init() throws Exception {
+        
+        colladaLoader = new ColladaLoader();
         
         Quality q = Quality.Advanced(); 
         q.setDepthActivated(true);

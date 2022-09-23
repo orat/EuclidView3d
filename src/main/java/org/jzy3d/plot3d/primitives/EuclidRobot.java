@@ -16,25 +16,26 @@ import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
  */
 public class EuclidRobot extends Composite{
     
-    private ArrayList<Composite> parts;
+    private ArrayList<List<DrawableVBO2>> parts;
     
     public EuclidRobot(){
         super();
     }
     
     public void setData(List<String> componentsPaths){
-        parts = new ArrayList<Composite>();
+        parts = new ArrayList<List<DrawableVBO2>>();
         ColladaLoader loader = new ColladaLoader();
-        System.out.println(componentsPaths.size());
-        parts.add(loader.getCOLLADA(componentsPaths.get(0)));
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }
     } 
     
     public void addToChart(Chart chart){
-        for(Composite c: parts){
-            chart.add(c);
+        for(List<DrawableVBO2> objects: parts){
+             for(DrawableVBO2 object: objects){
+                 object.setWireframeDisplayed(false);
+                 chart.add(object);
+             }
         }
     }
     
