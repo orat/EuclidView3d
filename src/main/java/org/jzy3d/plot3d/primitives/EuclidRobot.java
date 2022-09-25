@@ -11,6 +11,7 @@ import org.jzy3d.chart.Chart;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
+import org.jzy3d.maths.Vector3d;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Transform;
@@ -70,6 +71,8 @@ public class EuclidRobot extends Composite{
                 object.setTransformBefore(trans);
                 object.applyGeometryTransform(object.getTransform());
             }
+            robotPart.setLocalVectorsystemY(new Vector3d(new Coord3d(0,0,0), new Coord3d(0,1,0)));
+            robotPart.setLocalVectorsystemZ(new Vector3d(new Coord3d(0,0,0), new Coord3d(0,0,1)));
         }
         chart.getScale().setMax(2000);
         chart.getScale().setMin(-2000);
