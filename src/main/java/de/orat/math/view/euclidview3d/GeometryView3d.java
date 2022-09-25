@@ -280,6 +280,10 @@ public class GeometryView3d extends AbstractAnalysis {
         
     }
     
+    /**
+     * Adds a robot to the chart from COLLADA (.dae) files
+     * @param paths The paths to the Collada files for the robot as a List
+     */
     public void addRobot(List<String> paths){
         EuclidRobot robot = new EuclidRobot(chart);
         robot.setData(paths);
@@ -517,14 +521,24 @@ public class GeometryView3d extends AbstractAnalysis {
         }
     }
     
+    /**
+     * Set up the ChessFloor size
+     * @param length The length of one square
+     */
     private void setUpChessFloor(float length){
         ChessFloor.getSingelton(chart, length);
     }
     
+    /**
+     * Updates the ChessFloor
+     */
     private void updateChessFloor(){
         ChessFloor.getSingelton(chart);
     }
     
+    /**
+     * Removes the ChessFloor
+     */
     private void removeChessFloor(){
         chart.remove(ChessFloor.getSingelton(chart));
     }
