@@ -22,6 +22,7 @@ import org.jzy3d.events.ControllerEvent;
 import org.jzy3d.events.ControllerEventListener;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
+import org.jzy3d.maths.Scale;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.painters.IPainter;
 import org.jzy3d.plot3d.primitives.Arrow;
@@ -31,6 +32,7 @@ import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidCircle;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidRobot;
+import org.jzy3d.plot3d.primitives.EuclidRobotPart;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
@@ -55,6 +57,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private PickingSupport pickingSupport;
     private NewtCameraMouseController cameraMouse;
     private ColladaLoader colladaLoader;
+    private static ArrayList<EuclidRobot> robotList = new ArrayList();
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
@@ -67,8 +70,19 @@ public class GeometryView3d extends AbstractAnalysis {
     public static void main(String[] args) throws Exception {
         GeometryView3d gv = new GeometryView3d();
         AnalysisLauncher.open(gv);
+        //Robots have to be rotated after initialisation.
+        rotateRobotsCoordsystem();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
+    }
+    
+    /**
+     * Rotate all Robots to have the Z-Vector as the UP Vector.
+     */
+     private static void rotateRobotsCoordsystem(){
+        for(EuclidRobot robot: robotList){
+            robot.rotateCoordSystem();
+        }
     }
     
     /**
@@ -261,18 +275,16 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param path the path to the COLLADA File
      */
     public void addCOLLADA(String path){
-        List<DrawableVBO2> objects = colladaLoader.getCOLLADA(path); 
-        for(DrawableVBO2 o: objects){
-            o.setWireframeDisplayed(false);
-            chart.add(o);
-        }
+        EuclidRobotPart part = colladaLoader.getCOLLADA(path); 
+        part.drawRobotPart(chart);
         
     }
     
     public void addRobot(List<String> paths){
-        EuclidRobot robot = new EuclidRobot();
+        EuclidRobot robot = new EuclidRobot(chart);
         robot.setData(paths);
-        robot.addToChart(chart);
+        robotList.add(robot);
+        robot.addToChart();
     }
     
     /*public GeometryView3d(){
@@ -318,6 +330,8 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().setBackgroundColor(Color.WHITE);
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
         //Add the ChessFloor and set size
+        
+        /*
         this.setUpChessFloor(20.f);
         chart.getScene().getGraph().addGraphListener(new GraphListener() {
             @Override
@@ -325,6 +339,7 @@ public class GeometryView3d extends AbstractAnalysis {
                 updateChessFloor();
             }
         });
+        */
         
         //Set up ColladaLoader and Mouse
         colladaLoader = new ColladaLoader();
@@ -381,6 +396,8 @@ public class GeometryView3d extends AbstractAnalysis {
         path = "data/objfiles/wrist3.dae";
         addCOLLADA(path); 
         */
+        
+        System.out.println(chart.getScene().getGraph().getBounds());
     }
     
     /**
@@ -506,5 +523,9 @@ public class GeometryView3d extends AbstractAnalysis {
     
     private void updateChessFloor(){
         ChessFloor.getSingelton(chart);
+    }
+    
+    private void removeChessFloor(){
+        chart.remove(ChessFloor.getSingelton(chart));
     }
 }
