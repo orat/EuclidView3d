@@ -58,6 +58,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private NewtCameraMouseController cameraMouse;
     private ColladaLoader colladaLoader;
     private static ArrayList<EuclidRobot> robotList = new ArrayList();
+    static EuclidRobotPart testPart = null;
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
@@ -72,6 +73,9 @@ public class GeometryView3d extends AbstractAnalysis {
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
+        testPart.setBB();
+        testPart.rotateAroundVector(90.0f, new Coord3d(1,0,0));
+        testPart.rotateAroundVector(90.0f, new Coord3d(1,0,0));
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
@@ -277,7 +281,7 @@ public class GeometryView3d extends AbstractAnalysis {
     public void addCOLLADA(String path){
         EuclidRobotPart part = colladaLoader.getCOLLADA(path); 
         part.drawRobotPart(chart);
-        
+        testPart = part;
     }
     
     /**
@@ -374,6 +378,7 @@ public class GeometryView3d extends AbstractAnalysis {
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         **/
         
+        /*
         ArrayList<String> pathList = new ArrayList<String>();
         pathList.add("data/objfiles/base.dae");
         pathList.add("data/objfiles/forearm.dae");
@@ -383,10 +388,12 @@ public class GeometryView3d extends AbstractAnalysis {
         pathList.add("data/objfiles/wrist2.dae");
         pathList.add("data/objfiles/wrist3.dae");
         addRobot(pathList);
+        */
         
-        /*
+
         String path = "data/objfiles/base.dae";
         addCOLLADA(path);
+        /*
         path = "data/objfiles/forearm.dae";
         addCOLLADA(path);
         path = "data/objfiles/shoulder.dae";
@@ -400,8 +407,6 @@ public class GeometryView3d extends AbstractAnalysis {
         path = "data/objfiles/wrist3.dae";
         addCOLLADA(path); 
         */
-        
-        System.out.println(chart.getScene().getGraph().getBounds());
     }
     
     /**

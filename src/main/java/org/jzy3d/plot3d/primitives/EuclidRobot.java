@@ -63,7 +63,9 @@ public class EuclidRobot extends Composite{
      */
     public void rotateCoordSystem(){
         for(EuclidRobotPart robotPart: parts){
-            for(DrawableVBO2 object: robotPart.getParts()){
+            robotPart.rotateAroundVector(90, new Coord3d(1,0,0));
+            /*
+            for(EuclidVBO2 object: robotPart.getParts()){
                 Transform trans = new Transform();
                 Rotate rotate = createRotateTo(new Coord3d(0,1,0), new Coord3d(0,0,1));
                 trans.add(rotate);
@@ -71,29 +73,14 @@ public class EuclidRobot extends Composite{
                 object.setTransformBefore(trans);
                 object.applyGeometryTransform(object.getTransform());
             }
+            */
             robotPart.setLocalVectorsystemY(new Vector3d(new Coord3d(0,0,0), new Coord3d(0,1,0)));
             robotPart.setLocalVectorsystemZ(new Vector3d(new Coord3d(0,0,0), new Coord3d(0,0,1)));
         }
         chart.getScale().setMax(2000);
         chart.getScale().setMin(-2000);
     }
-    
-    /**
-     * Create a Rotation from one point to another
-     * @param from 
-     * @param to
-     * @return The Rotation
-     */
-    private static Rotate createRotateTo(Coord3d from, Coord3d to){
-        double fromMag =  (float) Math.sqrt(from.x * from.x + from.y * from.y + from.z * from.z);
-        double toMag =  (float) Math.sqrt(to.x * to.x + to.y * to.y + to.z * to.z);
-        double angle = Math.acos(from.dot(to)/(fromMag*toMag))*180f/Math.PI;
-        //System.out.println(angle);
-        Coord3d v = Utils2.cross(from,to);
-        v.normalizeTo(1);
-        return new Rotate(angle, v);
-    }
-    
+ 
     /**
      * Returns the Chart on which the Robot is located
      * @return the Chart

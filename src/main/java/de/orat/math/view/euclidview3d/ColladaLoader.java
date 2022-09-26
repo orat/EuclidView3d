@@ -6,6 +6,7 @@ import org.jogamp.vecmath.Vector4f;
 import org.jzy3d.colors.Color;
 import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.EuclidRobotPart;
+import org.jzy3d.plot3d.primitives.EuclidVBO2;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIColor4D;
@@ -46,7 +47,7 @@ public class ColladaLoader {
         //Get the Meshes from the File
         PointerBuffer aiMeshes = aiScene.mMeshes();
         AIMesh[] meshes = new AIMesh[aiScene.mNumMeshes()];
-        List<DrawableVBO2> objects = new ArrayList<>();
+        List<EuclidVBO2> objects = new ArrayList<>();
         //Make objects from the vertices from the 
         for(int i = 0; i < aiScene.mNumMeshes();i++){
             meshes[i] = AIMesh.create(aiMeshes.get(i));
@@ -54,7 +55,7 @@ public class ColladaLoader {
             processVertices(meshes[i], vertices);
             objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
         }
-        for(DrawableVBO2 o: objects){
+        for(EuclidVBO2 o: objects){
             o.setWireframeDisplayed(false);
         }
         //Combine Objects into one composite
@@ -67,14 +68,14 @@ public class ColladaLoader {
      * @param material the Material of the object
      * @return the combined object
      */
-    public DrawableVBO2 getCOLLADAObject(List<Float> vertices, Material material){   
+    public EuclidVBO2 getCOLLADAObject(List<Float> vertices, Material material){   
         //translate the Floats to an array
         float[] verticesFloat = new float[vertices.size()];
         for(int i = 0; i < vertices.size(); i++){
             verticesFloat[i]  = vertices.get(i).floatValue();         
         }
         //set up and return the object
-        DrawableVBO2 vbo = new DrawableVBO2(verticesFloat, 3);
+        EuclidVBO2 vbo = new EuclidVBO2(verticesFloat, 3);
         vbo.setMaterialAmbiantReflection(new Color(material.getAmbient().x, material.getAmbient().y, material.getAmbient().z));
         vbo.setMaterialDiffuseReflection(new Color(material.getDiffuse().x, material.getDiffuse().y, material.getDiffuse().z));
         vbo.setMaterialSpecularReflection(new Color(material.getSpecular().x, material.getSpecular().y, material.getSpecular().z));
