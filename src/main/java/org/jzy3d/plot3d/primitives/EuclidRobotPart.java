@@ -10,9 +10,8 @@ import org.jzy3d.chart.Chart;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Vector3d;
-import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.jzy3d.plot3d.transform.Rotate;
-import org.jzy3d.plot3d.transform.Transform;
+import org.jzy3d.plot3d.transform.Translate;
 
 /**One part of a Robot created from multiple DrawbaleVBO2 objects
  *
@@ -63,8 +62,28 @@ public class EuclidRobotPart {
          setBoundingBoxDisplayed(boundingBoxDisplayed);
     }   
     
-    public void translateAlongVector(float phi, Coord3d vector){
-        
+    /**
+     * Translate the robotpart along a vector with a set distance
+     * @param distance the distance at which the robotpart should be translatet
+     * @param vector the vector along the robotpart should be translatet
+     */
+    public void translateAlongVector(float distance, Coord3d vector){
+        vector.normalizeTo(1);
+        Coord3d newVector = new Coord3d(vector.x*distance, vector.y*distance,vector.z*distance);
+        Translate translate = new Translate(newVector);
+        ArrayList<float[]> newObjects = new ArrayList<>();
+        ArrayList<Color> colors = new ArrayList<>();
+        for(EuclidVBO2 object: getParts()){
+            newObjects.add(object.translate(translate));
+            colors.add(object.getColor());
+        }
+        clearObjects();
+        for(int i = 0; i < newObjects.size(); i++){
+            EuclidVBO2 vbo = new EuclidVBO2(newObjects.get(i), 3);
+            vbo.setColor(colors.get(i));
+            getParts().add(vbo);
+        }
+        drawRobotPart(chart);
     }
     
     /**
@@ -77,7 +96,7 @@ public class EuclidRobotPart {
         ArrayList<float[]> newObjects = new ArrayList<>();
         ArrayList<Color> colors = new ArrayList<>();
         for(EuclidVBO2 object: getParts()){
-            newObjects.add(object.rotateAroundVector(rotate));
+            newObjects.add(object.rotate(rotate));
             colors.add(object.getColor());
         }
         clearObjects();

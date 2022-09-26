@@ -64,16 +64,6 @@ public class EuclidRobot extends Composite{
     public void rotateCoordSystem(){
         for(EuclidRobotPart robotPart: parts){
             robotPart.rotateAroundVector(90, new Coord3d(1,0,0));
-            /*
-            for(EuclidVBO2 object: robotPart.getParts()){
-                Transform trans = new Transform();
-                Rotate rotate = createRotateTo(new Coord3d(0,1,0), new Coord3d(0,0,1));
-                trans.add(rotate);
-                object.setTransform(trans);
-                object.setTransformBefore(trans);
-                object.applyGeometryTransform(object.getTransform());
-            }
-            */
             robotPart.setLocalVectorsystemY(new Vector3d(new Coord3d(0,0,0), new Coord3d(0,1,0)));
             robotPart.setLocalVectorsystemZ(new Vector3d(new Coord3d(0,0,0), new Coord3d(0,0,1)));
         }

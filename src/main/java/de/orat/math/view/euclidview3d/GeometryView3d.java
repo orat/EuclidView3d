@@ -73,9 +73,6 @@ public class GeometryView3d extends AbstractAnalysis {
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
-        testPart.rotateAroundVector(90.0f, new Coord3d(1,0,0));
-        testPart.rotateAroundVector(90.0f, new Coord3d(1,0,0));
-        //testPart.setBoundingBoxDisplayed(true);
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
@@ -379,7 +376,6 @@ public class GeometryView3d extends AbstractAnalysis {
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         **/
         
-        /*
         ArrayList<String> pathList = new ArrayList<String>();
         pathList.add("data/objfiles/base.dae");
         pathList.add("data/objfiles/forearm.dae");
@@ -389,11 +385,11 @@ public class GeometryView3d extends AbstractAnalysis {
         pathList.add("data/objfiles/wrist2.dae");
         pathList.add("data/objfiles/wrist3.dae");
         addRobot(pathList);
-        */
+        
         
 
-        String path = "data/objfiles/base.dae";
-        addCOLLADA(path);
+        //String path = "data/objfiles/base.dae";
+        //addCOLLADA(path);
         /*
         path = "data/objfiles/forearm.dae";
         addCOLLADA(path);
