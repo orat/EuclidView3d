@@ -73,9 +73,9 @@ public class GeometryView3d extends AbstractAnalysis {
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
-        testPart.setBB();
         testPart.rotateAroundVector(90.0f, new Coord3d(1,0,0));
         testPart.rotateAroundVector(90.0f, new Coord3d(1,0,0));
+        //testPart.setBoundingBoxDisplayed(true);
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
@@ -280,7 +280,8 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public void addCOLLADA(String path){
         EuclidRobotPart part = colladaLoader.getCOLLADA(path); 
-        part.drawRobotPart(chart);
+        part.setChart(chart);
+        part.drawRobotPart();
         testPart = part;
     }
     

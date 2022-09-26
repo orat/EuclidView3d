@@ -54,7 +54,7 @@ public class EuclidRobot extends Composite{
      */
     public void addToChart(){
         for(EuclidRobotPart robotPart: parts){
-             robotPart.drawRobotPart(chart);
+            robotPart.drawRobotPart(chart);
         }
     }
     

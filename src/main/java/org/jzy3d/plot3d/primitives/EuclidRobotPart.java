@@ -25,6 +25,8 @@ public class EuclidRobotPart {
     private Vector3d y;
     private Vector3d z;
     private Chart chart;
+    private boolean boundingBoxDisplayed;
+    private Color boundingBoxColor;
     
     /**
      * Creates a new RobotPart
@@ -32,29 +34,44 @@ public class EuclidRobotPart {
      */
     public EuclidRobotPart(List<EuclidVBO2> parts){
         this.parts = parts;
+        boundingBoxDisplayed = false;
+        boundingBoxColor = Color.RED;
+        for(EuclidVBO2 part: parts){
+            this.setBoundingBoxDisplayed(boundingBoxDisplayed);
+        }
         x = new Vector3d(new Coord3d(0,0,0), new Coord3d(1,0,0));
         y = new Vector3d(new Coord3d(0,0,0), new Coord3d(0,0,1));
         z = new Vector3d(new Coord3d(0,0,0), new Coord3d(0,1,0));
     }
     
     /**
-     * Draw the robotpart to a chart
      * @param chart The chart, to which it should be added
      */
     public void drawRobotPart(Chart chart){
-        if(this.chart == null){
-            this.chart = chart;
-        }
+        this.setChart(chart);
+        drawRobotPart();
+    }
+    
+    /**
+     * Draw the robotpart to a chart
+     */
+    public void drawRobotPart(){
         for(EuclidVBO2 part: parts){
             part.setWireframeDisplayed(false);
             chart.add(part);
         }
+         setBoundingBoxDisplayed(boundingBoxDisplayed);
     }   
     
     public void translateAlongVector(float phi, Coord3d vector){
         
     }
     
+    /**
+     * Rotates the EuclidRobot around a vector with the angle di
+     * @param di the angle di
+     * @param vector the vector around which the robotpart should be rotatet
+     */
     public void rotateAroundVector(float di, Coord3d vector){
         Rotate rotate = new Rotate(di, vector);
         ArrayList<float[]> newObjects = new ArrayList<>();
@@ -72,18 +89,37 @@ public class EuclidRobotPart {
         drawRobotPart(chart);
     }
     
-    public void clearObjects(){
+    /**
+     * clears all the Objects from the chart
+     */
+    private void clearObjects(){
         for(EuclidVBO2 object: getParts()){
             chart.remove(object);
         }
         getParts().clear();
     }
     
-    public void setBB(){
-        for(EuclidVBO2 object: getParts()){
-            object.setBoundingBoxDisplayed(true);
-            object.setBoundingBoxColor(Color.RED);
+    /**
+     * 
+     * @param boundingBoxDisplayed 
+     */
+    public void setBoundingBoxDisplayed(boolean boundingBoxDisplayed){
+        this.boundingBoxDisplayed = boundingBoxDisplayed;
+        if(boundingBoxDisplayed){
+            for(EuclidVBO2 object: getParts()){
+                object.setBoundingBoxDisplayed(true);
+                object.setBoundingBoxColor(boundingBoxColor);
+            }
+        }else {
+            for(EuclidVBO2 object: getParts()){
+                object.setBoundingBoxDisplayed(false);
+                object.setBoundingBoxColor(boundingBoxColor);
+            }
         }
+    }
+    
+    public void setBoundingBoxColor(Color color){
+        this.boundingBoxColor = color; 
     }
     
     /**
@@ -154,4 +190,19 @@ public class EuclidRobotPart {
         return this.z;
     }
     
+    /**
+     * Set the chart for this robotpart
+     * @param chart the Chart for this robotpart
+     */
+    public void setChart(Chart chart){
+        this.chart = chart;
+    }
+    
+    /**
+     * The Chart of the robotpart
+     * @return the chart of this robotpart
+     */
+    public Chart getChart(){
+        return this.chart;
+    }
 }

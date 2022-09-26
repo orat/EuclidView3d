@@ -19,6 +19,11 @@ public class EuclidVBO2 extends DrawableVBO2 {
         super(verticesFloat, i);
     }
     
+    /**
+     * Rotate the indices of the vbo
+     * @param r Rotate it with the r
+     * @return the the new rotated indices
+     */
     public float[] rotateAroundVector(Rotate r){
         float[] newVertices = new float[this.getVertices().capacity()];
         for(int i = 0; i < this.getVertices().capacity()-2; i = i+3){
