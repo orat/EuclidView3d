@@ -44,6 +44,7 @@ import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.scene.Graph.GraphListener;
 import org.jzy3d.plot3d.rendering.view.Camera;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
+import org.jzy3d.plot3d.transform.Translate;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
@@ -73,6 +74,7 @@ public class GeometryView3d extends AbstractAnalysis {
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
+        robotList.get(0).moveDH();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
@@ -290,7 +292,21 @@ public class GeometryView3d extends AbstractAnalysis {
         EuclidRobot robot = new EuclidRobot(chart);
         robot.setData(paths);
         robotList.add(robot);
-        robot.addToChart();
+        robot.addToChartParts();
+    }
+    
+    public void addRobot(List<String> paths,double[] delta_theta_rad, double[]  delta_alpha_rad, double[]  delta_d_m, double[]  delta_a_m){
+        EuclidRobot robot = new EuclidRobot(chart);
+        robot.setData(paths, delta_theta_rad, delta_alpha_rad, delta_d_m, delta_a_m);
+        robotList.add(robot);
+        robot.addToChartParts();
+    }
+    
+    public void addRobotDegrees(List<String> paths,double[] delta_theta_deg, double[]  delta_alpha_deg, double[]  delta_d_m, double[]  delta_a_m){
+        EuclidRobot robot = new EuclidRobot(chart);
+        robot.setDataDegrees(paths, delta_theta_deg, delta_alpha_deg, delta_d_m, delta_a_m);
+        robotList.add(robot);
+        robot.addToChartParts();
     }
     
     /*public GeometryView3d(){
@@ -376,20 +392,42 @@ public class GeometryView3d extends AbstractAnalysis {
         addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
         **/
         
+        /*
+        double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};
+        //double[] delta_theta_rad = new double[]{0d, -8.27430119976213518e-08, 0.732984551101984239, 5.46919521494736127, 0.0810043775014757245, -3.53724730506321805e-07, -9.97447025669062626e-08};
+        double[] delta_a_m = new double[]{0d, 0, -425, -392.2, 0, 0, 0};
+        double[] delta_d_m = new double[]{0d, 162.5, 0, 0, 133.3, 997, 996};
+        double[] delta_alpha_rad= new double[]{0d, Math.PI/2, 0, 0, Math.PI/2, Math.PI/2, 0};
+        */
+        double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};
+        //double[] delta_theta_rad = new double[]{0d, -8.27430119976213518e-08, 0.732984551101984239, 5.46919521494736127, 0.0810043775014757245, -3.53724730506321805e-07, -9.97447025669062626e-08};
+        double[] delta_a_m = new double[]{0d, 0.000156734465764371306, 0.109039760794650886, 0.00135049423466820917, 6.30167176077633267e-05, 8.98147062591837358e-05, 0};
+        double[] delta_d_m = new double[]{0d, -7.63582045015809285e-05, 136.026368377065324, -143.146527922606964, 7.12049886607637639, -6.13561334270734671e-05, -0.000218168195914358876};
+        double[] delta_alpha_rad= new double[]{0d, -0.000849612070594307767, 0.00209120614311242205, 0.0044565542371754396, -0.000376815598678081898, 0.000480742313784698894, 0};
+
         ArrayList<String> pathList = new ArrayList<String>();
         pathList.add("data/objfiles/base.dae");
+        pathList.add("data/objfiles/shoulder.dae");
+        pathList.add("data/objfiles/upperarm.dae");
+        pathList.add("data/objfiles/forearm.dae");
+        pathList.add("data/objfiles/wrist1.dae");
+        pathList.add("data/objfiles/wrist2.dae");
+        pathList.add("data/objfiles/wrist3.dae");
+        /*
         pathList.add("data/objfiles/forearm.dae");
         pathList.add("data/objfiles/shoulder.dae");
         pathList.add("data/objfiles/upperarm.dae");
         pathList.add("data/objfiles/wrist1.dae");
         pathList.add("data/objfiles/wrist2.dae");
         pathList.add("data/objfiles/wrist3.dae");
-        addRobot(pathList);
+        */
+        addRobot(pathList, delta_theta_rad, delta_alpha_rad, delta_d_m, delta_a_m);
         
         
 
         //String path = "data/objfiles/base.dae";
         //addCOLLADA(path);
+        //addPoint(new Point3d(0,0,0), Color.BLUE, 0.6f, "Point1");
         /*
         path = "data/objfiles/forearm.dae";
         addCOLLADA(path);

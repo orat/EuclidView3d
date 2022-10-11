@@ -20,9 +20,9 @@ import org.jzy3d.plot3d.transform.Translate;
 public class EuclidRobotPart {
     
     private List<EuclidVBO2> parts = null;
-    private Vector3d x;
-    private Vector3d y;
-    private Vector3d z;
+    private Coord3d x;
+    private Coord3d y;
+    private Coord3d z;
     private Chart chart;
     private boolean boundingBoxDisplayed;
     private Color boundingBoxColor;
@@ -35,15 +35,13 @@ public class EuclidRobotPart {
         this.parts = parts;
         boundingBoxDisplayed = false;
         boundingBoxColor = Color.RED;
-        for(EuclidVBO2 part: parts){
-            this.setBoundingBoxDisplayed(boundingBoxDisplayed);
-        }
-        x = new Vector3d(new Coord3d(0,0,0), new Coord3d(1,0,0));
-        y = new Vector3d(new Coord3d(0,0,0), new Coord3d(0,0,1));
-        z = new Vector3d(new Coord3d(0,0,0), new Coord3d(0,1,0));
+        this.setBoundingBoxDisplayed(boundingBoxDisplayed);
+        x = new Coord3d(1,0,0);
+        z = new Coord3d(0,1,0);
     }
     
     /**
+     * Draw the RobotPart to a chart
      * @param chart The chart, to which it should be added
      */
     public void drawRobotPart(Chart chart){
@@ -52,7 +50,7 @@ public class EuclidRobotPart {
     }
     
     /**
-     * Draw the robotpart to a chart
+     * Draw the robotpart to the chart it allready is part of
      */
     public void drawRobotPart(){
         for(EuclidVBO2 part: parts){
@@ -68,9 +66,26 @@ public class EuclidRobotPart {
      * @param vector the vector along the robotpart should be translatet
      */
     public void translateAlongVector(float distance, Coord3d vector){
-        vector.normalizeTo(1);
-        Coord3d newVector = new Coord3d(vector.x*distance, vector.y*distance,vector.z*distance);
+        Coord3d newVector = new Coord3d(vector.x, vector.y, vector.z);
+        newVector.normalizeTo(1);
+        newVector = new Coord3d(newVector.x*distance, newVector.y*distance, newVector.z*distance);
         Translate translate = new Translate(newVector);
+        ArrayList<float[]> newObjects = new ArrayList<>();
+        ArrayList<Color> colors = new ArrayList<>();
+        for(EuclidVBO2 object: getParts()){
+            newObjects.add(object.translate(translate));
+            colors.add(object.getColor());
+        }
+        clearObjects();
+        for(int i = 0; i < newObjects.size(); i++){
+            EuclidVBO2 vbo = new EuclidVBO2(newObjects.get(i), 3);
+            vbo.setColor(colors.get(i));
+            parts.add(vbo);
+        }
+        drawRobotPart(chart);
+    }
+    
+    public void translateAlongVector(Translate translate){
         ArrayList<float[]> newObjects = new ArrayList<>();
         ArrayList<Color> colors = new ArrayList<>();
         for(EuclidVBO2 object: getParts()){
@@ -103,6 +118,22 @@ public class EuclidRobotPart {
         for(int i = 0; i < newObjects.size(); i++){
             EuclidVBO2 vbo = new EuclidVBO2(newObjects.get(i), 3);
             vbo.setColor(colors.get(i));
+            parts.add(vbo);
+        }
+        drawRobotPart(chart);
+    }
+    
+    public void rotateAroundVector(Rotate rotate){
+        ArrayList<float[]> newObjects = new ArrayList<>();
+        ArrayList<Color> colors = new ArrayList<>();
+        for(EuclidVBO2 object: getParts()){
+            newObjects.add(object.rotate(rotate));
+            colors.add(object.getColor());
+        }
+        clearObjects();
+        for(int i = 0; i < newObjects.size(); i++){
+            EuclidVBO2 vbo = new EuclidVBO2(newObjects.get(i), 3);
+            vbo.setColor(colors.get(i));
             getParts().add(vbo);
         }
         drawRobotPart(chart);
@@ -115,7 +146,7 @@ public class EuclidRobotPart {
         for(EuclidVBO2 object: getParts()){
             chart.remove(object);
         }
-        getParts().clear();
+        parts.clear();
     }
     
     /**
@@ -155,7 +186,7 @@ public class EuclidRobotPart {
      * @param y the y of the system
      * @param z the z of the system
      */
-    public void setLocalVectorsystem(Vector3d x, Vector3d y, Vector3d z){
+    public void setLocalVectorsystem(Coord3d x, Coord3d y, Coord3d z){
         this.x = x;
         this.y = y; 
         this.z = z;
@@ -165,23 +196,15 @@ public class EuclidRobotPart {
      * Set the x vector of the Local Vectorsystem
      * @param x the new x vector
      */
-    public void setLocalVectorsystemX(Vector3d x){
+    public void setLocalVectorsystemX(Coord3d x){
         this.x = x;
     }
-    
-    /**
-     * Set the y vector of the Local Vectorsystem
-     * @param y the new y vector
-     */
-    public void setLocalVectorsystemY(Vector3d y){
-        this.y = y;
-    }
-    
+ 
     /**
      * Set the z vector of the Local Vectorsystem
      * @param z the new z vector
      */
-    public void setLocalVectorsystemZ(Vector3d z){
+    public void setLocalVectorsystemZ(Coord3d z){
         this.z = z;
     }
     
@@ -189,23 +212,15 @@ public class EuclidRobotPart {
      * Get the x vector of the local Vectorsystem 
      * @return the x vector
      */
-    public Vector3d getLocalVectorsystemX(){
+    public Coord3d getLocalVectorsystemX(){
         return this.x;
     }
-    
-    /**
-     * Get the y vector of the local Vectorsystem 
-     * @return the y vector
-     */
-    public Vector3d getLocalVectorsystemY(){
-        return this.y;
-    }
-    
+
     /**
      * Get the z vector of the local Vectorsystem 
      * @return the z vector
      */
-    public Vector3d getLocalVectorsystemZ(){
+    public Coord3d getLocalVectorsystemZ(){
         return this.z;
     }
     
