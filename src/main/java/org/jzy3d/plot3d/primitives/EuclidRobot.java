@@ -57,6 +57,14 @@ public class EuclidRobot{
         }
     } 
     
+    /**
+     * Set the Data for the Robot
+     * @param componentsPaths The path to the .dae Files
+     * @param delta_theta_rad the delta theta in radiant for mDH
+     * @param delta_alpha_rad the delta alpha in radiant for mDH
+     * @param delta_d_m the delta d for mDH
+     * @param delta_r_m the delta r for mDH
+     */
      public void setData(List<String> componentsPaths, double[] delta_theta_rad, double[] delta_alpha_rad,double[] delta_d_m, double[] delta_r_m){
         parts = new ArrayList<EuclidRobotPart>();
         dhList = new ArrayList<DH>();
@@ -73,25 +81,24 @@ public class EuclidRobot{
         double[] theta_rad = new double[7];
         for (int i=0;i<7;i++){
             d_m[i] = d_n_m_[i] + delta_d_m[i];
-            r_m[i] = a_n_m[i]  + delta_r_m[i];
+            r_m[i] = a_n_m[i] + delta_r_m[i];
             alpha_rad[i] = alpha_n_rad[i] + delta_alpha_rad[i];
             theta_rad[i] = delta_theta_rad[i];
         }
-        /*
-        TestRobot.DHAxes axes = determineDHAxesFromDH(theta_rad, alpha_rad, d_m, r_m);
-        for(int i = 0; i < axes.x().length; i++){
-            if( i < parts.size()){
-                parts.get(i).setLocalVectorsystemX(new Coord3d(axes.x()[i].x, axes.x()[i].y, axes.x()[i].y));
-                parts.get(i).setLocalVectorsystemZ(new Coord3d(axes.z()[i].x, axes.z()[i].y, axes.z()[i].y));
-            }
-        }
-        */
         for(int i = 0; i < theta_rad.length; i++){
-            dhList.add(new DH(Math.toDegrees(theta_rad[i]), Math.round(Math.toDegrees(alpha_rad[i])), d_m[i], r_m[i]));
-            System.out.println(Math.toDegrees(theta_rad[i]) + " -Alpha: " + Math.round(Math.toDegrees(alpha_rad[i])) + " -D: " + d_m[i] + " -R: " + r_m[i]);
+            dhList.add(new DH(Math.toDegrees(theta_rad[i]), Math.toDegrees(alpha_rad[i]), d_m[i], r_m[i]));
+            System.out.println(Math.toDegrees(theta_rad[i]) + " -Alpha: " + Math.toDegrees(alpha_rad[i]) + " -D: " + d_m[i] + " -R: " + r_m[i]);
         }
     } 
      
+     /**
+      * Set Data with Degrees
+      * @param componentsPaths The path to the .dae Files
+      * @param theta the theta of the DH
+      * @param alpha the alpha of the DH
+      * @param d the d of the DH
+      * @param r the r of the DH 
+      */
      public void setDataDegrees(List<String> componentsPaths, double[] theta, double[] alpha,double[] d, double[] r){
         parts = new ArrayList<EuclidRobotPart>();
         dhList = new ArrayList<DH>();
@@ -113,58 +120,70 @@ public class EuclidRobot{
         }
     }
     
+    /**
+     * Move the robot acording to its DH Paramteres
+     */
     public void moveDH(){
-        for(int i = 1; i < 3; i++){
+        for(int i = 1; i < parts.size(); i++){
             for(int j = i; j < parts.size(); j++){
-                 translateD(i, j);
-                 rotateTheta(i, j);
-                 translateR(i, j);
-                 rotateAlpha(i, j);
+                translateD(i, j);
             }
-            getCoordsys();
+            for(int j = i; j < parts.size(); j++){
+                rotateTheta(i, j);
+            }
+            for(int j = i+1; j < parts.size(); j++){
+                translateR(i, j);
+            }
+            for(int j = i+1; j < parts.size(); j++){
+                rotateAlpha(i, j);
+            }
         }
     }
     
+    /**
+     * Rotate a part with the angle theta
+     * @param i the DH parameter part in the list
+     * @param j the object which will be rotatet
+     */
     private void rotateTheta(int i, int j){
         if(dhList.get(i).getTheta() != 0){
             parts.get(j).rotateAroundVector((float) dhList.get(i).getTheta(), parts.get(i).getLocalVectorsystemZ());
             parts.get(j).setLocalVectorsystemX(parts.get(j).getLocalVectorsystemX().rotate((float) dhList.get(i).getTheta(), parts.get(i).getLocalVectorsystemZ()));
-            parts.get(j).setLocalVectorsystemZ(parts.get(j).getLocalVectorsystemZ().rotate((float) dhList.get(i).getTheta(), parts.get(i).getLocalVectorsystemZ()));
         }
     }
     
+    /**
+     * Translate a part along D
+     * @param i the DH D Parameter in the list
+     * @param j the object which will be translated
+     */
     private void translateD(int i, int j){
         if((float) dhList.get(i).getD() != 0){
             parts.get(j).translateAlongVector((float) dhList.get(i).getD(), parts.get(i).getLocalVectorsystemZ());
-            float trans_d = (float) dhList.get(i).getD();
-            Coord3d along = parts.get(i).getLocalVectorsystemZ();
-            Coord3d oldX = parts.get(j).getLocalVectorsystemX();
-            Coord3d oldZ = parts.get(j).getLocalVectorsystemZ();
-            parts.get(j).setLocalVectorsystemX(new Coord3d(oldX.x + trans_d * along.x, oldX.y + trans_d * along.y, oldX.z + trans_d * along.z));
-            parts.get(j).setLocalVectorsystemZ(new Coord3d(oldZ.x + trans_d * along.x, oldZ.y + trans_d * along.y, oldZ.z + trans_d * along.z));
         }
     }
     
+    /**
+     * Translate a part along R
+     * @param i the DH R Parameter in the list
+     * @param j the object which will be translated
+     */
     private void translateR(int i, int j){
         if((float) dhList.get(i).getR() != 0){
-                parts.get(j).translateAlongVector((float) dhList.get(i-1).getR(), parts.get(i-1).getLocalVectorsystemX());
-                float trans_d = (float) dhList.get(i-1).getR();
-            Coord3d along = parts.get(i).getLocalVectorsystemX();
-            Coord3d oldX = parts.get(j).getLocalVectorsystemX();
-            Coord3d oldZ = parts.get(j).getLocalVectorsystemZ();
-            parts.get(j).setLocalVectorsystemX(new Coord3d(oldX.x + trans_d * along.x, oldX.y + trans_d * along.y, oldX.z + trans_d * along.z));
-             parts.get(j).setLocalVectorsystemZ(new Coord3d(oldZ.x + trans_d * along.x, oldZ.y + trans_d * along.y, oldZ.z + trans_d * along.z));
+            parts.get(j).translateAlongVector((float) dhList.get(i).getR(), parts.get(i).getLocalVectorsystemX());
         }
     }
     
+    /**
+     * Rotate a part with the angle alpha
+     * @param i the DH parameter part in the list
+     * @param j the object which will be rotatet
+     */
     private void rotateAlpha(int i, int j){
          if((float) dhList.get(i).getAlpha() != 0){
-             if(i != j){
-                 parts.get(j).rotateAroundVector((float) dhList.get(i).getAlpha(), parts.get(i-1).getLocalVectorsystemX());
-             }
-             //parts.get(j).rotateAroundVector((float) dhList.get(i).getAlpha(), parts.get(i-1).getLocalVectorsystemX());
-             parts.get(j).setLocalVectorsystemZ(parts.get(j).getLocalVectorsystemZ().rotate((float) dhList.get(i).getAlpha(), parts.get(i-1).getLocalVectorsystemX()));
-             parts.get(j).setLocalVectorsystemX(parts.get(j).getLocalVectorsystemX().rotate((float) dhList.get(i).getAlpha(), parts.get(i-1).getLocalVectorsystemX()));
+            Coord3d newZ = parts.get(j).getLocalVectorsystemZ();
+            newZ = newZ.rotate((float) dhList.get(i).getAlpha(), parts.get(i).getLocalVectorsystemX());
+            parts.get(j).setLocalVectorsystemZ(newZ);
          }
     }
     
@@ -172,14 +191,18 @@ public class EuclidRobot{
      * Rotate the Coordinate System to have the Z-Vector up top.
      */
     public void rotateCoordSystem(){
-        for(EuclidRobotPart robotPart: parts){
-            robotPart.rotateAroundVector(90, new Coord3d(1,0,0));
-            robotPart.setLocalVectorsystemZ(new Coord3d(0,0,1));
+        for(int i = 0; i < parts.size(); i++){
+            parts.get(i).rotateAroundVector(90, new Coord3d(1,0,0));
+            parts.get(i).setLocalVectorsystemZ(new Coord3d(0,0,1));
+            if(i == 2 || i == 3){
+                parts.get(i).rotateAroundVector(90, new Coord3d(0,-1,0));
+            }
         }
-        chart.getScale().setMax(2000);
-        chart.getScale().setMin(-2000);
     }
     
+    /**
+     * Print out the lokal coordinate systems of the parts
+     */
     public void getCoordsys(){
         for(int i = 0; i < parts.size(); i++){
             System.out.println("X: " + parts.get(i).getLocalVectorsystemX() + " - Z:" +  parts.get(i).getLocalVectorsystemZ());
