@@ -72,9 +72,9 @@ public class EuclidRobot{
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }
-        double[] d_n_m_ = new double[]{0d, 162.5, 0d, 0d, 133.3, 99.7, 99.6};
+        double[] d_n_m_ = new double[]{0d, 162.5, 0d, 0d, 0, 99.7, 99.6};
         double[] a_n_m = new double[]{0d, 0d,  -425, -392.2, 0d, 0d, 0d};
-        double[] alpha_n_rad = new double[]{0d, PI/2d, 0d, 0d, PI/2d, -PI/2d, 0d};
+        double[] alpha_n_rad = new double[]{0d, PI/2d, 0d, 0d, PI/2, -PI/2d, 0d};
         double[] d_m = new double[7];
         double[] r_m = new double[7];
         double[] alpha_rad = new double[7];
@@ -85,9 +85,15 @@ public class EuclidRobot{
             alpha_rad[i] = alpha_n_rad[i] + delta_alpha_rad[i];
             theta_rad[i] = delta_theta_rad[i];
         }
+        TestRobot.DHAxes axes = determineDHAxesFromDH(theta_rad, alpha_rad, d_m, r_m);
+        for(int i = 0; i < axes.x().length; i++){
+            parts.get(i).setCoordCenter(new Coord3d(axes.c()[i].x, axes.c()[i].y, axes.c()[i].z));
+            parts.get(i).setLocalVectorsystemX(new Coord3d(axes.x()[i].x, axes.x()[i].y, axes.x()[i].z));
+            parts.get(i).setLocalVectorsystemZ(new Coord3d(axes.z()[i].x, axes.z()[i].y, axes.z()[i].z));
+            System.out.println(parts.get(i).getLocalVectorsystemZ());
+        }
         for(int i = 0; i < theta_rad.length; i++){
             dhList.add(new DH(Math.toDegrees(theta_rad[i]), Math.toDegrees(alpha_rad[i]), d_m[i], r_m[i]));
-            System.out.println(Math.toDegrees(theta_rad[i]) + " -Alpha: " + Math.toDegrees(alpha_rad[i]) + " -D: " + d_m[i] + " -R: " + r_m[i]);
         }
     } 
      
@@ -131,11 +137,11 @@ public class EuclidRobot{
             for(int j = i; j < parts.size(); j++){
                 rotateTheta(i, j);
             }
-            for(int j = i+1; j < parts.size(); j++){
-                translateR(i, j);
+            for(int j = i; j < parts.size(); j++){
+                rotateAlpha(i, j);
             }
             for(int j = i+1; j < parts.size(); j++){
-                rotateAlpha(i, j);
+                translateR(i, j);
             }
         }
     }
@@ -147,8 +153,9 @@ public class EuclidRobot{
      */
     private void rotateTheta(int i, int j){
         if(dhList.get(i).getTheta() != 0){
-            parts.get(j).rotateAroundVector((float) dhList.get(i).getTheta(), parts.get(i).getLocalVectorsystemZ());
-            parts.get(j).setLocalVectorsystemX(parts.get(j).getLocalVectorsystemX().rotate((float) dhList.get(i).getTheta(), parts.get(i).getLocalVectorsystemZ()));
+            Coord3d center = parts.get(i).getCenter();
+            Coord3d z = parts.get(i).getLocalVectorsystemZ();
+            parts.get(j).rotateAroundVector((float) dhList.get(i).getTheta(), z);
         }
     }
     
@@ -159,7 +166,9 @@ public class EuclidRobot{
      */
     private void translateD(int i, int j){
         if((float) dhList.get(i).getD() != 0){
-            parts.get(j).translateAlongVector((float) dhList.get(i).getD(), parts.get(i).getLocalVectorsystemZ());
+            Coord3d z = parts.get(i).getLocalVectorsystemZ();
+            float d = (float) dhList.get(i).getD();
+            parts.get(j).translateAlongVector(d, z);
         }
     }
     
@@ -170,7 +179,9 @@ public class EuclidRobot{
      */
     private void translateR(int i, int j){
         if((float) dhList.get(i).getR() != 0){
-            parts.get(j).translateAlongVector((float) dhList.get(i).getR(), parts.get(i).getLocalVectorsystemX());
+            Coord3d x = parts.get(i).getLocalVectorsystemX();
+            float r = (float) dhList.get(i).getR();
+            parts.get(j).translateAlongVector(r, x);
         }
     }
     
@@ -182,7 +193,11 @@ public class EuclidRobot{
     private void rotateAlpha(int i, int j){
          if((float) dhList.get(i).getAlpha() != 0){
             Coord3d newZ = parts.get(j).getLocalVectorsystemZ();
-            newZ = newZ.rotate((float) dhList.get(i).getAlpha(), parts.get(i).getLocalVectorsystemX());
+            float alpha = (float) dhList.get(i).getAlpha();
+            if(alpha < 0){
+                alpha = 360 + alpha;
+            }
+            newZ = newZ.rotate(alpha, parts.get(i-1).getLocalVectorsystemX());
             parts.get(j).setLocalVectorsystemZ(newZ);
          }
     }
@@ -197,6 +212,9 @@ public class EuclidRobot{
             if(i == 2 || i == 3){
                 parts.get(i).rotateAroundVector(90, new Coord3d(0,-1,0));
             }
+            if(i==4 || i == 5){
+                parts.get(i).rotateAroundVector(180, new Coord3d(0,1,0));
+            }
         }
     }
     
@@ -205,7 +223,7 @@ public class EuclidRobot{
      */
     public void getCoordsys(){
         for(int i = 0; i < parts.size(); i++){
-            System.out.println("X: " + parts.get(i).getLocalVectorsystemX() + " - Z:" +  parts.get(i).getLocalVectorsystemZ());
+            System.out.println(i + " -X: " + parts.get(i).getLocalVectorsystemX() + " - Z:" +  parts.get(i).getLocalVectorsystemZ());
         }
     }
  

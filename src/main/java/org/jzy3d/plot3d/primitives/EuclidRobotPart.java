@@ -23,6 +23,7 @@ public class EuclidRobotPart {
     private Coord3d x;
     private Coord3d y;
     private Coord3d z;
+    private Coord3d coordCenter;
     private Chart chart;
     private boolean boundingBoxDisplayed;
     private Color boundingBoxColor;
@@ -38,6 +39,7 @@ public class EuclidRobotPart {
         this.setBoundingBoxDisplayed(boundingBoxDisplayed);
         x = new Coord3d(1,0,0);
         z = new Coord3d(0,1,0);
+        coordCenter = new Coord3d(0,0,0);
     }
     
     /**
@@ -208,6 +210,10 @@ public class EuclidRobotPart {
         this.z = z;
     }
     
+    public void setCoordCenter(Coord3d c){
+        this.coordCenter = c; 
+    }
+    
     /**
      * Get the x vector of the local Vectorsystem 
      * @return the x vector
@@ -222,6 +228,10 @@ public class EuclidRobotPart {
      */
     public Coord3d getLocalVectorsystemZ(){
         return this.z;
+    }
+    
+    public Coord3d getCenter(){
+        return this.coordCenter;
     }
     
     /**
