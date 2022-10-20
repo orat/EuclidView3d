@@ -85,13 +85,15 @@ public class EuclidRobot{
             alpha_rad[i] = alpha_n_rad[i] + delta_alpha_rad[i];
             theta_rad[i] = delta_theta_rad[i];
         }
+        /*
         TestRobot.DHAxes axes = determineDHAxesFromDH(theta_rad, alpha_rad, d_m, r_m);
         for(int i = 0; i < axes.x().length; i++){
             parts.get(i).setCoordCenter(new Coord3d(axes.c()[i].x, axes.c()[i].y, axes.c()[i].z));
             parts.get(i).setLocalVectorsystemX(new Coord3d(axes.x()[i].x, axes.x()[i].y, axes.x()[i].z));
             parts.get(i).setLocalVectorsystemZ(new Coord3d(axes.z()[i].x, axes.z()[i].y, axes.z()[i].z));
-            System.out.println(parts.get(i).getLocalVectorsystemZ());
+            System.out.println(parts.get(i).getCenter());
         }
+        */
         for(int i = 0; i < theta_rad.length; i++){
             dhList.add(new DH(Math.toDegrees(theta_rad[i]), Math.toDegrees(alpha_rad[i]), d_m[i], r_m[i]));
         }
@@ -130,7 +132,7 @@ public class EuclidRobot{
      * Move the robot acording to its DH Paramteres
      */
     public void moveDH(){
-        for(int i = 1; i < parts.size(); i++){
+        for(int i = 1; i < parts.size()-1; i++){
             for(int j = i; j < parts.size(); j++){
                 translateD(i, j);
             }
@@ -166,7 +168,7 @@ public class EuclidRobot{
      */
     private void translateD(int i, int j){
         if((float) dhList.get(i).getD() != 0){
-            Coord3d z = parts.get(i).getLocalVectorsystemZ();
+            Coord3d z = parts.get(i-1).getLocalVectorsystemZ();
             float d = (float) dhList.get(i).getD();
             parts.get(j).translateAlongVector(d, z);
         }
@@ -214,6 +216,12 @@ public class EuclidRobot{
             }
             if(i==4 || i == 5){
                 parts.get(i).rotateAroundVector(180, new Coord3d(0,1,0));
+            }
+            if(i == 5){
+                parts.get(i).translateAlongVector(100, new Coord3d(0,0,1));
+            }
+            if(i >= 5){
+                parts.get(i).translateAlongVector(130, new Coord3d(0,-1,0));
             }
         }
     }
