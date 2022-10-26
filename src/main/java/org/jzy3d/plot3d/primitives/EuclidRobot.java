@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.colors.Color;
+import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.maths.Vector3d;
@@ -155,9 +156,16 @@ public class EuclidRobot{
      */
     private void rotateTheta(int i, int j){
         if(dhList.get(i).getTheta() != 0){
-            Coord3d center = parts.get(i).getCenter();
-            Coord3d z = parts.get(i).getLocalVectorsystemZ();
-            parts.get(j).rotateAroundVector((float) dhList.get(i).getTheta(), z);
+            Coord3d z = parts.get(i-1).getLocalVectorsystemZ();
+            z = new Coord3d(Math.round(z.x), Math.round(z.y), Math.round(z.z));
+            Coord3d around = z;
+            parts.get(j).rotateAroundVector2((float) dhList.get(i).getTheta(), around);
+            Coord3d x = parts.get(j).getLocalVectorsystemX();
+            Coord3d newX = x.rotate((float) dhList.get(i).getTheta(),around);
+            parts.get(j).setLocalVectorsystemX(newX);
+            Coord3d newZ = parts.get(j).getLocalVectorsystemZ();
+            newZ = newZ.rotate((float) dhList.get(i).getTheta(),around);
+            parts.get(j).setLocalVectorsystemZ(newZ);
         }
     }
     
@@ -168,9 +176,12 @@ public class EuclidRobot{
      */
     private void translateD(int i, int j){
         if((float) dhList.get(i).getD() != 0){
+            Coord3d c = parts.get(j).getCenter();
             Coord3d z = parts.get(i-1).getLocalVectorsystemZ();
+            z = new Coord3d(Math.round(z.x), Math.round(z.y), Math.round(z.z));
             float d = (float) dhList.get(i).getD();
             parts.get(j).translateAlongVector(d, z);
+            parts.get(j).setCoordCenter(new Coord3d(c.x + d * z.x, c.y + d * z.y, c.z + d * z.z));
         }
     }
     
@@ -181,9 +192,12 @@ public class EuclidRobot{
      */
     private void translateR(int i, int j){
         if((float) dhList.get(i).getR() != 0){
+            Coord3d c = parts.get(j).getCenter();
             Coord3d x = parts.get(i).getLocalVectorsystemX();
+            x = new Coord3d(Math.round(x.x), Math.round(x.y), Math.round(x.z));
             float r = (float) dhList.get(i).getR();
             parts.get(j).translateAlongVector(r, x);
+            parts.get(j).setCoordCenter(new Coord3d(c.x + r * x.x, c.y + r * x.y, c.z + r * x.z));
         }
     }
     
@@ -199,7 +213,9 @@ public class EuclidRobot{
             if(alpha < 0){
                 alpha = 360 + alpha;
             }
-            newZ = newZ.rotate(alpha, parts.get(i-1).getLocalVectorsystemX());
+            Coord3d x = parts.get(i).getLocalVectorsystemX();
+            x = new Coord3d(Math.round(x.x), Math.round(x.y), Math.round(x.z));
+            newZ = newZ.rotate(alpha, x);
             parts.get(j).setLocalVectorsystemZ(newZ);
          }
     }
@@ -218,10 +234,10 @@ public class EuclidRobot{
                 parts.get(i).rotateAroundVector(180, new Coord3d(0,1,0));
             }
             if(i == 5){
-                parts.get(i).translateAlongVector(100, new Coord3d(0,0,1));
+                parts.get(i).translateAlongVector(100 , new Coord3d(0,0,1));
             }
             if(i >= 5){
-                parts.get(i).translateAlongVector(130, new Coord3d(0,-1,0));
+                parts.get(i).translateAlongVector(125, new Coord3d(0,-1,0));
             }
         }
     }
