@@ -125,12 +125,12 @@ public class EuclidRobotPart {
         drawRobotPart(chart);
     }
     
-    public void rotateAroundVector2(float di, Coord3d vector){
+    public void rotateAroundVector2(float di, Coord3d vector, Coord3d center){
         //Coord3d vec = vector.getNormalizedTo(1);
         ArrayList<float[]> newObjects = new ArrayList<>();
         ArrayList<Color> colors = new ArrayList<>();
         for(EuclidVBO2 object: getParts()){
-            newObjects.add(object.rotateAroundVector(di, vector, this.getCenter()));
+            newObjects.add(object.rotateAroundVector(di, vector, center));
             colors.add(object.getColor());
         }
         clearObjects();

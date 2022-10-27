@@ -75,7 +75,7 @@ public class GeometryView3d extends AbstractAnalysis {
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
-        robotList.get(0).moveDH();
+        setRobotsDH();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
@@ -89,6 +89,12 @@ public class GeometryView3d extends AbstractAnalysis {
         }
     }
     
+     
+    private static void setRobotsDH(){
+        for(EuclidRobot robot: robotList){
+            robot.moveDH();
+        }
+    } 
     /**
      * Add a point to the 3d view.
      * 

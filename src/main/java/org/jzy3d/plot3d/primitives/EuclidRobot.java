@@ -138,7 +138,7 @@ public class EuclidRobot{
                 translateD(i, j);
             }
             for(int j = i; j < parts.size(); j++){
-                rotateTheta(i, j);
+                rotateTheta(i, j, j);
             }
             for(int j = i; j < parts.size(); j++){
                 rotateAlpha(i, j);
@@ -154,12 +154,12 @@ public class EuclidRobot{
      * @param i the DH parameter part in the list
      * @param j the object which will be rotatet
      */
-    private void rotateTheta(int i, int j){
+    private void rotateTheta(int i, int j, int center){
         if(dhList.get(i).getTheta() != 0){
             Coord3d z = parts.get(i-1).getLocalVectorsystemZ();
             z = new Coord3d(Math.round(z.x), Math.round(z.y), Math.round(z.z));
             Coord3d around = z;
-            parts.get(j).rotateAroundVector2((float) dhList.get(i).getTheta(), around);
+            parts.get(j).rotateAroundVector2((float) dhList.get(i).getTheta(), around, parts.get(center).getCenter());
             Coord3d x = parts.get(j).getLocalVectorsystemX();
             Coord3d newX = x.rotate((float) dhList.get(i).getTheta(),around);
             parts.get(j).setLocalVectorsystemX(newX);
@@ -240,6 +240,22 @@ public class EuclidRobot{
                 parts.get(i).translateAlongVector(125, new Coord3d(0,-1,0));
             }
         }
+    }
+    
+    public void setTheta(int axis, float theta){
+       DH oldDH = dhList.get(axis);
+       float oldTheta = (float) oldDH.getTheta();
+       float rotateTheta = theta - oldTheta;
+       if(rotateTheta < 0){
+           rotateTheta = 360 + rotateTheta;
+       }
+       DH newDh = new DH(rotateTheta, oldDH.getAlpha(), oldDH.getD(), oldDH.getR());
+       dhList.set(axis, newDh);
+           for(int j = axis; j < parts.size(); j++){
+                rotateTheta(axis, j, axis);
+            }
+       newDh = new DH(theta, oldDH.getAlpha(), oldDH.getD(), oldDH.getR());
+       dhList.set(axis, newDh);
     }
     
     /**
