@@ -1,8 +1,16 @@
 package de.orat.math.view.euclidview3d;
 
+import java.awt.Component;
+import javax.swing.JSlider;
+import java.awt.Container;
+import java.awt.Cursor;
 import static java.lang.Math.PI;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jogamp.vecmath.Vector4f;
@@ -40,6 +48,7 @@ import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
+import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.scene.Graph.GraphListener;
@@ -74,8 +83,9 @@ public class GeometryView3d extends AbstractAnalysis {
         GeometryView3d gv = new GeometryView3d();
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
-        rotateRobotsCoordsystem();
-        setRobotsDH();
+        gv.rotateRobotsCoordsystem();
+        gv.setRobotsDH();
+        gv.setUpRobotMovement();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
@@ -83,18 +93,51 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Rotate all Robots to have the Z-Vector as the UP Vector.
      */
-     private static void rotateRobotsCoordsystem(){
+    private static void rotateRobotsCoordsystem(){
         for(EuclidRobot robot: robotList){
             robot.rotateCoordSystem();
         }
     }
     
-     
+    /**
+     * Set the robot right to its DH parameters
+     */ 
     private static void setRobotsDH(){
         for(EuclidRobot robot: robotList){
             robot.moveDH();
         }
     } 
+    
+    /**
+     * Set up the movement of the robot per sliders
+     */
+    private void setUpRobotMovement(){
+        CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
+        Component comp = c.getComponent(0);
+        c.remove(comp);
+        JPanel p = new JPanel();
+        p.add(comp);
+        p.setLayout(new BoxLayout(p, 1));
+        for(int i = 1; i < 7; i++){
+        JSlider slider = new JSlider();
+            slider.setMaximum(360);
+            slider.setMinimum(0);
+            slider.setVisible(true);
+            slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
+            final int ix = i;
+            slider.addChangeListener(new ChangeListener(){
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JSlider source = (JSlider)e.getSource();
+                    robotList.get(0).setTheta(ix, source.getValue());
+                }   
+            });
+            p.add(slider);
+        }
+            p.setVisible(true);
+            c.add(p); 
+    }
+    
     /**
      * Add a point to the 3d view.
      * 

@@ -86,23 +86,7 @@ public class EuclidRobotPart {
         }
         drawRobotPart(chart);
     }
-    
-    public void translateAlongVector(Translate translate){
-        ArrayList<float[]> newObjects = new ArrayList<>();
-        ArrayList<Color> colors = new ArrayList<>();
-        for(EuclidVBO2 object: getParts()){
-            newObjects.add(object.translate(translate));
-            colors.add(object.getColor());
-        }
-        clearObjects();
-        for(int i = 0; i < newObjects.size(); i++){
-            EuclidVBO2 vbo = new EuclidVBO2(newObjects.get(i), 3);
-            vbo.setColor(colors.get(i));
-            getParts().add(vbo);
-        }
-        drawRobotPart(chart);
-    }
-    
+   
     /**
      * Rotates the EuclidRobot around a vector with the angle di
      * @param di the angle di
@@ -125,12 +109,18 @@ public class EuclidRobotPart {
         drawRobotPart(chart);
     }
     
-    public void rotateAroundVector2(float di, Coord3d vector, Coord3d center){
+    /**
+     * The Second rotateAround for theta
+     * @param theta the theta angle how much it should be rotated in degree
+     * @param vector the vector around which it should be rotated
+     * @param center the center of the axis around which it will be rotated
+     */
+    public void rotateAroundVector2(float theta, Coord3d vector, Coord3d center){
         //Coord3d vec = vector.getNormalizedTo(1);
         ArrayList<float[]> newObjects = new ArrayList<>();
         ArrayList<Color> colors = new ArrayList<>();
         for(EuclidVBO2 object: getParts()){
-            newObjects.add(object.rotateAroundVector(di, vector, center));
+            newObjects.add(object.rotateAroundVector(theta, vector, center));
             colors.add(object.getColor());
         }
         clearObjects();
@@ -142,20 +132,15 @@ public class EuclidRobotPart {
         drawRobotPart(chart); 
     }
     
-    public void rotateAroundVector(Rotate rotate){
-        ArrayList<float[]> newObjects = new ArrayList<>();
-        ArrayList<Color> colors = new ArrayList<>();
-        for(EuclidVBO2 object: getParts()){
-            newObjects.add(object.rotate(rotate));
-            colors.add(object.getColor());
-        }
-        clearObjects();
-        for(int i = 0; i < newObjects.size(); i++){
-            EuclidVBO2 vbo = new EuclidVBO2(newObjects.get(i), 3);
-            vbo.setColor(colors.get(i));
-            getParts().add(vbo);
-        }
-        drawRobotPart(chart);
+    /**
+     * Rotate the Center of this part
+     * @param di the angle around which it should be rotated
+     * @param vector the vector around which it should be rotated
+     * @param centerOld the center of the part wich it will be rotated around
+     */
+    public void rotateCenter(float di, Coord3d vector, Coord3d centerOld){
+        Coord3d newCenter = this.getParts().get(0).rotateCenter(di, vector, centerOld, this.getCenter());
+        this.setCoordCenter(newCenter);
     }
     
     /**

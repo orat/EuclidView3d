@@ -6,21 +6,12 @@ package org.jzy3d.plot3d.primitives;
 
 import de.orat.math.view.euclidview3d.ColladaLoader;
 import de.orat.math.view.euclidview3d.test.robot.DH;
-import de.orat.math.view.euclidview3d.test.robot.TestRobot;
-import static de.orat.math.view.euclidview3d.test.robot.TestRobot.determineDHAxesFromDH;
 import static java.lang.Math.PI;
 import java.util.ArrayList;
 import java.util.List;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.colors.Color;
-import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
-import org.jzy3d.maths.Utils2;
-import org.jzy3d.maths.Vector3d;
-import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
-import org.jzy3d.plot3d.transform.Rotate;
-import org.jzy3d.plot3d.transform.Transform;
-import org.jzy3d.plot3d.transform.Translate;
 
 /**
  *
@@ -166,6 +157,12 @@ public class EuclidRobot{
             Coord3d newZ = parts.get(j).getLocalVectorsystemZ();
             newZ = newZ.rotate((float) dhList.get(i).getTheta(),around);
             parts.get(j).setLocalVectorsystemZ(newZ);
+            Coord3d newCenter = parts.get(j).getCenter();
+            if(j != i){
+                //Hier richtige Center rotation ala rotateAroundVector2 hinzufügen
+                //newCenter = newCenter.rotate((float) dhList.get(i).getTheta(),around);
+                parts.get(j).rotateCenter((float) dhList.get(i).getTheta(), around, parts.get(center).getCenter());
+            }
         }
     }
     
@@ -283,6 +280,14 @@ public class EuclidRobot{
         for(EuclidRobotPart part: parts){
             part.setBoundingBoxColor(color);
         }
+    }
+    
+    /**
+     * Return the DH Values for the parts.
+     * @return the DH Values as a list
+     */
+    public List<DH> getDHs(){
+        return this.dhList;
     }
     
 }
