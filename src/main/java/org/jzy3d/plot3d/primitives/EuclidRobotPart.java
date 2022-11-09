@@ -116,7 +116,6 @@ public class EuclidRobotPart {
      * @param center the center of the axis around which it will be rotated
      */
     public void rotateAroundVector2(float theta, Coord3d vector, Coord3d center){
-        //Coord3d vec = vector.getNormalizedTo(1);
         ArrayList<float[]> newObjects = new ArrayList<>();
         ArrayList<Color> colors = new ArrayList<>();
         for(EuclidVBO2 object: getParts()){

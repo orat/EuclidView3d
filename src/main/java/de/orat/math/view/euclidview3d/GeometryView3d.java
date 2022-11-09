@@ -36,7 +36,6 @@ import org.jzy3d.maths.Utils2;
 import org.jzy3d.painters.IPainter;
 import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.ChessFloor;
-import org.jzy3d.plot3d.primitives.Composite;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidCircle;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
@@ -47,14 +46,10 @@ import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
-import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
-import org.jzy3d.plot3d.rendering.scene.Graph.GraphListener;
 import org.jzy3d.plot3d.rendering.view.Camera;
-import org.jzy3d.plot3d.text.drawable.DrawableText;
-import org.jzy3d.plot3d.transform.Translate;
 
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
@@ -125,7 +120,7 @@ public class GeometryView3d extends AbstractAnalysis {
             slider.setVisible(true);
             slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
             final int ix = i;
-            slider.addChangeListener(new ChangeListener(){
+            slider.addChangeListener(new ChangeListener(){ 
                 @Override
                 public void stateChanged(ChangeEvent e) {
                     JSlider source = (JSlider)e.getSource();
