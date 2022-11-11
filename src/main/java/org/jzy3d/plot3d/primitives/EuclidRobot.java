@@ -26,14 +26,16 @@ public class EuclidRobot{
     private Chart chart = null;
     private Color boundingBoxColor = Color.RED;
     private ArrayList<DH> dhList;
+    private RobotType type;
     
     /**
      * Creat a Robot
      * @param chart the chart to which the robot should be added.
      */
-    public EuclidRobot(Chart chart){
+    public EuclidRobot(Chart chart, RobotType type){
         super();
         this.chart = chart;
+        this.type = type;
     }
     
     /** 
@@ -64,7 +66,7 @@ public class EuclidRobot{
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }
-        double[] d_n_m_ = new double[]{0d, 162.5, 0d, 0d, 0, 99.7, 99.6};
+        double[] d_n_m_ = new double[]{0d, 162.5, 0d, 0d, 133.3d, 99.7d, 99.6d};
         double[] a_n_m = new double[]{0d, 0d,  -425, -392.2, 0d, 0d, 0d};
         double[] alpha_n_rad = new double[]{0d, PI/2d, 0d, 0d, PI/2, -PI/2d, 0d};
         double[] d_m = new double[7];
@@ -115,7 +117,7 @@ public class EuclidRobot{
      * Move the robot acording to its DH Paramteres
      */
     public void moveDH(){
-        for(int i = 1; i < parts.size()-1; i++){
+        for(int i = 1; i < parts.size(); i++){
             for(int j = i; j < parts.size(); j++){
                 translateD(i, j);
             }
@@ -129,6 +131,9 @@ public class EuclidRobot{
                 translateR(i, j);
             }
         }
+        Coord3d c = parts.get(5).getCenter();
+        //c.y = c.y + 7;
+        //parts.get(5).setCoordCenter(new Coord3d(c.x, parts.get(4).getCenter().y ,c.z));
     }
     
     /**
@@ -165,7 +170,7 @@ public class EuclidRobot{
         if((float) dhList.get(i).getD() != 0){
             Coord3d c = parts.get(j).getCenter();
             Coord3d z = parts.get(i-1).getLocalVectorsystemZ();
-            z = new Coord3d(Math.round(z.x), Math.round(z.y), Math.round(z.z));
+            //z = new Coord3d(Math.round(z.x), Math.round(z.y), Math.round(z.z));
             float d = (float) dhList.get(i).getD();
             parts.get(j).translateAlongVector(d, z);
             parts.get(j).setCoordCenter(new Coord3d(c.x + d * z.x, c.y + d * z.y, c.z + d * z.z));
@@ -208,9 +213,18 @@ public class EuclidRobot{
     }
     
     /**
-     * Rotate the Coordinate System to have the Z-Vector up top.
+     * Rotate the Coordinate System
      */
     public void rotateCoordSystem(){
+        if(type == RobotType.UR5e){
+            rotateCoordSystemUR5e();
+        }
+    }
+    
+    /**
+     * Rotate the Coordinate System to have the Z-Vector up top for UR5e.
+     */
+    public void rotateCoordSystemUR5e(){
         for(int i = 0; i < parts.size(); i++){
             parts.get(i).rotateAroundVector(90, new Coord3d(1,0,0));
             parts.get(i).setLocalVectorsystemZ(new Coord3d(0,0,1));
@@ -220,11 +234,20 @@ public class EuclidRobot{
             if(i==4 || i == 5){
                 parts.get(i).rotateAroundVector(180, new Coord3d(0,1,0));
             }
+            if(i >= 4){
+                parts.get(i).translateAlongVector(133, new Coord3d(0,1,0));
+            }
             if(i == 5){
-                parts.get(i).translateAlongVector(100 , new Coord3d(0,0,1));
+                parts.get(i).translateAlongVector(99 , new Coord3d(0,0,1));
+                Coord3d center = parts.get(i).getCenter();
+                parts.get(i).setCoordCenter(new Coord3d(center.x, center.y + 7, center.z));
             }
             if(i >= 5){
-                parts.get(i).translateAlongVector(125, new Coord3d(0,-1,0));
+                //parts.get(i).getParts().get(0).getBounds().getCenter().y
+                parts.get(i).translateAlongVector(126, new Coord3d(0,-1,0));
+            }
+            if(i == 6){
+                parts.get(i).translateAlongVector(99, new Coord3d(0,1,0));
             }
         }
     }
@@ -261,6 +284,12 @@ public class EuclidRobot{
             System.out.println(i + " -X: " + parts.get(i).getLocalVectorsystemX() + " - Z:" +  parts.get(i).getLocalVectorsystemZ());
         }
     }
+    
+    public void getCoordCenters(){
+        for(int i = 0; i < parts.size(); i++){
+            System.out.println(parts.get(i).getCenter());
+        }
+    }
  
     /**
      * Returns the Chart on which the Robot is located
@@ -288,4 +317,10 @@ public class EuclidRobot{
         return this.dhList;
     }
     
+    
+    public void printDHS(){
+        for(int i = 0; i < dhList.size(); i++){
+            System.out.println("D: " + dhList.get(i).getD() + " - R: " + dhList.get(i).getR());
+        }
+    }
 }
