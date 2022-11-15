@@ -132,9 +132,6 @@ public class GeometryView3d extends AbstractAnalysis {
         }
             p.setVisible(true);
             c.add(p); 
-            robotList.get(0).getCoordsys();
-            robotList.get(0).printDHS();
-            robotList.get(0).getCoordCenters();
     }
     
     /**

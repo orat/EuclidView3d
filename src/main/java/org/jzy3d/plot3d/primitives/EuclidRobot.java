@@ -309,6 +309,12 @@ public class EuclidRobot{
         }
     }
     
+    public void setBoundingBoxDisplayed(boolean bbx){
+        for(EuclidRobotPart part: parts){
+            part.setBoundingBoxDisplayed(bbx);
+        }
+    }
+    
     /**
      * Return the DH Values for the parts.
      * @return the DH Values as a list
