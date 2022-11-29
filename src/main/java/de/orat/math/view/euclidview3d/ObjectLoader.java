@@ -27,6 +27,19 @@ import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
  */
 public class ObjectLoader {
     
+    private static ObjectLoader loader;
+    
+    private ObjectLoader(){
+        
+    }
+    
+    public static ObjectLoader getLoader(){
+        if(loader == null){
+            loader = new ObjectLoader();
+        }
+        return loader;
+    }
+    
     /**
      * Add a COLLADA (.dae) File Object to the Scene
      * @param path the path to the COLLADA File

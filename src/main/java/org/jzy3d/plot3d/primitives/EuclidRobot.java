@@ -45,7 +45,7 @@ public class EuclidRobot{
     public void setData(List<String> componentsPaths){
         parts = new ArrayList<EuclidPart>();
         dhList = new ArrayList<DH>();
-        ObjectLoader loader = new ObjectLoader();
+        ObjectLoader loader = ObjectLoader.getLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }
@@ -62,7 +62,7 @@ public class EuclidRobot{
      public void setData(List<String> componentsPaths, double[] delta_theta_rad, double[] delta_alpha_rad,double[] delta_d_m, double[] delta_r_m){
         parts = new ArrayList<EuclidPart>();
         dhList = new ArrayList<DH>();
-        ObjectLoader loader = new ObjectLoader();
+        ObjectLoader loader = ObjectLoader.getLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }
@@ -95,7 +95,7 @@ public class EuclidRobot{
      public void setDataDegrees(List<String> componentsPaths, double[] theta, double[] alpha,double[] d, double[] r){
         parts = new ArrayList<EuclidPart>();
         dhList = new ArrayList<DH>();
-        ObjectLoader loader = new ObjectLoader();
+        ObjectLoader loader = ObjectLoader.getLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }

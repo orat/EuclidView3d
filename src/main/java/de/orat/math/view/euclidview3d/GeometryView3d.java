@@ -369,7 +369,7 @@ public class GeometryView3d extends AbstractAnalysis {
 
     
     public void addSkellet(String path){
-        ObjectLoader loader = new ObjectLoader();
+        ObjectLoader loader = ObjectLoader.getLoader();
     }
     
     /*public GeometryView3d(){
@@ -396,8 +396,6 @@ public class GeometryView3d extends AbstractAnalysis {
 
     @Override
     public void init() throws Exception {
-        
-        colladaLoader = new ObjectLoader();
         
         Quality q = Quality.Advanced(); 
         q.setDepthActivated(true);
@@ -427,7 +425,7 @@ public class GeometryView3d extends AbstractAnalysis {
         */
         
         //Set up ObjectLoader and Mouse
-        colladaLoader = new ObjectLoader();
+        colladaLoader = ObjectLoader.getLoader();
         setUpMouse();
         //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         //light.setType(Light.Type.POSITIONAL);
