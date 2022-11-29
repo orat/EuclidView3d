@@ -153,6 +153,15 @@ public class EuclidPart {
     }
     
     /**
+     * Clear the objects from the chart
+     */
+    public void clearFromChart(){
+        for(EuclidVBO2 object: getParts()){
+            chart.remove(object);
+        }
+    }
+    
+    /**
      * 
      * @param boundingBoxDisplayed 
      */

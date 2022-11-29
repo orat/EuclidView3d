@@ -45,6 +45,7 @@ import org.jzy3d.plot3d.primitives.EuclidPart;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidRobot;
 import org.jzy3d.plot3d.primitives.EuclidPart;
+import org.jzy3d.plot3d.primitives.EuclidSkeleton;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
@@ -368,8 +369,9 @@ public class GeometryView3d extends AbstractAnalysis {
     }
 
     
-    public void addSkellet(String path){
-        ObjectLoader loader = ObjectLoader.getLoader();
+    public void addSkeleton(String path){
+        EuclidSkeleton skeleton = new EuclidSkeleton(path, chart);
+        skeleton.drawOnChart();
     }
     
     /*public GeometryView3d(){
@@ -431,7 +433,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        //addSkellet("data/golembones/golembones.obj");
+        addSkeleton("data/golembones/golembones.obj");
         
         /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
@@ -462,7 +464,7 @@ public class GeometryView3d extends AbstractAnalysis {
         double[] delta_d_m = new double[]{0d, 162.5, 0, 0, 133.3, 997, 996};
         double[] delta_alpha_rad= new double[]{0d, Math.PI/2, 0, 0, Math.PI/2, Math.PI/2, 0};
         */
-        
+        /*
         double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};      
 
         ArrayList<String> pathList = new ArrayList<String>();
@@ -474,7 +476,7 @@ public class GeometryView3d extends AbstractAnalysis {
         pathList.add("data/objfiles/wrist2.dae");
         pathList.add("data/objfiles/wrist3.dae");
         addRobotUR5e(pathList, delta_theta_rad);
-        
+        */
     }
     
     /**

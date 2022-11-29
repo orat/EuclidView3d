@@ -99,7 +99,7 @@ public class ObjectLoader {
      * @param material the Material of the object
      * @return the combined object
      */
-    public EuclidVBO2 getVBOObject(List<Float> vertices, Material material){   
+    private EuclidVBO2 getVBOObject(List<Float> vertices, Material material){   
         //translate the Floats to an array
         float[] verticesFloat = new float[vertices.size()];
         for(int i = 0; i < vertices.size(); i++){
