@@ -17,7 +17,7 @@ import org.jzy3d.plot3d.transform.Translate;
  *
  * @author Dominik Scharnagl
  */
-public class EuclidRobotPart {
+public class EuclidPart {
     
     private List<EuclidVBO2> parts = null;
     private Coord3d x;
@@ -32,7 +32,7 @@ public class EuclidRobotPart {
      * Creates a new RobotPart
      * @param parts the parts of the Robot as DrawableVBO2
      */
-    public EuclidRobotPart(List<EuclidVBO2> parts){
+    public EuclidPart(List<EuclidVBO2> parts){
         this.parts = parts;
         boundingBoxDisplayed = false;
         boundingBoxColor = Color.RED;
@@ -46,15 +46,15 @@ public class EuclidRobotPart {
      * Draw the RobotPart to a chart
      * @param chart The chart, to which it should be added
      */
-    public void drawRobotPart(Chart chart){
+    public void drawPart(Chart chart){
         this.setChart(chart);
-        drawRobotPart();
+        drawPart();
     }
     
     /**
      * Draw the robotpart to the chart it allready is part of
      */
-    public void drawRobotPart(){
+    public void drawPart(){
         for(EuclidVBO2 part: parts){
             part.setWireframeDisplayed(false);
             chart.add(part);
@@ -84,7 +84,7 @@ public class EuclidRobotPart {
             vbo.setColor(colors.get(i));
             parts.add(vbo);
         }
-        drawRobotPart(chart);
+        drawPart(chart);
     }
    
     /**
@@ -106,7 +106,7 @@ public class EuclidRobotPart {
             vbo.setColor(colors.get(i));
             parts.add(vbo);
         }
-        drawRobotPart(chart);
+        drawPart(chart);
     }
     
     /**
@@ -128,7 +128,7 @@ public class EuclidRobotPart {
             vbo.setColor(colors.get(i));
             parts.add(vbo);
         }
-        drawRobotPart(chart); 
+        drawPart(chart); 
     }
     
     /**

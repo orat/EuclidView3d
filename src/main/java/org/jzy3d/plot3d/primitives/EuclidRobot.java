@@ -4,7 +4,7 @@
  */
 package org.jzy3d.plot3d.primitives;
 
-import de.orat.math.view.euclidview3d.ColladaLoader;
+import de.orat.math.view.euclidview3d.ObjectLoader;
 import de.orat.math.view.euclidview3d.test.robot.DH;
 import static java.lang.Math.PI;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import org.jzy3d.maths.Coord3d;
  */
 public class EuclidRobot{
     
-    private ArrayList<EuclidRobotPart> parts;
+    private ArrayList<EuclidPart> parts;
     private Chart chart = null;
     private Color boundingBoxColor = Color.RED;
     private ArrayList<DH> dhList;
@@ -43,9 +43,9 @@ public class EuclidRobot{
      * @param componentsPaths the paths to the .dae Files
      */
     public void setData(List<String> componentsPaths){
-        parts = new ArrayList<EuclidRobotPart>();
+        parts = new ArrayList<EuclidPart>();
         dhList = new ArrayList<DH>();
-        ColladaLoader loader = new ColladaLoader();
+        ObjectLoader loader = new ObjectLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }
@@ -60,9 +60,9 @@ public class EuclidRobot{
      * @param delta_r_m the delta r for mDH
      */
      public void setData(List<String> componentsPaths, double[] delta_theta_rad, double[] delta_alpha_rad,double[] delta_d_m, double[] delta_r_m){
-        parts = new ArrayList<EuclidRobotPart>();
+        parts = new ArrayList<EuclidPart>();
         dhList = new ArrayList<DH>();
-        ColladaLoader loader = new ColladaLoader();
+        ObjectLoader loader = new ObjectLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }
@@ -93,9 +93,9 @@ public class EuclidRobot{
       * @param r the r of the DH 
       */
      public void setDataDegrees(List<String> componentsPaths, double[] theta, double[] alpha,double[] d, double[] r){
-        parts = new ArrayList<EuclidRobotPart>();
+        parts = new ArrayList<EuclidPart>();
         dhList = new ArrayList<DH>();
-        ColladaLoader loader = new ColladaLoader();
+        ObjectLoader loader = new ObjectLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
         }
@@ -108,8 +108,8 @@ public class EuclidRobot{
      * Add the Robot to the Chart
      */
     public void addToChartParts(){
-        for(EuclidRobotPart robotPart: parts){
-            robotPart.drawRobotPart(chart);
+        for(EuclidPart robotPart: parts){
+            robotPart.drawPart(chart);
         }
     }
     
@@ -304,13 +304,13 @@ public class EuclidRobot{
      * @param color The Color of the BoundingBox
      */
     public void setBoundingBoxColor(Color color){
-        for(EuclidRobotPart part: parts){
+        for(EuclidPart part: parts){
             part.setBoundingBoxColor(color);
         }
     }
     
     public void setBoundingBoxDisplayed(boolean bbx){
-        for(EuclidRobotPart part: parts){
+        for(EuclidPart part: parts){
             part.setBoundingBoxDisplayed(bbx);
         }
     }

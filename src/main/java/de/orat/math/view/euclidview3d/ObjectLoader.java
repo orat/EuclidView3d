@@ -5,7 +5,7 @@ import java.util.List;
 import org.jogamp.vecmath.Vector4f;
 import org.jzy3d.colors.Color;
 import org.jzy3d.plot3d.primitives.Composite;
-import org.jzy3d.plot3d.primitives.EuclidRobotPart;
+import org.jzy3d.plot3d.primitives.EuclidPart;
 import org.jzy3d.plot3d.primitives.EuclidVBO2;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.lwjgl.PointerBuffer;
@@ -22,16 +22,38 @@ import static org.lwjgl.assimp.Assimp.aiImportFile;
 import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 
 /**
- * A Collada Loader using Assimp thorugh lwjgl
+ * An object Loader using Assimp thorugh lwjgl. Can load COLLADA and object files for now.
  * @author Dominik Scharnagl
  */
-public class ColladaLoader {
+public class ObjectLoader {
     
-     /**
+    /**
      * Add a COLLADA (.dae) File Object to the Scene
      * @param path the path to the COLLADA File
-     */
-    public EuclidRobotPart getCOLLADA(String path){
+    */
+    public EuclidPart getCOLLADA(String path){
+        List<EuclidVBO2> objects = getParts(path);
+        for(EuclidVBO2 o: objects){
+            o.setWireframeDisplayed(false);
+        }
+        //Combine Objects into one composite
+        return new EuclidPart(objects);
+    }
+    
+    /**
+     * Add a Wavefront (.obj) File Object to the Scene
+     * @param path the path to the COLLADA File
+    */
+    public EuclidPart getWavefront(String path){
+        List<EuclidVBO2> objects = getParts(path);
+        for(EuclidVBO2 o: objects){
+            o.setWireframeDisplayed(false);
+        }
+        //Combine Objects into one composite
+        return new EuclidPart(objects);
+    }
+    
+    private List<EuclidVBO2> getParts(String path){
         //Load COLLADA files
         AIScene aiScene = aiImportFile(path, 0);
         
@@ -53,22 +75,18 @@ public class ColladaLoader {
             meshes[i] = AIMesh.create(aiMeshes.get(i));
             List<Float> vertices = new ArrayList<>();
             processVertices(meshes[i], vertices);
-            objects.add(getCOLLADAObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
+            objects.add(getVBOObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
         }
-        for(EuclidVBO2 o: objects){
-            o.setWireframeDisplayed(false);
-        }
-        //Combine Objects into one composite
-        return new EuclidRobotPart(objects);
+        return objects;
     }
     
     /**
-     * Get the object from the vertices, that were extracted from a COLLADA file
+     * Get the object from the vertices
      * @param vertices the vertieces
      * @param material the Material of the object
      * @return the combined object
      */
-    public EuclidVBO2 getCOLLADAObject(List<Float> vertices, Material material){   
+    public EuclidVBO2 getVBOObject(List<Float> vertices, Material material){   
         //translate the Floats to an array
         float[] verticesFloat = new float[vertices.size()];
         for(int i = 0; i < vertices.size(); i++){

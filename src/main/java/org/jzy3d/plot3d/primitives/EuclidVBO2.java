@@ -6,6 +6,7 @@ package org.jzy3d.plot3d.primitives;
 
 import org.jogamp.vecmath.Matrix4d;
 import org.jogamp.vecmath.Point4d;
+import org.jzy3d.io.obj.OBJFileLoader;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 import org.jzy3d.plot3d.transform.Rotate;

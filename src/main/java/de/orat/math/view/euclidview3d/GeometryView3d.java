@@ -4,10 +4,12 @@ import java.awt.Component;
 import javax.swing.JSlider;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.io.File;
 import static java.lang.Math.PI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -29,6 +31,7 @@ import org.jzy3d.chart.factories.NewtChartFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.events.ControllerEvent;
 import org.jzy3d.events.ControllerEventListener;
+import org.jzy3d.io.obj.OBJFileLoader;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Scale;
@@ -38,15 +41,17 @@ import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.ChessFloor;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidCircle;
+import org.jzy3d.plot3d.primitives.EuclidPart;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidRobot;
-import org.jzy3d.plot3d.primitives.EuclidRobotPart;
+import org.jzy3d.plot3d.primitives.EuclidPart;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.RobotType;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
+import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO;
 import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
@@ -63,9 +68,8 @@ public class GeometryView3d extends AbstractAnalysis {
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
     private PickingSupport pickingSupport;
     private NewtCameraMouseController cameraMouse;
-    private ColladaLoader colladaLoader;
+    private ObjectLoader colladaLoader;
     private static ArrayList<EuclidRobot> robotList = new ArrayList();
-    static EuclidRobotPart testPart = null;
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
@@ -114,22 +118,29 @@ public class GeometryView3d extends AbstractAnalysis {
         JPanel p = new JPanel();
         p.add(comp);
         p.setLayout(new BoxLayout(p, 1));
-        for(int i = 1; i < 7; i++){
-        JSlider slider = new JSlider();
-            slider.setMaximum(360);
-            slider.setMinimum(0);
-            slider.setVisible(true);
-            slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
-            final int ix = i;
-            slider.addChangeListener(new ChangeListener(){ 
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    JSlider source = (JSlider)e.getSource();
-                    robotList.get(0).setTheta(ix, source.getValue());
-                }   
-            });
-            p.add(slider);
+        for(int j = 0; j < robotList.size(); j++){
+            int number = j + 1;
+            String string = "Robot Number " + number;
+            JLabel label = new JLabel(string);
+            p.add(label);
+            for(int i = 1; i < 7; i++){
+                JSlider slider = new JSlider();
+                slider.setMaximum(360);
+                slider.setMinimum(0);
+                slider.setVisible(true);
+                slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
+                final int ix = i;
+                slider.addChangeListener(new ChangeListener(){ 
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        JSlider source = (JSlider)e.getSource();
+                        robotList.get(0).setTheta(ix, source.getValue());
+                    }   
+                });
+                p.add(slider);
+            }
         }
+        
             p.setVisible(true);
             c.add(p); 
     }
@@ -324,10 +335,9 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param path the path to the COLLADA File
      */
     public void addCOLLADA(String path){
-        EuclidRobotPart part = colladaLoader.getCOLLADA(path); 
+        EuclidPart part = colladaLoader.getCOLLADA(path); 
         part.setChart(chart);
-        part.drawRobotPart();
-        testPart = part;
+        part.drawPart();
     }
     
     /**
@@ -358,6 +368,10 @@ public class GeometryView3d extends AbstractAnalysis {
     }
 
     
+    public void addSkellet(String path){
+        ObjectLoader loader = new ObjectLoader();
+    }
+    
     /*public GeometryView3d(){
         
         
@@ -383,7 +397,7 @@ public class GeometryView3d extends AbstractAnalysis {
     @Override
     public void init() throws Exception {
         
-        colladaLoader = new ColladaLoader();
+        colladaLoader = new ObjectLoader();
         
         Quality q = Quality.Advanced(); 
         q.setDepthActivated(true);
@@ -412,12 +426,14 @@ public class GeometryView3d extends AbstractAnalysis {
         });
         */
         
-        //Set up ColladaLoader and Mouse
-        colladaLoader = new ColladaLoader();
+        //Set up ObjectLoader and Mouse
+        colladaLoader = new ObjectLoader();
         setUpMouse();
         //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
+        
+        //addSkellet("data/golembones/golembones.obj");
         
         /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
@@ -448,6 +464,7 @@ public class GeometryView3d extends AbstractAnalysis {
         double[] delta_d_m = new double[]{0d, 162.5, 0, 0, 133.3, 997, 996};
         double[] delta_alpha_rad= new double[]{0d, Math.PI/2, 0, 0, Math.PI/2, Math.PI/2, 0};
         */
+        
         double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};      
 
         ArrayList<String> pathList = new ArrayList<String>();
@@ -459,6 +476,7 @@ public class GeometryView3d extends AbstractAnalysis {
         pathList.add("data/objfiles/wrist2.dae");
         pathList.add("data/objfiles/wrist3.dae");
         addRobotUR5e(pathList, delta_theta_rad);
+        
     }
     
     /**
