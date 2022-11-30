@@ -1,5 +1,6 @@
 package de.orat.math.view.euclidview3d;
 
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import org.jogamp.vecmath.Vector4f;
@@ -13,6 +14,7 @@ import org.lwjgl.assimp.AIColor4D;
 import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIMesh;
 import org.lwjgl.assimp.AIScene;
+import org.lwjgl.assimp.AIString;
 import org.lwjgl.assimp.AIVector3D;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_AMBIENT;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_DIFFUSE;
@@ -78,7 +80,6 @@ public class ObjectLoader {
             AIMaterial aiMaterial = AIMaterial.create(aiMaterials.get(i));
             processMaterial(aiMaterial, materials);
         }
-        
         //Get the Meshes from the File
         PointerBuffer aiMeshes = aiScene.mMeshes();
         AIMesh[] meshes = new AIMesh[aiScene.mNumMeshes()];
@@ -86,13 +87,29 @@ public class ObjectLoader {
         //Make objects from the vertices from the 
         for(int i = 0; i < aiScene.mNumMeshes();i++){
             meshes[i] = AIMesh.create(aiMeshes.get(i));
-            List<Float> vertices = new ArrayList<>();
-            processVertices(meshes[i], vertices);
-            objects.add(getVBOObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
+            if(checkIfNotSkeletonBox(meshes[i].mName().dataString())){
+                List<Float> vertices = new ArrayList<>();
+                processVertices(meshes[i], vertices);
+                objects.add(getVBOObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 
+            }
         }
         return objects;
     }
     
+    /**
+     * Dont add Boxes to the mesh
+     * @param string the input string
+     * @return if the input string is Box01 or Box02 or nothing
+     */
+    private boolean checkIfNotSkeletonBox(String string){
+        if(string.equals("Box01")){
+            return false;
+        }
+        if(string.equals("Box02")){
+            return false;
+        }
+        return true;
+    }
     /**
      * Get the object from the vertices
      * @param vertices the vertieces

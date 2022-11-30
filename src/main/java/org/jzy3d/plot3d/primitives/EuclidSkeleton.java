@@ -64,4 +64,12 @@ public class EuclidSkeleton {
             part.drawPart(chart);
         } 
     }
+    
+    /**
+     * Removes a single part from the chart
+     * @param i the number of the part in the list
+     */
+    public void remove(int i){
+        chart.remove(parts.get(i).getParts().get(0));
+    }
 }
