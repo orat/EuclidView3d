@@ -27,6 +27,7 @@ public class EuclidPart {
     private Chart chart;
     private boolean boundingBoxDisplayed;
     private Color boundingBoxColor;
+    private String name = "";
     
     /**
      * Creates a new RobotPart
@@ -258,5 +259,13 @@ public class EuclidPart {
      */
     public Chart getChart(){
         return this.chart;
+    }
+    
+    public void setName(String name){
+        this.name = name;
+    }
+    
+    public String getName(){
+        return this.name;
     }
 }

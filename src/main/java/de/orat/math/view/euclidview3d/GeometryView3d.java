@@ -71,6 +71,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private NewtCameraMouseController cameraMouse;
     private ObjectLoader colladaLoader;
     private static ArrayList<EuclidRobot> robotList = new ArrayList();
+    private static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
@@ -87,6 +88,7 @@ public class GeometryView3d extends AbstractAnalysis {
         gv.rotateRobotsCoordsystem();
         gv.setRobotsDH();
         gv.setUpRobotMovement();
+        gv.setUpSkeletons();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
@@ -144,6 +146,12 @@ public class GeometryView3d extends AbstractAnalysis {
         
             p.setVisible(true);
             c.add(p); 
+    }
+    
+    private void setUpSkeletons(){
+        for(EuclidSkeleton skeleton: skeletonList){
+            skeleton.setUpSkeleton();
+        }
     }
     
     /**
@@ -369,8 +377,9 @@ public class GeometryView3d extends AbstractAnalysis {
     }
 
     
-    public void addSkeleton(String path){
-        EuclidSkeleton skeleton = new EuclidSkeleton(path, chart);
+    public void addSkeleton(String path, String xml){
+        EuclidSkeleton skeleton = new EuclidSkeleton(path, xml, chart);
+        skeletonList.add(skeleton);
         skeleton.drawOnChart();
     }
     
@@ -433,7 +442,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        addSkeleton("data/golembones/golembones.obj");
+        addSkeleton("data/golembones/golembones.obj", "StickFigure.xml");
         
         /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");

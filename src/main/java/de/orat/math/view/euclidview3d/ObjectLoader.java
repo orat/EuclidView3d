@@ -30,9 +30,10 @@ import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 public class ObjectLoader {
     
     private static ObjectLoader loader;
+    private List<String> lastNames = null;
     
     private ObjectLoader(){
-        
+        lastNames = new ArrayList<String>();
     }
     
     public static ObjectLoader getLoader(){
@@ -68,6 +69,16 @@ public class ObjectLoader {
         return new EuclidPart(objects);
     }
     
+     public EuclidPart getWavefront(String path, List<String> names){
+        lastNames = names;
+        List<EuclidVBO2> objects = getParts(path);
+        for(EuclidVBO2 o: objects){
+            o.setWireframeDisplayed(false);
+        }
+        //Combine Objects into one composite
+        return new EuclidPart(objects);
+     }
+    
     private List<EuclidVBO2> getParts(String path){
         //Load COLLADA files
         AIScene aiScene = aiImportFile(path, 0);
@@ -88,6 +99,7 @@ public class ObjectLoader {
         for(int i = 0; i < aiScene.mNumMeshes();i++){
             meshes[i] = AIMesh.create(aiMeshes.get(i));
             if(checkIfNotSkeletonBox(meshes[i].mName().dataString())){
+                lastNames.add(meshes[i].mName().dataString());
                 List<Float> vertices = new ArrayList<>();
                 processVertices(meshes[i], vertices);
                 objects.add(getVBOObject(vertices, materials.get(meshes[i].mMaterialIndex()))); 

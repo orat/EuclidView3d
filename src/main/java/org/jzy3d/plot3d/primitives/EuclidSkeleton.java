@@ -8,6 +8,7 @@ import de.orat.math.view.euclidview3d.ObjectLoader;
 import java.util.ArrayList;
 import java.util.List;
 import org.jzy3d.chart.Chart;
+import org.jzy3d.maths.Coord3d;
 
 /**
  *
@@ -16,6 +17,7 @@ import org.jzy3d.chart.Chart;
 public class EuclidSkeleton {
     
     private ArrayList<EuclidPart> parts;
+    private ArrayList<String> nameParts;
     private Chart chart;
     
     public EuclidSkeleton(String waveFrontPath, Chart chart){
@@ -26,6 +28,27 @@ public class EuclidSkeleton {
             ArrayList<EuclidVBO2> l = new ArrayList<EuclidVBO2>();
             l.add(partList.get(i));
             parts.add(new EuclidPart(l));
+        }
+    }
+    
+    public EuclidSkeleton(String waveFrontPath, String xmlPath, Chart chart){
+        Coord3d x = new Coord3d(1,0,0);
+        Coord3d y = new Coord3d(0,1,0);
+        Coord3d z = new Coord3d(0,0,1);
+        parts = new ArrayList<EuclidPart>();
+        nameParts = new ArrayList<String>();
+        this.chart = chart;
+        //List<EuclidVBO2> partList = ObjectLoader.getLoader().getWavefront(waveFrontPath).getParts();
+        List<EuclidVBO2> partList = ObjectLoader.getLoader().getWavefront(waveFrontPath, nameParts).getParts();
+        for(int i = 0; i < nameParts.size(); i++){
+            nameParts.set(i, nameParts.get(i).toLowerCase());
+        }
+        for(int i = 0; i < partList.size(); i++){
+            ArrayList<EuclidVBO2> l = new ArrayList<EuclidVBO2>();
+            l.add(partList.get(i));
+            parts.add(new EuclidPart(l));
+            parts.get(i).setLocalVectorsystem(x, y, z);
+            parts.get(i).setName(nameParts.get(i));
         }
     }
     
@@ -71,5 +94,17 @@ public class EuclidSkeleton {
      */
     public void remove(int i){
         chart.remove(parts.get(i).getParts().get(0));
+    }
+    
+     public void setUpSkeleton(){
+        for(EuclidPart part: parts){
+            if(part.getName().equals("head")){
+                part.translateAlongVector(1.8f, new Coord3d(0,0,1));
+                part.translateAlongVector(-1f, new Coord3d(1,0,0));
+            }
+            if(!part.getName().equals("head")&&!part.getName().equals("thorax")){
+                part.translateAlongVector(-2, new Coord3d(0,0,1));
+            }
+        }
     }
 }
