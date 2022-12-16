@@ -1,23 +1,47 @@
 package org.jzy3d.plot3d.primitives;
 
+import org.jogamp.vecmath.Point3d;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.maths.Vector3d;
+import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Transform;
 import org.jzy3d.plot3d.transform.Translate;
+import org.jzy3d.plot3d.transform.TranslateDrawable;
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2019
  */
-public class Line extends Composite {	
+public class Line extends Composite implements Pickable, PickableObjects{	
     
     protected Cylinder cylinder;
-    
-    public void setData(Vector3d vec, float radius, int slices, int rings, Color color){
+    private int pickingId = 0;
+    private Vector3d vec;
+    private Point3d dif;
+    private float length;
+    private float radius;
+    private int slices;
+    private int rings;
+    private String label;
+
+    public void setData(Point3d p1, Point3d p2, float radius, int slices, int rings, Color color, String label){
+        
+        this.radius = radius;
+        this.slices = slices;
+        this.rings = rings;
+        this.color = color;
+        this.label = label;
+        
+        if(dif == null){
+           dif = new Point3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z); 
+        }
+        
+        this.vec =  new Vector3d(new Coord3d(p1.x,p1.y,p1.z), new Coord3d(p2.x, p2.y, p2.z));
+        
         Coord3d position = vec.getCenter();
-        float length = vec.norm();  
+        length = vec.norm();  
         
         cylinder = new Cylinder();
         cylinder.setData(new Coord3d(0, 0, -length/2f),
@@ -31,6 +55,11 @@ public class Line extends Composite {
         Translate translate = new Translate(position);
         trans.add(translate);
         applyGeometryTransform(trans);
+        
+        org.jogamp.vecmath.Vector3d negative_direction = new org.jogamp.vecmath.Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
+        negative_direction.scale((2*LabelFactory.getInstance().getOffset())/negative_direction.length());
+        Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
+        add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
     }
     
     private static Rotate createRotateTo(Coord3d from, Coord3d to){
@@ -41,5 +70,31 @@ public class Line extends Composite {
         Coord3d v = Utils2.cross(from,to);
         v.normalizeTo(1);
         return new Rotate(angle, v);
+    }
+
+    @Override
+    public void setPickingId(int i) {
+       this.pickingId = i;
+    }
+
+    @Override
+    public int getPickingId() {
+        return this.pickingId;
+    }
+
+    @Override
+    public DrawableTypes getType() {
+        return DrawableTypes.LINE;
+    }
+    
+    @Override
+    public void setNewPosition(Coord3d position) {
+        this.clear();
+        this.setData(new Point3d(position.x,position.y,position.z), new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, slices, rings, color, label);
+    }
+    
+    @Override
+    public Coord3d getPosition() {
+        return this.getBounds().getCenter();
     }
 }
