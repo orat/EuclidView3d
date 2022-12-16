@@ -340,7 +340,8 @@ public class GeometryView3d extends AbstractAnalysis {
     
     
     /**
-     * Add a COLLADA (.dae) File Object to the Scene
+     * Add a COLLADA (.dae) File Object to the Scene.
+     * 
      * @param path the path to the COLLADA File
      */
     public void addCOLLADA(String path){
@@ -361,7 +362,8 @@ public class GeometryView3d extends AbstractAnalysis {
     }
     
     /**
-     * Add a UR5e Robot
+     * Add a UR5e Robot.
+     * 
      * @param paths
      * @param delta_theta_rad 
      */
