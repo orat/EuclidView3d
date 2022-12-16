@@ -121,7 +121,7 @@ public class TestRobot extends AbstractAnalysis {
                 z +=t*dz;
             }
             arrow.setData(Utils2.createVector3d(new Coord3d(x,y,z), 
-                    new Coord3d(dx,dy,dz), length),radius,10,0, darkred);
+                    new Coord3d(dx,dy,dz), length),radius,10,0, darkred, "label");
                 arrow.setWireframeDisplayed(false);
             chart.add(arrow);
             
@@ -129,7 +129,7 @@ public class TestRobot extends AbstractAnalysis {
             arrow = new Arrow();
             float xlength = 0.1f;
             arrow.setData(Utils2.createVector3d(new Coord3d(x,y,z), 
-                    new Coord3d(axes.x[i].x,axes.x[i].y,axes.x[i].z), xlength),radius,10,0, Color.BLUE);
+                    new Coord3d(axes.x[i].x,axes.x[i].y,axes.x[i].z), xlength),radius,10,0, Color.BLUE, "label");
                 arrow.setWireframeDisplayed(false);
             chart.add(arrow);
         }
