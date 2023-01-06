@@ -120,6 +120,12 @@ public class ObjectLoader {
         if(string.equals("Box02")){
             return false;
         }
+        if(string.equals("LeftToe")){
+           return false; 
+        }
+        if(string.equals("RightToe")){
+           return false; 
+        }
         return true;
     }
     /**

@@ -19,6 +19,9 @@ public class EuclidSkeleton {
     private ArrayList<EuclidPart> parts;
     private ArrayList<String> nameParts;
     private Chart chart;
+    private Coord3d x = new Coord3d(1,0,0);
+    private Coord3d y = new Coord3d(0,1,0);
+    private Coord3d z = new Coord3d(0,0,1);
     
     public EuclidSkeleton(String waveFrontPath, Chart chart){
         parts = new ArrayList<EuclidPart>();
@@ -96,15 +99,137 @@ public class EuclidSkeleton {
         chart.remove(parts.get(i).getParts().get(0));
     }
     
-     public void setUpSkeleton(){
+    /**
+     * Set up the skeleton on the chart. Use the thorax as the center at (0,0,0)
+     */
+    public void setUpSkeleton(){
+        rotateParts();
+        setPartsToZero();
+        translateParts();
+    }
+    
+    /**
+     * Translate all the skeleton Parts. Use the thorax as the center of the object.
+     */
+    private void translateParts(){
         for(EuclidPart part: parts){
             if(part.getName().equals("head")){
-                part.translateAlongVector(1.8f, new Coord3d(0,0,1));
-                part.translateAlongVector(-1f, new Coord3d(1,0,0));
+                part.translateAlongVector(1.44f, new Coord3d(0,0,1));
             }
-            if(!part.getName().equals("head")&&!part.getName().equals("thorax")){
-                part.translateAlongVector(-2, new Coord3d(0,0,1));
+            //Clavicile
+            else if(part.getName().equals("rightclavicle")||part.getName().equals("leftclavicle")){
+                part.translateAlongVector(0.7f, z);
+                part.translateAlongVector(0.3f, x);
+                if(part.getName().equals("leftclavicle")){
+                    part.translateAlongVector(0.5f, y);
+                }else{
+                    part.translateAlongVector(-0.5f, y);
+                }
             }
+            //Humerus
+            else if(part.getName().equals("righthumerus")||part.getName().equals("lefthumerus")){
+                part.translateAlongVector(0.13f, z);
+                part.translateAlongVector(0.3f, x);
+                if(part.getName().equals("lefthumerus")){
+                    part.translateAlongVector(0.92f, y);
+                }else{
+                    part.translateAlongVector(-0.92f, y);
+                }
+            }
+            //radius
+            else if(part.getName().equals("rightradius")||part.getName().equals("leftradius")){
+                part.translateAlongVector(-0.9f, z);
+                part.translateAlongVector(0.28f, x);
+                if(part.getName().equals("leftradius")){
+                    part.translateAlongVector(0.92f, y);
+                }else {
+                    part.translateAlongVector(-0.92f, y);
+                }
+            }
+            //hands
+            else if(part.getName().equals("righthand")||part.getName().equals("lefthand")){
+                part.translateAlongVector(-2.07f, z);
+                part.translateAlongVector(0.265f, x);
+                if(part.getName().equals("lefthand")){
+                    part.translateAlongVector(0.85f, y);
+                }else{
+                    part.translateAlongVector(-0.85f, y);
+                }
+            }
+            //pelvis
+            else if(part.getName().equals("pelvis")){
+                part.translateAlongVector(-1.5f, z);
+            }
+            //femur
+            else if(part.getName().equals("rightfemur")||part.getName().equals("leftfemur")){
+                part.translateAlongVector(-2.2f, z);
+                part.translateAlongVector(0.15f, x);
+                if(part.getName().equals("leftfemur")){
+                    part.translateAlongVector(0.52f, y);
+                }else {
+                    part.translateAlongVector(-0.52f, y);
+                }
+            }
+            //tibia
+            else if(part.getName().equals("righttibia")||part.getName().equals("lefttibia")){
+                part.translateAlongVector(-3.25f, z);
+                part.translateAlongVector(0.14f, x);
+                if(part.getName().equals("lefttibia")){
+                    part.translateAlongVector(0.5f, y);
+                }else {
+                    part.translateAlongVector(-0.5f, y);
+                }
+            }
+            else if(part.getName().equals("leftfoot")||part.getName().equals("rightfoot")){
+                part.translateAlongVector(-3.93f, z);
+                part.translateAlongVector(0.35f, x);
+                if(part.getName().equals("leftfoot")){
+                    part.translateAlongVector(0.55f, y);
+                }else {
+                    part.translateAlongVector(-0.55f, y);
+                }
+            }
+        }
+    }
+     
+    /**
+     * Move every part to the center.
+     */
+    private void setPartsToZero(){
+         for(EuclidPart part: parts){
+             part.translateAlongVector(part.getParts().get(0).getBounds().getCenter().x, x.negative());
+             part.translateAlongVector(part.getParts().get(0).getBounds().getCenter().y, y.negative());
+             part.translateAlongVector(part.getParts().get(0).getBounds().getCenter().z, z.negative());
+         }
+    }
+    
+    /**
+     * Rotate the parts for setup
+     */
+    private void rotateParts(){
+        for(EuclidPart part: parts){
+           if(part.getName().equals("thorax")){
+               part.rotateAroundVector(180, y);
+               part.rotateAroundVector(180, z);
+           }
+           if(part.getName().equals("rightclavicle")){
+               part.rotateAroundVector(-90, x);
+           } 
+           if(part.getName().equals("leftclavicle")){
+                part.rotateAroundVector(90, x);
+           }
+           if(part.getName().equals("rightradius")||part.getName().equals("leftradius")){
+               part.rotateAroundVector(180, z);
+           }
+           if(part.getName().equals("righthand")){
+               part.rotateAroundVector(-90, z);
+           }
+           if(part.getName().equals("lefthand")){
+               part.rotateAroundVector(90, z);
+           }
+           if(part.getName().equals("leftfoot")||part.getName().equals("rightfoot")){
+               part.rotateAroundVector(-90, y);
+           }
         }
     }
 }
