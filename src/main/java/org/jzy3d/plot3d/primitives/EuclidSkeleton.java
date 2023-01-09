@@ -6,6 +6,7 @@ package org.jzy3d.plot3d.primitives;
 
 import de.orat.math.view.euclidview3d.ObjectLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.maths.Coord3d;
@@ -22,6 +23,8 @@ public class EuclidSkeleton {
     private Coord3d x = new Coord3d(1,0,0);
     private Coord3d y = new Coord3d(0,1,0);
     private Coord3d z = new Coord3d(0,0,1);
+    private HashMap<String, List<String>> attached = new HashMap<String, List<String>>();;
+    private List<String> list = new ArrayList<String>();
     
     public EuclidSkeleton(String waveFrontPath, Chart chart){
         parts = new ArrayList<EuclidPart>();
@@ -52,7 +55,9 @@ public class EuclidSkeleton {
             parts.add(new EuclidPart(l));
             parts.get(i).setLocalVectorsystem(x, y, z);
             parts.get(i).setName(nameParts.get(i));
+            System.out.println(parts.get(i).getName());
         }
+        attached = EuclidSkeletonSetup.setUpAttached();
     }
     
     /**
@@ -148,7 +153,7 @@ public class EuclidSkeleton {
             }
             //hands
             else if(part.getName().equals("righthand")||part.getName().equals("lefthand")){
-                part.translateAlongVector(-2.07f, z);
+                part.translateAlongVector(-1.95f, z);
                 part.translateAlongVector(0.265f, x);
                 if(part.getName().equals("lefthand")){
                     part.translateAlongVector(0.85f, y);
