@@ -89,8 +89,19 @@ public class GeometryView3d extends AbstractAnalysis {
         gv.setRobotsDH();
         gv.setUpRobotMovement();
         gv.setUpSkeletons();
+        //gv.skeletonCenters();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
+    }
+    
+    private void skeletonCenters(){
+        for(EuclidSkeleton s: skeletonList){
+            for(EuclidPart part: s.getParts()){
+                Point3d p = new Point3d(part.getCenter().x, part.getCenter().y, part.getCenter().z);
+                System.out.println(p);
+                addPoint(p,Color.RED,0.2f, "");
+            }
+        }
     }
     
     /**

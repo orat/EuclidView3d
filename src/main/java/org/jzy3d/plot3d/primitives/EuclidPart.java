@@ -39,6 +39,7 @@ public class EuclidPart {
         boundingBoxColor = Color.RED;
         this.setBoundingBoxDisplayed(boundingBoxDisplayed);
         x = new Coord3d(1,0,0);
+        y = new Coord3d(0,1,0);
         z = new Coord3d(0,1,0);
         coordCenter = new Coord3d(0,0,0);
     }
@@ -214,6 +215,14 @@ public class EuclidPart {
     }
  
     /**
+     * Set the y vector of the Local Vectorsystem
+     * @param y the new y vector
+     */
+    public void setLocalVectorsystemY(Coord3d y){
+        this.y = y;
+    }
+    
+    /**
      * Set the z vector of the Local Vectorsystem
      * @param z the new z vector
      */
@@ -231,6 +240,14 @@ public class EuclidPart {
      */
     public Coord3d getLocalVectorsystemX(){
         return this.x;
+    }
+    
+    /**
+     * Get the y vector of the local Vectorsystem 
+     * @return the y vector
+     */
+    public Coord3d getLocalVectorsystemY(){
+        return this.y;
     }
 
     /**

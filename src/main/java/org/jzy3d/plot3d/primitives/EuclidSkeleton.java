@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.jzy3d.chart.Chart;
+import org.jzy3d.colors.Color;
+import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 
 /**
@@ -23,8 +25,7 @@ public class EuclidSkeleton {
     private Coord3d x = new Coord3d(1,0,0);
     private Coord3d y = new Coord3d(0,1,0);
     private Coord3d z = new Coord3d(0,0,1);
-    private HashMap<String, List<String>> attached = new HashMap<String, List<String>>();;
-    private List<String> list = new ArrayList<String>();
+    private HashMap<String, List<String>> attached = new HashMap<String, List<String>>();
     
     public EuclidSkeleton(String waveFrontPath, Chart chart){
         parts = new ArrayList<EuclidPart>();
@@ -55,7 +56,6 @@ public class EuclidSkeleton {
             parts.add(new EuclidPart(l));
             parts.get(i).setLocalVectorsystem(x, y, z);
             parts.get(i).setName(nameParts.get(i));
-            System.out.println(parts.get(i).getName());
         }
         attached = EuclidSkeletonSetup.setUpAttached();
     }
@@ -111,6 +111,7 @@ public class EuclidSkeleton {
         rotateParts();
         setPartsToZero();
         translateParts();
+        setUpCenters();
     }
     
     /**
@@ -153,12 +154,12 @@ public class EuclidSkeleton {
             }
             //hands
             else if(part.getName().equals("righthand")||part.getName().equals("lefthand")){
-                part.translateAlongVector(-1.95f, z);
-                part.translateAlongVector(0.265f, x);
+                part.translateAlongVector(-1.98f, z);
+                part.translateAlongVector(0.31f, x);
                 if(part.getName().equals("lefthand")){
-                    part.translateAlongVector(0.85f, y);
+                    part.translateAlongVector(0.9f, y);
                 }else{
-                    part.translateAlongVector(-0.85f, y);
+                    part.translateAlongVector(-0.9f, y);
                 }
             }
             //pelvis
@@ -236,5 +237,112 @@ public class EuclidSkeleton {
                part.rotateAroundVector(-90, y);
            }
         }
+    }
+    
+    private void setUpCenters(){
+        for(EuclidPart part: parts){
+            BoundingBox3d bounds = part.getParts().get(0).getBounds();
+            float z = bounds.getZmax();
+            float y = bounds.getYmin() + (bounds.getYmax()-bounds.getYmin())/2;
+            float x = bounds.getXmin() + (bounds.getXmax() - bounds.getXmin())/2;
+            //head
+            if(part.getName().equals("head")){
+                z = bounds.getZmin() + 0.22f;
+            }
+            //thorax
+            if(part.getName().equals("thorax")){
+                z = bounds.getZmin();
+            }
+            //clavicle
+            if(part.getName().equals("rightclavicle")||part.getName().equals("leftclavicle")){
+                z = bounds.getZmin() + (bounds.getZmax() - bounds.getZmin())/2;
+                if(part.getName().equals("rightclavicle")){
+                    y = bounds.getYmax();
+                }else {
+                    y =  bounds.getYmin();
+                }
+            }
+            //radius
+            if(part.getName().equals("righthand")||part.getName().equals("lefthand")){
+                float handoffset = 0.05f;
+                if(part.getName().equals("righthand")){
+                    y = bounds.getYmin() + handoffset;
+                }else{
+                    y = bounds.getYmax() - handoffset; 
+                }
+            }
+            //foot
+            if(part.getName().equals("rightfoot")||part.getName().equals("leftfoot")){
+                float x_div = 3.3f;
+                float y_div = 1.5f;
+                if(part.getName().equals("rightfoot")){
+                    x = bounds.getXmin() + (bounds.getXmax() - bounds.getXmin())/x_div;
+                    y = bounds.getYmin() + (bounds.getYmax()-bounds.getYmin())/y_div;
+                }else{
+                    x = bounds.getXmin() + (bounds.getXmax() - bounds.getXmin())/x_div; 
+                    y = bounds.getYmax() - (bounds.getYmax()-bounds.getYmin())/y_div;
+                }
+            }
+            part.setCoordCenter(new Coord3d(x,y,z));
+        }
+    }
+    
+    public void setBoundingBoxColor(Color color){
+        for(EuclidPart part: parts){
+            part.setBoundingBoxColor(color);
+        }
+    }
+    
+    public void setBoundingBoxDisplayed(boolean isDisplayed){
+        for(EuclidPart part: parts){
+            part.setBoundingBoxDisplayed(isDisplayed);
+        }
+    }
+    
+    public EuclidPart getPart(String partString){
+        for(EuclidPart part: parts){
+            System.out.println("LOL " + part.getName());
+            System.out.println(partString);
+            if(part.getName().equals(partString)){
+                return part;
+            }
+        }
+        return null;
+    }
+    
+    public void rotate(String partString, float angle, Coord3d vector, Coord3d center){
+        //get all Strings of the parts which have to be rotated
+        List<String> partsString = new ArrayList<String>();
+        partsString.add(partString);
+        if(attached.containsKey(partString)){
+            partsString.addAll(attached.get(partString));
+        }
+        //get all parts which have to be rotated
+        List<EuclidPart> partsList = new ArrayList<EuclidPart>();
+        for(String s: partsString){
+            for(EuclidPart part: parts){
+                if(part.getName().equals(s)){
+                    partsList.add(part);
+                }
+            }
+        }
+        //rotate parts
+        for(EuclidPart part: partsList){
+            part.rotateAroundVector2(angle, vector, center);
+            Coord3d newX = part.getLocalVectorsystemX();
+            Coord3d newY = part.getLocalVectorsystemY();
+            Coord3d newZ = part.getLocalVectorsystemZ();
+            newX = part.getLocalVectorsystemX().rotate(angle, vector);
+            newY = part.getLocalVectorsystemY().rotate(angle, vector);
+            newZ = part.getLocalVectorsystemZ().rotate(angle, vector);
+            part.setLocalVectorsystemX(newX);
+            part.setLocalVectorsystemY(newY);
+            part.setLocalVectorsystemZ(newZ);
+
+        }
+        
+    }
+    public List<EuclidPart> getParts(){
+            return this.parts;
     }
 }

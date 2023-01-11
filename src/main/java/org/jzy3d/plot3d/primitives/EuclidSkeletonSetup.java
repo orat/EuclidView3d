@@ -33,17 +33,17 @@ public class EuclidSkeletonSetup {
         list.add("leftradius");
         list.add("lefthand");
         attached.put("thorax", list);
-        //clavicile
+        //clavicle
         list = new ArrayList<String>();
         list.add("righthumerus");
         list.add("rightradius");
         list.add("righthand");
-        attached.put("rightclavicile", list);
+        attached.put("rightclavicle", list);
         list = new ArrayList<String>();
         list.add("lefthumerus");
         list.add("leftradius");
         list.add("lefthand");
-        attached.put("leftclavicile", list);
+        attached.put("leftclavicle", list);
         //humerus
         list = new ArrayList<String>();
         list.add("rightradius");
