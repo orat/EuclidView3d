@@ -301,8 +301,6 @@ public class EuclidSkeleton {
     
     public EuclidPart getPart(String partString){
         for(EuclidPart part: parts){
-            System.out.println("LOL " + part.getName());
-            System.out.println(partString);
             if(part.getName().equals(partString)){
                 return part;
             }
