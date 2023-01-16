@@ -28,6 +28,9 @@ public class EuclidPart {
     private boolean boundingBoxDisplayed;
     private Color boundingBoxColor;
     private String name = "";
+    private float angleX = 0;
+    private float angleY = 0;
+    private float angleZ = 0;
     
     /**
      * Creates a new RobotPart
@@ -284,5 +287,39 @@ public class EuclidPart {
     
     public String getName(){
         return this.name;
+    }
+    
+     private boolean isBallJoint = true;
+    
+    public void setIsBallJoint(boolean isBallJoint){
+        this.isBallJoint = isBallJoint;
+    }
+    
+    public boolean getIsBallJoint(){
+        return this.isBallJoint;
+    }
+    
+    public void setAngleX(float angle){
+        this.angleX = angle;
+    }
+    
+    public float getAngleX(){
+        return this.angleX;
+    }
+    
+    public void setAngleY(float angle){
+        this.angleY = angle;
+    }
+    
+    public float getAngleY(){
+        return this.angleY;
+    }
+    
+    public void setAngleZ(float angle){
+        this.angleZ = angle;
+    }
+    
+    public float getAngleZ(){
+        return this.angleZ;
     }
 }

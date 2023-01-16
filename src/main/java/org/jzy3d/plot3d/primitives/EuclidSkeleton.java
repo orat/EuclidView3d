@@ -308,7 +308,7 @@ public class EuclidSkeleton {
         return null;
     }
     
-    public void rotate(String partString, float angle, Coord3d vector, Coord3d center){
+    public void rotate(String partString, float angle, Coord3d vector, Coord3d center, int coordinateSystem){
         //get all Strings of the parts which have to be rotated
         List<String> partsString = new ArrayList<String>();
         partsString.add(partString);
@@ -325,18 +325,39 @@ public class EuclidSkeleton {
             }
         }
         //rotate parts
+        float newRotate = angle;
+        if(coordinateSystem == 0){
+            newRotate = angle - this.getPart(partString).getAngleX();
+        }else if(coordinateSystem == 1){
+            newRotate = angle - this.getPart(partString).getAngleY();
+        }else{
+            newRotate = angle - this.getPart(partString).getAngleZ();
+        }
+        System.out.println(newRotate);
+        while(newRotate < -360){
+            newRotate = 360 + newRotate;
+        }
+        while(newRotate> 360){
+            newRotate = newRotate - 360;
+        }    
+        if(coordinateSystem == 0){
+            this.getPart(partString).setAngleX(angle);
+        }else if(coordinateSystem == 1){
+            this.getPart(partString).setAngleY(angle);
+        }else{
+            this.getPart(partString).setAngleZ(angle);
+        }
         for(EuclidPart part: partsList){
-            part.rotateAroundVector2(angle, vector, center);
+            part.rotateAroundVector2(newRotate, vector, center);
             Coord3d newX = part.getLocalVectorsystemX();
             Coord3d newY = part.getLocalVectorsystemY();
             Coord3d newZ = part.getLocalVectorsystemZ();
-            newX = part.getLocalVectorsystemX().rotate(angle, vector);
-            newY = part.getLocalVectorsystemY().rotate(angle, vector);
-            newZ = part.getLocalVectorsystemZ().rotate(angle, vector);
+            newX = part.getLocalVectorsystemX().rotate(newRotate, vector);
+            newY = part.getLocalVectorsystemY().rotate(newRotate, vector);
+            newZ = part.getLocalVectorsystemZ().rotate(newRotate, vector);
             part.setLocalVectorsystemX(newX);
             part.setLocalVectorsystemY(newY);
             part.setLocalVectorsystemZ(newZ);
-
         }
         
     }

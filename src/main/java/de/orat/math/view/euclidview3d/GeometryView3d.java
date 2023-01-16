@@ -4,11 +4,15 @@ import java.awt.Component;
 import javax.swing.JSlider;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import static java.lang.Math.PI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -89,7 +93,7 @@ public class GeometryView3d extends AbstractAnalysis {
         gv.setRobotsDH();
         gv.setUpRobotMovement();
         gv.setUpSkeletons();
-        //gv.skeletonCenters();
+        gv.setUpSkeletonMovement();
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
@@ -97,9 +101,8 @@ public class GeometryView3d extends AbstractAnalysis {
     private void skeletonCenters(){
         for(EuclidSkeleton s: skeletonList){
             for(EuclidPart part: s.getParts()){
-                Point3d p = new Point3d(part.getCenter().x, part.getCenter().y, part.getCenter().z);
-                System.out.println(p);
-                addPoint(p,Color.RED,0.2f, "");
+                    Point3d p = new Point3d(part.getCenter().x, part.getCenter().y, part.getCenter().z);
+                    addPoint(p,Color.RED,0.2f, "");
             }
         }
     }
@@ -154,7 +157,6 @@ public class GeometryView3d extends AbstractAnalysis {
                 p.add(slider);
             }
         }
-        
             p.setVisible(true);
             c.add(p); 
     }
@@ -162,6 +164,90 @@ public class GeometryView3d extends AbstractAnalysis {
     private void setUpSkeletons(){
         for(EuclidSkeleton skeleton: skeletonList){
             skeleton.setUpSkeleton();
+        }
+    }
+    
+    private void setUpSkeletonMovement(){
+       for(EuclidSkeleton skeleton: skeletonList){
+            CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
+            Component comp = c.getComponent(0);
+            c.remove(comp);
+            JPanel p = new JPanel();
+            p.add(comp);
+            p.setLayout(new BoxLayout(p, 1));
+            String[] names = new String[skeleton.getParts().size()];
+            for(int i = 0; i < skeleton.getParts().size(); i++){
+                names[i] = skeleton.getParts().get(i).getName();
+            }
+            JPanel comboPanel = new JPanel();
+            comboPanel.setLayout(new BoxLayout(comboPanel, 1));
+            JPanel comboPanel2 = new JPanel();
+            comboPanel2.setLayout(new BoxLayout(comboPanel2, 1));
+            JComboBox box = new JComboBox(names);
+            box.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JComboBox b = (JComboBox) e.getSource();
+                    String name = (String)b.getSelectedItem();
+                    setUpRotation(skeleton, name, comboPanel2);
+                }         
+            });
+            comboPanel.add(box);
+            comboPanel.add(comboPanel2);
+            setUpRotation(skeleton,(String)box.getSelectedItem(), comboPanel2);
+            //box.setMaximumSize(new Dimension(box.getWidth(), box.getHeight()));
+            //box.setSize(box.getWidth()/2, box.getHeight()/4);
+            //p.add(box);
+            p.add(comboPanel);
+            p.setVisible(true);
+            c.add(p);
+        } 
+    }
+    
+    private void setUpRotation(EuclidSkeleton skeleton, String name, JPanel panel){
+        EuclidPart part = skeleton.getPart(name);
+        panel.removeAll();
+        JPanel sliderPanel = new JPanel();
+        sliderPanel.setLayout(new BoxLayout(sliderPanel, 2));
+        if(part.getIsBallJoint()){
+            for(int i = 0; i < 3; i++){
+                sliderPanel = new JPanel();
+                sliderPanel.setLayout(new BoxLayout(sliderPanel, 2));
+                JLabel axisText = new JLabel(getCoordinateAxisFromForLoop(i));
+                sliderPanel.add(axisText);
+                panel.add(sliderPanel);
+                JSlider slider = new JSlider();
+                slider.setMaximum(360);
+                slider.setMinimum(0);
+                slider.setVisible(true);
+                slider.setValue(0);
+                final int ix = i;
+                slider.addChangeListener(new ChangeListener(){ 
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        JSlider source = (JSlider)e.getSource();
+                        switch(ix){
+                            case 0: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemX(), part.getCenter(), ix); break;
+                            case 1: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemY(), part.getCenter(), ix); break;
+                            default: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemZ(), part.getCenter(), ix); break;
+                        }
+                    }   
+                });
+                sliderPanel.add(slider);
+            }
+        }else{
+            JLabel axisText = new JLabel(getCoordinateAxisFromForLoop(1));
+            sliderPanel.add(axisText);
+            panel.add(sliderPanel);
+        }
+        panel.updateUI();
+    }
+    
+    private String getCoordinateAxisFromForLoop(int i){
+        switch(i){
+            case 0: return "X: ";
+            case 1: return "Y: ";
+            default: return "Z: ";
         }
     }
     
