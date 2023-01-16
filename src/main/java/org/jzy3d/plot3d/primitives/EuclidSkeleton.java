@@ -14,8 +14,8 @@ import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 
 /**
- *
- * @author Nutzer
+ * The skeleton object
+ * @author Dominik Scharnagl
  */
 public class EuclidSkeleton {
     
@@ -27,18 +27,12 @@ public class EuclidSkeleton {
     private Coord3d z = new Coord3d(0,0,1);
     private HashMap<String, List<String>> attached = new HashMap<String, List<String>>();
     
+    /**
+     * Create a new skeleton
+     * @param waveFrontPath the path to the .obj file
+     * @param chart the chart to which the skeleton will be added
+     */
     public EuclidSkeleton(String waveFrontPath, Chart chart){
-        parts = new ArrayList<EuclidPart>();
-        this.chart = chart;
-        List<EuclidVBO2> partList = ObjectLoader.getLoader().getWavefront(waveFrontPath).getParts();
-        for(int i = 0; i < partList.size(); i++){
-            ArrayList<EuclidVBO2> l = new ArrayList<EuclidVBO2>();
-            l.add(partList.get(i));
-            parts.add(new EuclidPart(l));
-        }
-    }
-    
-    public EuclidSkeleton(String waveFrontPath, String xmlPath, Chart chart){
         Coord3d x = new Coord3d(1,0,0);
         Coord3d y = new Coord3d(0,1,0);
         Coord3d z = new Coord3d(0,0,1);
@@ -239,6 +233,9 @@ public class EuclidSkeleton {
         }
     }
     
+    /**
+     * Sets up the rotation centers of the different parts of the skeleton
+     */
     private void setUpCenters(){
         for(EuclidPart part: parts){
             BoundingBox3d bounds = part.getParts().get(0).getBounds();
@@ -287,18 +284,31 @@ public class EuclidSkeleton {
         }
     }
     
+    /**
+     * Seting the color of the bounding box
+     * @param color the color of the bounding box
+     */
     public void setBoundingBoxColor(Color color){
         for(EuclidPart part: parts){
             part.setBoundingBoxColor(color);
         }
     }
     
+    /**
+     * Set if the bounding boxes of the skeleton should be displayed
+     * @param isDisplayed the boolean value if the bounding box should be displayed
+     */
     public void setBoundingBoxDisplayed(boolean isDisplayed){
         for(EuclidPart part: parts){
             part.setBoundingBoxDisplayed(isDisplayed);
         }
     }
     
+    /**
+     * Return a specific part
+     * @param partString the name of the part
+     * @return the part
+     */
     public EuclidPart getPart(String partString){
         for(EuclidPart part: parts){
             if(part.getName().equals(partString)){
@@ -308,6 +318,15 @@ public class EuclidSkeleton {
         return null;
     }
     
+    /**
+     * Rotate a skeleton part and all other parts which are attached to it
+     * @param partString the name of the part
+     * @param angle the new angle at which to which the part should be rotatet to in degrees(not the angle how much it will be rotated. 
+     * e.g. if the part is at 90° and should be rotated another 5° the input should be 95° not 5°
+     * @param vector the vector around which it will be rotated
+     * @param center the center of the roation
+     * @param coordinateSystem the coordinate system around which it will be rotated for getting the old angle value. 0 for the x, 1 for the y and 2+ for the z vector.
+     */
     public void rotate(String partString, float angle, Coord3d vector, Coord3d center, int coordinateSystem){
         //get all Strings of the parts which have to be rotated
         List<String> partsString = new ArrayList<String>();
@@ -324,7 +343,7 @@ public class EuclidSkeleton {
                 }
             }
         }
-        //rotate parts
+        //calculate how much the part hase to be rotated
         float newRotate = angle;
         if(coordinateSystem == 0){
             newRotate = angle - this.getPart(partString).getAngleX();
@@ -333,13 +352,13 @@ public class EuclidSkeleton {
         }else{
             newRotate = angle - this.getPart(partString).getAngleZ();
         }
-        System.out.println(newRotate);
         while(newRotate < -360){
             newRotate = 360 + newRotate;
         }
         while(newRotate> 360){
             newRotate = newRotate - 360;
         }    
+        //set the new angle of the part
         if(coordinateSystem == 0){
             this.getPart(partString).setAngleX(angle);
         }else if(coordinateSystem == 1){
@@ -347,6 +366,7 @@ public class EuclidSkeleton {
         }else{
             this.getPart(partString).setAngleZ(angle);
         }
+        //rotate parts
         for(EuclidPart part: partsList){
             part.rotateAroundVector2(newRotate, vector, center);
             Coord3d newX = part.getLocalVectorsystemX();

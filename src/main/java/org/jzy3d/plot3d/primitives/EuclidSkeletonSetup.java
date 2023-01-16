@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *
- * @author Nutzer
+ * A calls to create the HashMap for a skeleton, so that EuclidSkeleton is not so bloated with code.
+ * @author Dominik Scharnagl
  */
 public class EuclidSkeletonSetup {
     

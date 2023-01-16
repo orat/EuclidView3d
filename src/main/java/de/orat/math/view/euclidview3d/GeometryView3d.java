@@ -476,8 +476,8 @@ public class GeometryView3d extends AbstractAnalysis {
     }
 
     
-    public void addSkeleton(String path, String xml){
-        EuclidSkeleton skeleton = new EuclidSkeleton(path, xml, chart);
+    public void addSkeleton(String path){
+        EuclidSkeleton skeleton = new EuclidSkeleton(path, chart);
         skeletonList.add(skeleton);
         skeleton.drawOnChart();
     }
@@ -541,7 +541,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        addSkeleton("data/golembones/golembones.obj", "StickFigure.xml");
+        addSkeleton("data/golembones/golembones.obj");
         
         /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");

@@ -31,6 +31,7 @@ public class EuclidPart {
     private float angleX = 0;
     private float angleY = 0;
     private float angleZ = 0;
+    private boolean isBallJoint = true;
     
     /**
      * Creates a new RobotPart
@@ -281,44 +282,82 @@ public class EuclidPart {
         return this.chart;
     }
     
+    /**
+     * Sets the name of the object
+     * @param name the new name of the object
+     */
     public void setName(String name){
         this.name = name;
     }
     
+    /**
+     * Returns the name of the object
+     * @return 
+     */
     public String getName(){
         return this.name;
     }
     
-     private boolean isBallJoint = true;
-    
+    /**
+     * Sets if the object is attached to a ball joint or not. (For skeleton purposes)
+     * @param isBallJoint boolean value of if it is attached to a ball joint
+     */
     public void setIsBallJoint(boolean isBallJoint){
         this.isBallJoint = isBallJoint;
     }
     
+    /**
+     * Returns if the object is attached to a ball joint or not. (For skeleton purposes)
+     * @return boolean value of if it is attached to a ball joint
+     */
     public boolean getIsBallJoint(){
         return this.isBallJoint;
     }
     
+    /**
+     * Sets the x-angle of the object (For skeleton purposes
+     * @param angle the new x-angle
+     */
     public void setAngleX(float angle){
         this.angleX = angle;
     }
     
+    /**
+     * Returns the x-angle of the object (For skeleton purposes)
+     * @return the x-angle
+     */
     public float getAngleX(){
         return this.angleX;
     }
     
+    /**
+     * Sets the y-angle of the object (For skeleton purposes
+     * @param angle the new y-angle
+     */
     public void setAngleY(float angle){
         this.angleY = angle;
     }
     
+    /**
+     * Returns the y-angle of the object (For skeleton purposes)
+     * @return the y-angle
+     */
     public float getAngleY(){
         return this.angleY;
     }
     
+    /**
+     * Sets the z-angle of the object (For skeleton purposes
+     * @param angle the new z-angle
+     */
     public void setAngleZ(float angle){
         this.angleZ = angle;
     }
     
+    /**
+     * Returns the z-angle of the object (For skeleton purposes)
+     * @return the z-angle
+     */
     public float getAngleZ(){
         return this.angleZ;
     }

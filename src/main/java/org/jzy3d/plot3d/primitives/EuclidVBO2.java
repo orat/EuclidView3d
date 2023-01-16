@@ -13,7 +13,7 @@ import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Translate;
 
 /**
- *
+ * A special VBO2 object 
  * @author Dominik Scharnagl
  */
 public class EuclidVBO2 extends DrawableVBO2 {
