@@ -379,7 +379,7 @@ public class EuclidSkeleton {
             part.setLocalVectorsystemY(newY);
             part.setLocalVectorsystemZ(newZ);
         }
-        
+        chart.getCanvas().getView().shoot();
     }
     public List<EuclidPart> getParts(){
             return this.parts;

@@ -63,9 +63,9 @@ public class EuclidPart {
     public void drawPart(){
         for(EuclidVBO2 part: parts){
             part.setWireframeDisplayed(false);
-            chart.add(part);
+            chart.add(part, false);
         }
-         setBoundingBoxDisplayed(boundingBoxDisplayed);
+        setBoundingBoxDisplayed(boundingBoxDisplayed);
     }   
     
     /**
@@ -153,7 +153,7 @@ public class EuclidPart {
      */
     private void clearObjects(){
         for(EuclidVBO2 object: getParts()){
-            chart.remove(object);
+            chart.remove(object, false);
         }
         parts.clear();
     }
@@ -163,7 +163,7 @@ public class EuclidPart {
      */
     public void clearFromChart(){
         for(EuclidVBO2 object: getParts()){
-            chart.remove(object);
+            chart.remove(object, false);
         }
     }
     

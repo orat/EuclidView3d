@@ -175,6 +175,7 @@ public class EuclidRobot{
             parts.get(j).translateAlongVector(d, z);
             parts.get(j).setCoordCenter(new Coord3d(c.x + d * z.x, c.y + d * z.y, c.z + d * z.z));
         }
+        chart.getCanvas().getView().shoot();
     }
     
     /**
@@ -191,6 +192,7 @@ public class EuclidRobot{
             parts.get(j).translateAlongVector(r, x);
             parts.get(j).setCoordCenter(new Coord3d(c.x + r * x.x, c.y + r * x.y, c.z + r * x.z));
         }
+        chart.getCanvas().getView().shoot();
     }
     
     /**
@@ -210,6 +212,7 @@ public class EuclidRobot{
             newZ = newZ.rotate(alpha, x);
             parts.get(j).setLocalVectorsystemZ(newZ);
          }
+         chart.getCanvas().getView().shoot();
     }
     
     /**
@@ -274,6 +277,7 @@ public class EuclidRobot{
         }
         newDh = new DH(theta, oldDH.getAlpha(), oldDH.getD(), oldDH.getR());
         dhList.set(axis, newDh);
+        chart.getCanvas().getView().shoot();
     }
     
     /**

@@ -513,7 +513,7 @@ public class GeometryView3d extends AbstractAnalysis {
         q.setAnimated(false); 
         q.setHiDPIEnabled(true); 
         q.setDisableDepthBufferWhenAlpha(false);
-        
+        q.setPreserveViewportSize(true);        
         //chart = initializeChart(q);       
         
         chart = new Chart(this.getFactory(), q);
@@ -541,7 +541,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        addSkeleton("data/golembones/golembones.obj");
+        //addSkeleton("data/golembones/golembones.obj");
         
         /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
@@ -572,7 +572,8 @@ public class GeometryView3d extends AbstractAnalysis {
         double[] delta_d_m = new double[]{0d, 162.5, 0, 0, 133.3, 997, 996};
         double[] delta_alpha_rad= new double[]{0d, Math.PI/2, 0, 0, Math.PI/2, Math.PI/2, 0};
         */
-        /*
+        
+        
         double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};      
 
         ArrayList<String> pathList = new ArrayList<String>();
@@ -584,7 +585,8 @@ public class GeometryView3d extends AbstractAnalysis {
         pathList.add("data/objfiles/wrist2.dae");
         pathList.add("data/objfiles/wrist3.dae");
         addRobotUR5e(pathList, delta_theta_rad);
-        */
+        
+        
     }
     
     /**
