@@ -326,8 +326,9 @@ public class EuclidSkeleton {
      * @param vector the vector around which it will be rotated
      * @param center the center of the roation
      * @param coordinateSystem the coordinate system around which it will be rotated for getting the old angle value. 0 for the x, 1 for the y and 2+ for the z vector.
+     * @param updateChart true if the chart should be updated after rotating a part and all the attached parts to it
      */
-    public void rotate(String partString, float angle, Coord3d vector, Coord3d center, int coordinateSystem){
+    public void rotate(String partString, float angle, Coord3d vector, Coord3d center, int coordinateSystem, boolean updateChart){
         //get all Strings of the parts which have to be rotated
         List<String> partsString = new ArrayList<String>();
         partsString.add(partString);
@@ -379,7 +380,9 @@ public class EuclidSkeleton {
             part.setLocalVectorsystemY(newY);
             part.setLocalVectorsystemZ(newZ);
         }
-        chart.getCanvas().getView().shoot();
+        if(updateChart){
+            chart.getCanvas().getView().shoot();
+        }
     }
     public List<EuclidPart> getParts(){
             return this.parts;

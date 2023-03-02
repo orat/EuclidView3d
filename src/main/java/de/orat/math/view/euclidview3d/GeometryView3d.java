@@ -60,6 +60,7 @@ import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO;
 import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
+import org.jzy3d.plot3d.rendering.scene.Graph.GraphListener;
 import org.jzy3d.plot3d.rendering.view.Camera;
 
 /**
@@ -94,10 +95,15 @@ public class GeometryView3d extends AbstractAnalysis {
         gv.setUpRobotMovement();
         gv.setUpSkeletons();
         gv.setUpSkeletonMovement();
+        //gv.updateChessFloor(false);
+        
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
     
+    /**
+     * Prints out the centers of the skeletons
+     */
     private void skeletonCenters(){
         for(EuclidSkeleton s: skeletonList){
             for(EuclidPart part: s.getParts()){
@@ -147,11 +153,13 @@ public class GeometryView3d extends AbstractAnalysis {
                 slider.setVisible(true);
                 slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
                 final int ix = i;
+                final int jx = j;
                 slider.addChangeListener(new ChangeListener(){ 
                     @Override
                     public void stateChanged(ChangeEvent e) {
                         JSlider source = (JSlider)e.getSource();
-                        robotList.get(0).setTheta(ix, source.getValue());
+                        //updateChessFloor(false);
+                        robotList.get(jx).setTheta(ix, source.getValue(), true);
                     }   
                 });
                 p.add(slider);
@@ -189,22 +197,25 @@ public class GeometryView3d extends AbstractAnalysis {
                 public void actionPerformed(ActionEvent e) {
                     JComboBox b = (JComboBox) e.getSource();
                     String name = (String)b.getSelectedItem();
-                    setUpRotation(skeleton, name, comboPanel2);
+                    setUpRotationSkeleton(skeleton, name, comboPanel2);
                 }         
             });
             comboPanel.add(box);
             comboPanel.add(comboPanel2);
-            setUpRotation(skeleton,(String)box.getSelectedItem(), comboPanel2);
-            //box.setMaximumSize(new Dimension(box.getWidth(), box.getHeight()));
-            //box.setSize(box.getWidth()/2, box.getHeight()/4);
-            //p.add(box);
+            setUpRotationSkeleton(skeleton,(String)box.getSelectedItem(), comboPanel2);
             p.add(comboPanel);
             p.setVisible(true);
             c.add(p);
         } 
     }
     
-    private void setUpRotation(EuclidSkeleton skeleton, String name, JPanel panel){
+    /**
+     * Sets up the slider rotation of a skeleton part
+     * @param skeleton The skeleton
+     * @param name The name of the part of the skeleton
+     * @param panel The panel where the sliders 
+     */
+    private void setUpRotationSkeleton(EuclidSkeleton skeleton, String name, JPanel panel){
         EuclidPart part = skeleton.getPart(name);
         panel.removeAll();
         JPanel sliderPanel = new JPanel();
@@ -226,10 +237,11 @@ public class GeometryView3d extends AbstractAnalysis {
                     @Override
                     public void stateChanged(ChangeEvent e) {
                         JSlider source = (JSlider)e.getSource();
+                        //updateChessFloor(false);
                         switch(ix){
-                            case 0: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemX(), part.getCenter(), ix); break;
-                            case 1: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemY(), part.getCenter(), ix); break;
-                            default: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemZ(), part.getCenter(), ix); break;
+                            case 0: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemX(), part.getCenter(), ix, true); break;
+                            case 1: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemY(), part.getCenter(), ix, true); break;
+                            default: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemZ(), part.getCenter(), ix, true); break;
                         }
                     }   
                 });
@@ -444,7 +456,7 @@ public class GeometryView3d extends AbstractAnalysis {
     public void addCOLLADA(String path){
         EuclidPart part = colladaLoader.getCOLLADA(path); 
         part.setChart(chart);
-        part.drawPart();
+        part.addToChart();
     }
     
     /**
@@ -524,16 +536,17 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
         //Add the ChessFloor and set size
         
+        
         /*
-        this.setUpChessFloor(20.f);
+        this.setUpChessFloor(100.f);
         chart.getScene().getGraph().addGraphListener(new GraphListener() {
             @Override
             public void onMountAll() {
-                updateChessFloor();
+                updateChessFloor(false);
             }
         });
         */
-        
+               
         //Set up ObjectLoader and Mouse
         colladaLoader = ObjectLoader.getLoader();
         setUpMouse();
@@ -716,15 +729,17 @@ public class GeometryView3d extends AbstractAnalysis {
     
     /**
      * Updates the ChessFloor
+     * @param update true if the chart should be updated directly
      */
-    private void updateChessFloor(){
-        ChessFloor.getSingelton(chart);
+    private void updateChessFloor(boolean update){
+        ChessFloor.getSingelton(chart, update);
     }
     
     /**
      * Removes the ChessFloor
+     * @param update true if the chart should be updated directly
      */
-    private void removeChessFloor(){
-        chart.remove(ChessFloor.getSingelton(chart));
+    private void removeChessFloor(boolean update){
+        ChessFloor.removeSingelton(chart, update);
     }
 }

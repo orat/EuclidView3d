@@ -259,8 +259,9 @@ public class EuclidRobot{
      * Set the new theta
      * @param axis the number of the axis for which the new theta will be set
      * @param theta the new theta Value
+     * @param updateChart true if the chart should be updated after rotating
      */
-    public void setTheta(int axis, float theta){
+    public void setTheta(int axis, float theta, boolean updateChart){
         DH oldDH = dhList.get(axis);
         float oldTheta = (float) oldDH.getTheta();
         float rotateTheta = theta - oldTheta;
@@ -277,7 +278,9 @@ public class EuclidRobot{
         }
         newDh = new DH(theta, oldDH.getAlpha(), oldDH.getD(), oldDH.getR());
         dhList.set(axis, newDh);
-        chart.getCanvas().getView().shoot();
+        if(updateChart){
+            chart.getCanvas().getView().shoot();
+        }
     }
     
     /**

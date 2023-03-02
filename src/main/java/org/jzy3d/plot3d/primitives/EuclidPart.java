@@ -54,13 +54,14 @@ public class EuclidPart {
      */
     public void drawPart(Chart chart){
         this.setChart(chart);
-        drawPart();
+        addToChart();
     }
     
     /**
-     * Draw the robotpart to the chart it allready is part of
+     * Add the robotpart to the chart it allready is part of. Does not update the chart. 
+     * The chart has to be updated  after all EuclidParts have been transformed
      */
-    public void drawPart(){
+    public void addToChart(){
         for(EuclidVBO2 part: parts){
             part.setWireframeDisplayed(false);
             chart.add(part, false);
@@ -149,7 +150,9 @@ public class EuclidPart {
     }
     
     /**
-     * clears all the Objects from the chart
+     * clears all the Objects from the chart. 
+     * Chart will not be updated. It has to be updated manually either after clearing 
+     * or after readding the transformed parts.
      */
     private void clearObjects(){
         for(EuclidVBO2 object: getParts()){
@@ -160,6 +163,8 @@ public class EuclidPart {
     
     /**
      * Clear the objects from the chart
+     * Chart will not be updated. It has to be updated manually either after clearing 
+     * or after readding the transformed parts.
      */
     public void clearFromChart(){
         for(EuclidVBO2 object: getParts()){
@@ -168,7 +173,7 @@ public class EuclidPart {
     }
     
     /**
-     * 
+     * Sets if the bounding boxes are displayed or not
      * @param boundingBoxDisplayed 
      */
     public void setBoundingBoxDisplayed(boolean boundingBoxDisplayed){
@@ -186,8 +191,15 @@ public class EuclidPart {
         }
     }
     
+    /**
+     * Sets the color of the bounding box
+     * @param color 
+     */
     public void setBoundingBoxColor(Color color){
         this.boundingBoxColor = color; 
+        for(EuclidVBO2 object: getParts()){
+            object.setBoundingBoxColor(color);
+        }
     }
     
     /**

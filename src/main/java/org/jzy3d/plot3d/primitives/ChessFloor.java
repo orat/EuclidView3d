@@ -4,6 +4,7 @@
  */
 package org.jzy3d.plot3d.primitives;
 
+import java.util.LinkedList;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.chart.Chart;
@@ -16,15 +17,22 @@ import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
  *
  * @author Nutzer
  */
-public class ChessFloor extends Composite{
+public class ChessFloor{
     
-    private Chart chart;
+    private static Chart chart;
     private float length;
     private boolean coldRemove = true;
     private static ChessFloor singelton;
+    private LinkedList<DrawableVBO2> drawables;
     private Color lengthColor = Color.BLACK;
     private Color heightColor;
     
+    /**
+     * Creates a new Chess Floor as a Singelton
+     * @param chart The chart to which the chess Floor should be added
+     * @param length The lenght of a square of the chess floor
+     * @return The chessfloor
+     */
     public static ChessFloor getSingelton(Chart chart, float length){
         if(singelton == null){
             singelton = new ChessFloor(chart, length);
@@ -32,27 +40,52 @@ public class ChessFloor extends Composite{
             singelton.setLength(length);
             //singelton.update();
         }
-        
         return singelton;
     }
     
-    public static ChessFloor getSingelton(Chart chart){
+    /**
+     * Returns the chessfloor singelton with the fixed length of 1.0f for each squre
+     * @param chart The chart to which the chessfloor should be added
+     * @param updateChart true if the cart should be updated directly
+     * @return The chess Floor
+     */
+    public static ChessFloor getSingelton(Chart chart, boolean updateChart){
         if(singelton == null){
             singelton = new ChessFloor(chart, 1.0f);
         }
         singelton.update();
+        if(updateChart){
+            chart.getCanvas().getView().shoot();
+        }
         return singelton;
     }
     
+    public static void removeSingelton(Chart chart2, boolean updateChart){
+        if(singelton != null && chart2 == chart){
+            singelton.removeChart();
+            if(updateChart){
+                chart.getCanvas().getView().shoot();
+            }
+        }
+    }
+    /**
+     * Creates a new ChessFloor
+     * @param chart The chart to which it should be added
+     * @param length The lenght of a square
+     */
     private ChessFloor(Chart chart, float length){
+        this.drawables = new LinkedList();
         this.chart = chart;
         this.length = length;
         this.update();
     }
     
+    /**
+     * Updates the ChessFloor.
+     */
     public void update(){
         this.removeChart();
-        this.clear();
+        this.drawables.clear();
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
         //BoundingBox3d bounds = chart.getScene().getGraph().getBounds();
         int numLength = (int) Math.ceil((bounds.getXmax()-bounds.getXmin())/length); 
@@ -74,7 +107,7 @@ public class ChessFloor extends Composite{
                 DrawableVBO2 vbo = new DrawableVBO2(getVBOArray(p1,p2,p3,p4), 3);
                 vbo.setColor(new Color(heightColor.r, heightColor.g, heightColor.b, 0.65f));
                 vbo.setWireframeDisplayed(false);
-                this.add(vbo);
+                this.drawables.add(vbo);
                 if(heightColor == Color.BLACK){
                     heightColor = Color.WHITE;
                 } else {
@@ -91,7 +124,9 @@ public class ChessFloor extends Composite{
         //vbo = new DrawableVBO2(comp);
         //this.add(vbo);
         //vbo = new DrawableVBO2(this);
-        this.chart.add(this);
+        //this.chart.add(this);
+        this.draw();
+        chart.getCanvas().getView().shoot();
         lengthColor = Color.BLACK;
     }
     
@@ -143,13 +178,15 @@ public class ChessFloor extends Composite{
     }
     
     /**
-     * Remove the floor from the chart
+     * Remove the floor from the chart, but not update the chart
      */
-    private void removeChart(){
+    public void removeChart(){
         if(coldRemove){
            coldRemove = false; 
         }else {
-            this.chart.remove(this);
+            for(DrawableVBO2 vbo: drawables){
+                chart.remove(vbo, false);
+            }
         }
     }
     
@@ -168,5 +205,14 @@ public class ChessFloor extends Composite{
      */
     public float getLength(){
         return this.length;
+    }
+
+    /**
+     * Add the Chess Floor to the chart but do not update the chart
+     */
+    private void draw() {
+        for(DrawableVBO2 vbo: drawables){
+            chart.add(vbo, false);
+        }
     }
 }
