@@ -4,6 +4,7 @@
  */
 package org.jzy3d.plot3d.primitives;
 
+import de.orat.math.view.euclidview3d.GeometryView3d;
 import de.orat.math.view.euclidview3d.ObjectLoader;
 import de.orat.math.view.euclidview3d.test.robot.DH;
 import static java.lang.Math.PI;
@@ -278,6 +279,7 @@ public class EuclidRobot{
         }
         newDh = new DH(theta, oldDH.getAlpha(), oldDH.getD(), oldDH.getR());
         dhList.set(axis, newDh);
+       
         if(updateChart){
             chart.getCanvas().getView().shoot();
         }
@@ -292,6 +294,9 @@ public class EuclidRobot{
         }
     }
     
+    /**
+     * Print out the Rotational centers of each robot part
+     */
     public void getCoordCenters(){
         for(int i = 0; i < parts.size(); i++){
             System.out.println(parts.get(i).getCenter());
@@ -331,6 +336,9 @@ public class EuclidRobot{
     }
     
     
+    /**
+     * Print out all DH values
+     */
     public void printDHS(){
         for(int i = 0; i < dhList.size(); i++){
             System.out.println("D: " + dhList.get(i).getD() + " - R: " + dhList.get(i).getR());

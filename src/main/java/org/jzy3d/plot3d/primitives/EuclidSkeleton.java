@@ -384,6 +384,11 @@ public class EuclidSkeleton {
             chart.getCanvas().getView().shoot();
         }
     }
+    
+    /**
+     * Returns the parts of the sekelton
+     * @return all the Parts of the skeleton
+     */
     public List<EuclidPart> getParts(){
             return this.parts;
     }

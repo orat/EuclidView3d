@@ -10,8 +10,8 @@ import org.jzy3d.plot3d.transform.Transform;
 import org.jzy3d.plot3d.transform.Translate;
 
 /**
- *
- * @author Nutzer
+ * The class of a circle
+ * @author Dominik Scharnagl
  */
 public class EuclidCircle extends Composite implements Pickable, PickableObjects{
 
@@ -22,24 +22,48 @@ public class EuclidCircle extends Composite implements Pickable, PickableObjects
     private Color ringColor;
     private String label;
     private boolean notNormalized = true;
-    Vector3d[] plane;
+    private Vector3d[] plane;
     
+    /**
+     * Returns the direction of the circle
+     * @return the direction
+     */
     public Vector3d getDirection(){
         return this.direction;
     }
     
+    /**
+     * Returns the radius of the circle
+     * @return the radius
+     */
     public float getRadius(){
         return this.radius;
     }
     
+    /**
+     * Returns the color of the circle
+     * @return the color of the circle
+     */
     public Color getRingColor(){
         return this.ringColor;
     }
     
+    /**
+     * Returns the text of the label of the circle
+     * @return the label text
+     */
     public String getLabel(){
         return this.label;
     }  
     
+    /**
+     * Set the data of a circle
+     * @param origin the origin of the circle
+     * @param direction the direction
+     * @param radius the radius of the circle
+     * @param color the color of the circle
+     * @param label the text for the label of the circle
+     */
     public void setData(Point3d origin, Vector3d direction, float radius ,Color color, String label){
         this.direction = direction;
         this.radius = radius;

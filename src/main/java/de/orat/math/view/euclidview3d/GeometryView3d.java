@@ -95,7 +95,7 @@ public class GeometryView3d extends AbstractAnalysis {
         gv.setUpRobotMovement();
         gv.setUpSkeletons();
         gv.setUpSkeletonMovement();
-        //gv.updateChessFloor(false);
+        gv.updateChessFloor(true);
         
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
@@ -154,12 +154,14 @@ public class GeometryView3d extends AbstractAnalysis {
                 slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
                 final int ix = i;
                 final int jx = j;
+                GeometryView3d g = this;
                 slider.addChangeListener(new ChangeListener(){ 
                     @Override
                     public void stateChanged(ChangeEvent e) {
                         JSlider source = (JSlider)e.getSource();
-                        //updateChessFloor(false);
-                        robotList.get(jx).setTheta(ix, source.getValue(), true);
+                        //updateing chess floor after seting the Theta Values does not lead to tearing
+                        robotList.get(jx).setTheta(ix, source.getValue(), false);
+                        updateChessFloor(true);
                     }   
                 });
                 p.add(slider);
@@ -169,12 +171,18 @@ public class GeometryView3d extends AbstractAnalysis {
             c.add(p); 
     }
     
+    /**
+     * Set up all the skeleton
+     */
     private void setUpSkeletons(){
         for(EuclidSkeleton skeleton: skeletonList){
             skeleton.setUpSkeleton();
         }
     }
     
+    /**
+     * Sets up the movement of the skeleton 
+     */
     private void setUpSkeletonMovement(){
        for(EuclidSkeleton skeleton: skeletonList){
             CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
@@ -237,11 +245,10 @@ public class GeometryView3d extends AbstractAnalysis {
                     @Override
                     public void stateChanged(ChangeEvent e) {
                         JSlider source = (JSlider)e.getSource();
-                        //updateChessFloor(false);
                         switch(ix){
-                            case 0: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemX(), part.getCenter(), ix, true); break;
-                            case 1: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemY(), part.getCenter(), ix, true); break;
-                            default: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemZ(), part.getCenter(), ix, true); break;
+                            case 0: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemX(), part.getCenter(), ix, false); updateChessFloor(true); break;
+                            case 1: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemY(), part.getCenter(), ix, false); updateChessFloor(true); break;
+                            default: skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemZ(), part.getCenter(), ix, false); updateChessFloor(true); break;
                         }
                     }   
                 });
@@ -473,8 +480,8 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add a UR5e Robot.
      * 
-     * @param paths
-     * @param delta_theta_rad 
+     * @param paths the paths to the robot parts
+     * @param delta_theta_rad the angle of the single parts
      */
     public void addRobotUR5e(List<String> paths,double[] delta_theta_rad){ 
         double[] delta_a_m = new double[]{0d, 0.000156734465764371306, 0.109039760794650886, 0.00135049423466820917, 0.30167176077633267e-05, 8.98147062591837358e-05, 0};
@@ -487,7 +494,10 @@ public class GeometryView3d extends AbstractAnalysis {
         robot.addToChartParts();
     }
 
-    
+    /**
+     * Adds a new skeleton to the chart
+     * @param path the string to the path of the skeleton
+     */
     public void addSkeleton(String path){
         EuclidSkeleton skeleton = new EuclidSkeleton(path, chart);
         skeletonList.add(skeleton);
@@ -537,15 +547,15 @@ public class GeometryView3d extends AbstractAnalysis {
         //Add the ChessFloor and set size
         
         
-        /*
+        
         this.setUpChessFloor(100.f);
         chart.getScene().getGraph().addGraphListener(new GraphListener() {
             @Override
             public void onMountAll() {
-                updateChessFloor(false);
+                updateChessFloor(true);
             }
         });
-        */
+        
                
         //Set up ObjectLoader and Mouse
         colladaLoader = ObjectLoader.getLoader();
@@ -614,7 +624,7 @@ public class GeometryView3d extends AbstractAnalysis {
     }
     
     /**
-     * The MouseController for the picking
+     * The MouseController for the picking of jakob
      */
     private class NewtMouse extends NewtMousePickingController{
         
@@ -728,10 +738,15 @@ public class GeometryView3d extends AbstractAnalysis {
     }
     
     /**
-     * Updates the ChessFloor
+     * Updates the ChessFloor.
+     * 
+     * If using a lot of VBOs objects, like the Robot or Skeleton class does and then removing and reading parts, 
+     * call this function after the change to avoid stuttering. 
+     * If the function is called before the other VBOs update it leads to stuttering transformations.
+     * 
      * @param update true if the chart should be updated directly
      */
-    private void updateChessFloor(boolean update){
+    public void updateChessFloor(boolean update){
         ChessFloor.getSingelton(chart, update);
     }
     

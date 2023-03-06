@@ -96,13 +96,13 @@ public class ChessFloor{
             heightColor = lengthColor;
             for(int j = 0; j < numHeight; j++){
                 Point3d heightCoord = new Point3d(lengthStart.x, lengthStart.y + j * length, 0);
-                //clip plane
+                //clip points of a square
                 heightCoord = clipPoint(heightCoord);
                 Point3d p1 = heightCoord;
                 Point3d p2 = clipPoint(new Point3d(heightCoord.x, heightCoord.y+length, 0));
                 Point3d p3 = clipPoint(new Point3d(heightCoord.x+length, heightCoord.y, 0));
                 Point3d p4 = clipPoint(new Point3d(heightCoord.x+length, heightCoord.y+length, 0));
-                //create plane
+                //create the square from the edge points
                 float[] a = getVBOArray(p1,p2,p3,p4);
                 DrawableVBO2 vbo = new DrawableVBO2(getVBOArray(p1,p2,p3,p4), 3);
                 vbo.setColor(new Color(heightColor.r, heightColor.g, heightColor.b, 0.65f));
