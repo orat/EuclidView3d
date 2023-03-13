@@ -90,8 +90,8 @@ public class GeometryView3d extends AbstractAnalysis {
         GeometryView3d gv = new GeometryView3d();
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
-        gv.rotateRobotsCoordsystem();
-        gv.setRobotsDH();
+        /*gv.*/rotateRobotsCoordsystem();
+        /*gv.*/setRobotsDH();
         gv.setUpRobotMovement();
         gv.setUpSkeletons();
         gv.setUpSkeletonMovement();
@@ -270,10 +270,13 @@ public class GeometryView3d extends AbstractAnalysis {
         }
     }
     
+    
+    // api to add geometric objects
+    
     /**
      * Add a point to the 3d view.
      * 
-     * @param location locattion of the point
+     * @param location location of the point
      * @param color color of the point
      * @param width width of the point
      * @param label the text of the label of the point
@@ -289,6 +292,15 @@ public class GeometryView3d extends AbstractAnalysis {
         pickingSupport.registerDrawableObject(sphere, sphere);
         chart.add(sphere);
         pickingSupportList.add(sphere);
+    }
+    public void addPointPair(Point3d location1, Point3d location2, String label, 
+                             Color color, float radius, float width, boolean isDashed){
+        
+        //TODO
+        // isDashed?
+        addPoint(location1, color, width, label+"_1");
+        addPoint(location2, color, width, label+"_2");
+        addLine(location1, location2, radius, color, "");
     }
     
     /**
@@ -321,7 +333,8 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param length weglassen und die Länge anhand des Volumens der view bestimmen
      * @param label
      */
-    public void addLine(Vector3d attitude, Point3d location, Color color, float radius, float length, String label){
+    public void addLine(Point3d location, Vector3d attitude, Color color, 
+            float radius, float length, String label){
         addLine(location, 
             new Point3d(location.x+attitude.x*length, 
                         location.y+attitude.y*length, 
@@ -346,6 +359,106 @@ public class GeometryView3d extends AbstractAnalysis {
         pickingSupport.registerDrawableObject(line, line);
         chart.add(line);
         pickingSupportList.add(line);
+    }
+   
+    /**
+     * add circle to the 3d view.
+     * 
+     * @param origin origin of the circle
+     * @param direction normal vector of the plane the circle lays in
+     * @param radius radius of the circle
+     * @param color color of the circle
+     * @param label the label for the circle
+     * @param isDashed
+     */
+    public void addCircle(Point3d origin, Vector3d direction, float radius, 
+                          Color color, String label, boolean isDashed){
+        
+        //TODO
+        // isDashed
+        EuclidCircle circle = new EuclidCircle();
+        circle.setData(origin, direction, radius, color, label);
+        circle.setPickingId(pickingId++);
+        pickingSupport.registerPickableObject(circle, circle);
+        chart.add(circle);
+        pickingSupportList.add(circle);
+    }
+    
+    /**
+     * Add an arrow to the 3d view.
+     * 
+     * @param location midpoint of the arrow
+     * @param direction direction of the arrow
+     * @param length length of the arrow
+     * @param radius radius of the arrow
+     * @param color color of the arrow
+     * @param label the text of the label of the arrow
+     */
+    public void addArrow(Point3d location, Vector3d direction, float length, 
+                         float radius, Color color, String label){
+        Arrow arrow = new Arrow();
+        Point3d labelLocation = new Point3d(location.x, location.y - radius - LabelFactory.getInstance().getOffset(), location.z);
+        arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
+                    new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color, label);
+        arrow.setWireframeDisplayed(false);
+        arrow.setPickingId(pickingId++);
+        pickingSupport.registerPickableObject(arrow, arrow);
+        chart.add(arrow);
+        pickingSupportList.add(arrow);
+    }
+    
+    /**
+     * Add a plane to the 3d view.
+     * 
+     * @param location first point of the plane
+     * @param n normal vector
+     * @param color color of the plane
+     * @param label the text of the label of the plane
+     */
+    public void addPlane(Point3d location, Vector3d n, Color color, String label){
+        //TODO
+    }
+    /**
+     * Add a plane to the 3d view.
+     * 
+     * @param location first point of the plane
+     * @param dir1 vector which is added to the first point to get the second point
+     * @param dir2 vector which is added to the second point to get the third point 
+     *             and which is added to the location to get the forth point
+     * @param color color of the plane
+     * @param label the text of the label of the plane
+     */
+    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, 
+                          Color color, String label){
+        location = clipPoint(location);
+        Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
+        Point3d p2 = new Point3d(location.x+dir2.x,location.y+dir2.y, location.z+dir2.z);
+        p1 = clipPoint(p1);
+        p2 = clipPoint(p2);
+        dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
+        dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
+        EuclidPlane plane = new EuclidPlane();
+        plane.setData(location, dir1, dir2, color, label);
+        plane.setPolygonOffsetFillEnable(false);
+        plane.setWireframeDisplayed(true);
+        pickingSupport.registerDrawableObject(plane, plane);
+        plane.setPickingId(pickingId++);
+        chart.add(plane);
+        pickingSupportList.add(plane);
+    }
+    
+    
+    // helper methods
+    
+    /**
+     * Add a label with a text to the 3d view.
+     * 
+     * @param location the location of the label
+     * @param text the text of the label
+     * @param color color of the text
+     */
+    public void addLabel(Point3d location, String text, Color color){
+         chart.add(LabelFactory.getInstance().addLabel(location, text, Color.BLACK));
     }
     
     /**
@@ -375,85 +488,6 @@ public class GeometryView3d extends AbstractAnalysis {
         }
         return point;
     }
-    
-    
-    /**
-     * add circle to the 3d view.
-     * 
-     * @param origin origin of the circle
-     * @param direction normal vector of the plane the circle lays in
-     * @param radius radius of the circle
-     * @param color color of the circle
-     * @param label the label for the circle
-     */
-    public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color, String label){
-        EuclidCircle circle = new EuclidCircle();
-        circle.setData(origin, direction, radius, color, label);
-        circle.setPickingId(pickingId++);
-        pickingSupport.registerPickableObject(circle, circle);
-        chart.add(circle);
-        pickingSupportList.add(circle);
-    }
-    
-    /**
-     * Add an arrow to the 3d view.
-     * 
-     * @param location midpoint of the arrow
-     * @param direction direction of the arrow
-     * @param length length of the arrow
-     * @param radius radius of the arrow
-     * @param color color of the arrow
-     * @param label the text of the label of the arrow
-     */
-    public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color, String label){
-        Arrow arrow = new Arrow();
-        Point3d labelLocation = new Point3d(location.x, location.y - radius - LabelFactory.getInstance().getOffset(), location.z);
-        arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
-                    new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color, label);
-        arrow.setWireframeDisplayed(false);
-        arrow.setPickingId(pickingId++);
-        pickingSupport.registerPickableObject(arrow, arrow);
-        chart.add(arrow);
-        pickingSupportList.add(arrow);
-    }
-    /**
-     * Add a plane to the 3d view.
-     * 
-     * @param location first point of the plane
-     * @param dir1 vector which is added to the first point to get the second point
-     * @param dir2 vector which is added to the second point to get the third point and which is added to the location to get the forth point
-     * @param color color of the plane
-     * @param label the text of the label of the plane
-     */
-    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, Color color, String label){
-        location = clipPoint(location);
-        Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
-        Point3d p2 = new Point3d(location.x+dir2.x,location.y+dir2.y, location.z+dir2.z);
-        p1 = clipPoint(p1);
-        p2 = clipPoint(p2);
-        dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
-        dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
-        EuclidPlane plane = new EuclidPlane();
-        plane.setData(location, dir1, dir2, color, label);
-        plane.setPolygonOffsetFillEnable(false);
-        plane.setWireframeDisplayed(true);
-        pickingSupport.registerDrawableObject(plane, plane);
-        plane.setPickingId(pickingId++);
-        chart.add(plane);
-        pickingSupportList.add(plane);
-    }
-    
-    /**
-     * Add a label with a text to the 3d view.
-     * 
-     * @param location the location of the label
-     * @param text the text of the label
-     * @param color color of the text
-     */
-    public void addLabel(Point3d location, String text, Color color){
-         chart.add(LabelFactory.getInstance().addLabel(location, text, Color.BLACK));
-    }
-    
     
     /**
      * Add a COLLADA (.dae) File Object to the Scene.
