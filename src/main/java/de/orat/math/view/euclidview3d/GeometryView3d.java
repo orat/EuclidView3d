@@ -74,8 +74,10 @@ public class GeometryView3d extends AbstractAnalysis {
         GeometryView3d gv = new GeometryView3d();
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
-        /*gv.*/rotateRobotsCoordsystem();
-        /*gv.*/setRobotsDH();
+        /*gv.*/
+        rotateRobotsCoordsystem();
+        /*gv.*/
+        setRobotsDH();
         gv.setUpRobotMovement();
         gv.setUpSkeletons();
         gv.setUpSkeletonMovement();
@@ -100,7 +102,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Rotate all Robots to have the Z-Vector as the UP Vector.
      */
-    private static void rotateRobotsCoordsystem(){
+    protected static void rotateRobotsCoordsystem(){
         for(EuclidRobot robot: robotList){
             robot.rotateCoordSystem();
         }
@@ -109,7 +111,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Set the robot right to its DH parameters
      */ 
-    private static void setRobotsDH(){
+    protected static void setRobotsDH(){
         for(EuclidRobot robot: robotList){
             robot.moveDH();
         }
