@@ -120,7 +120,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Set up the movement of the robot per sliders
      */
-    private void setUpRobotMovement(){
+    protected void setUpRobotMovement(){
         CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
         Component comp = c.getComponent(0);
         c.remove(comp);
@@ -157,7 +157,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Set up all the skeleton
      */
-    private void setUpSkeletons(){
+    protected void setUpSkeletons(){
         for(EuclidSkeleton skeleton: skeletonList){
             skeleton.setUpSkeleton();
         }
@@ -166,7 +166,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Sets up the movement of the skeleton 
      */
-    private void setUpSkeletonMovement(){
+    protected void setUpSkeletonMovement(){
        for(EuclidSkeleton skeleton: skeletonList){
             CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
             Component comp = c.getComponent(0);
