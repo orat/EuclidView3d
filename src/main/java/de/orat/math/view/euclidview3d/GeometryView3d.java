@@ -59,8 +59,8 @@ public class GeometryView3d extends AbstractAnalysis {
     private PickingSupport pickingSupport;
     private NewtCameraMouseController cameraMouse;
     private ObjectLoader colladaLoader;
-    private static ArrayList<EuclidRobot> robotList = new ArrayList();
-    private static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
+    protected static ArrayList<EuclidRobot> robotList = new ArrayList();
+    protected static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
