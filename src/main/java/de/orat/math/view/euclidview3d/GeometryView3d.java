@@ -1,11 +1,16 @@
 package de.orat.math.view.euclidview3d;
 
+import de.orat.math.euclid.CutFailedException;
+import de.orat.math.euclid.Line3d;
+import de.orat.math.euclid.Plane;
 import java.awt.Component;
 import javax.swing.JSlider;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -261,14 +266,14 @@ public class GeometryView3d extends AbstractAnalysis {
      * 
      * @param location location of the point
      * @param color color of the point
-     * @param width width of the point
+     * @param diameter diameter of the point
      * @param label the text of the label of the point
      */
-    public void addPoint(Point3d location, Color color, float width, String label){
+    public void addPoint(Point3d location, Color color, float diameter, String label){
         //double radius = 0.6;
-        Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - LabelFactory.getInstance().getOffset());
+        Point3d labelLocation = new Point3d(location.x, location.y,location.z - (diameter/2) - LabelFactory.getInstance().getOffset());
         EuclidSphere sphere = new EuclidSphere();
-        sphere.setData(location, (float) (width/2), 20, color, label, labelLocation);
+        sphere.setData(location, (float) (diameter/2), 20, color, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeDisplayed(false);
         sphere.setPickingId(pickingId++);
@@ -277,13 +282,13 @@ public class GeometryView3d extends AbstractAnalysis {
         pickingSupportList.add(sphere);
     }
     public void addPointPair(Point3d location1, Point3d location2, String label, 
-                             Color color, float radius, float width, boolean isDashed){
+                             Color color, float lineRadius, float pointDiameter, boolean isDashed){
         
         //TODO
         // isDashed?
-        addPoint(location1, color, width, label+"_1");
-        addPoint(location2, color, width, label+"_2");
-        addLine(location1, location2, radius, color, "");
+        addPoint(location1, color, pointDiameter, label+"_1");
+        addPoint(location2, color, pointDiameter, label+"_2");
+        addLine(location1, location2, lineRadius, color, "");
     }
     
     /**
@@ -399,7 +404,24 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param label the text of the label of the plane
      */
     public void addPlane(Point3d location, Vector3d n, Color color, String label){
-        //TODO
+        try {
+            //TODO
+            // Ebene mit den 3 Koordinatenachsen schneiden um 3 Punkte zu bestimmen
+            // aus diesen Punkten dann die benötigten 2 Richtungsvektoren bestimmen
+            Plane plane = new Plane(new Vector3d(location), n);
+            Line3d xaxis = new Line3d(new Vector3d(), new Vector3d(1,0,0));
+            Line3d yaxis = new Line3d(new Vector3d(), new Vector3d(0,1,0));
+            Line3d zaxis = new Line3d(new Vector3d(), new Vector3d(0,0,1));
+            Point3d p2 = new Point3d(plane.cut(xaxis)[0]);
+            Point3d p3 = new Point3d(plane.cut(yaxis)[0]);
+            Vector3d d1 = new Vector3d(p2);
+            d1.sub(location);
+            Vector3d d2 = new Vector3d(p3);
+            d2.sub(p2);
+            addPlane(location, d1, d2, color, label);
+        } catch (CutFailedException ex) {
+            Logger.getLogger(GeometryView3d.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     /**
      * Add a plane to the 3d view.
@@ -580,7 +602,7 @@ public class GeometryView3d extends AbstractAnalysis {
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        //addSkeleton("data/golembones/golembones.obj");
+        addSkeleton("data/golembones/golembones.obj");
         
         /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");

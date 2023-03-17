@@ -53,7 +53,8 @@ public class EuclidRobot{
     } 
     
     /**
-     * Set the Data for the Robot
+     * Set the Data for the Robot.
+     * 
      * @param componentsPaths The path to the .dae Files
      * @param delta_theta_rad the delta theta in radiant for mDH
      * @param delta_alpha_rad the delta alpha in radiant for mDH
@@ -61,8 +62,8 @@ public class EuclidRobot{
      * @param delta_r_m the delta r for mDH
      */
      public void setData(List<String> componentsPaths, double[] delta_theta_rad, double[] delta_alpha_rad,double[] delta_d_m, double[] delta_r_m){
-        parts = new ArrayList<EuclidPart>();
-        dhList = new ArrayList<DH>();
+        parts = new ArrayList<>();
+        dhList = new ArrayList<>();
         ObjectLoader loader = ObjectLoader.getLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));

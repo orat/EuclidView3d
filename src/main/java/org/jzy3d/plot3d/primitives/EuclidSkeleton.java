@@ -36,8 +36,8 @@ public class EuclidSkeleton {
         Coord3d x = new Coord3d(1,0,0);
         Coord3d y = new Coord3d(0,1,0);
         Coord3d z = new Coord3d(0,0,1);
-        parts = new ArrayList<EuclidPart>();
-        nameParts = new ArrayList<String>();
+        parts = new ArrayList<>();
+        nameParts = new ArrayList<>();
         this.chart = chart;
         //List<EuclidVBO2> partList = ObjectLoader.getLoader().getWavefront(waveFrontPath).getParts();
         List<EuclidVBO2> partList = ObjectLoader.getLoader().getWavefront(waveFrontPath, nameParts).getParts();
@@ -45,7 +45,7 @@ public class EuclidSkeleton {
             nameParts.set(i, nameParts.get(i).toLowerCase());
         }
         for(int i = 0; i < partList.size(); i++){
-            ArrayList<EuclidVBO2> l = new ArrayList<EuclidVBO2>();
+            ArrayList<EuclidVBO2> l = new ArrayList<>();
             l.add(partList.get(i));
             parts.add(new EuclidPart(l));
             parts.get(i).setLocalVectorsystem(x, y, z);
