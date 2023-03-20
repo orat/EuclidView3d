@@ -328,7 +328,6 @@ public class GeometryView3d extends AbstractAnalysis {
                         location.y+attitude.y*length, 
                         location.z+attitude.z*length), radius, color, label);
     }
-    
     /**
      * Add a line to the 3d view.
      * 
@@ -404,24 +403,94 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param label the text of the label of the plane
      */
     public void addPlane(Point3d location, Vector3d n, Color color, String label){
+        
+        // Clipping
+        //BoundingBox3d bounds = chart.getView().getAxis().getBounds();
+        
+        Plane plane = new Plane(new Vector3d(location), n);
+
+        // Ursprung auf die Ebene projezieren
+        Vector3d p_ = new Vector3d(0,0,0);
+        plane.project(p_);
+        Point3d p = new Point3d(p_);
+
+        /*Line3d xaxis = new Line3d(new Vector3d(), new Vector3d(1,0,0));
+        Line3d yaxis = new Line3d(new Vector3d(), new Vector3d(0,1,0));
+        Line3d zaxis = new Line3d(new Vector3d(), new Vector3d(0,0,1));
+        // Bestimmung der Spurpunkte
+        // Es gibt maximal 3, falls die Ebene senkrecht auf einer der 
+        // Koordinatenachsen steht, gibts nur einen Spurpunkt, 2 Spurpunkte sind auch möglich
+        Point3d p1 = null;
+        double d1 = -Double.MAX_VALUE;
+        double d2 = -Double.MAX_VALUE;
+        double d3 = -Double.MAX_VALUE;
         try {
-            //TODO
-            // Ebene mit den 3 Koordinatenachsen schneiden um 3 Punkte zu bestimmen
-            // aus diesen Punkten dann die benötigten 2 Richtungsvektoren bestimmen
-            Plane plane = new Plane(new Vector3d(location), n);
-            Line3d xaxis = new Line3d(new Vector3d(), new Vector3d(1,0,0));
-            Line3d yaxis = new Line3d(new Vector3d(), new Vector3d(0,1,0));
-            Line3d zaxis = new Line3d(new Vector3d(), new Vector3d(0,0,1));
-            Point3d p2 = new Point3d(plane.cut(xaxis)[0]);
-            Point3d p3 = new Point3d(plane.cut(yaxis)[0]);
-            Vector3d d1 = new Vector3d(p2);
-            d1.sub(location);
-            Vector3d d2 = new Vector3d(p3);
-            d2.sub(p2);
-            addPlane(location, d1, d2, color, label);
-        } catch (CutFailedException ex) {
-            Logger.getLogger(GeometryView3d.class.getName()).log(Level.SEVERE, null, ex);
+            p1 = new Point3d(plane.cut(xaxis)[0]);
+            d1 = p1.x;
+        } catch (CutFailedException e){}
+        Point3d p2 = null;
+        try {
+            p2 = new Point3d(plane.cut(yaxis)[0]);
+            d2 = p2.y;
+        } catch (CutFailedException e){}
+        Point3d p3 = null;
+        try {
+            p3 = new Point3d(plane.cut(zaxis)[0]);
+            d3 = p3.z;
+        } catch (CutFailedException e){}
+
+        Vector3d dir1, dir2;
+
+        if (-d1 < -d2){
+            // p1 ist dabei
+            if (-d1 < -d3){
+                // p1 ist am dichtesten am Ursprung
+                if (-d2 < -d3){
+                    // p2 ist dabei und am zweitdichtesten am Ursprung
+
+                }
+            }
+        } else 
+
+        dir1.sub(p);
+        dir2.sub(p);*/
+        
+        Plane xyplane = new Plane(new Vector3d(0,0,0), new Vector3d(0,0,1));
+        Plane yzplane = new Plane(new Vector3d(0,0,0), new Vector3d(1,0,0));
+        Plane zxplane = new Plane(new Vector3d(0,0,0), new Vector3d(0,1,0));
+        
+        Line3d xyLine = null;
+        Line3d yzLine = null;
+        Line3d zxLine = null;
+        
+        try {
+            xyLine = xyplane.cut(plane);
+        } catch (CutFailedException e){}
+        try {
+            yzLine = yzplane.cut(plane);
+        } catch (CutFailedException e){}
+        try {
+            zxLine = zxplane.cut(plane);
+        } catch (CutFailedException e){}
+        
+        Vector3d dir1 = null;
+        Vector3d dir2 = null;
+        if (xyLine != null){
+            dir1 = xyLine.getDirectionVector();
+            if (yzLine != null){
+                dir2 = yzLine.getDirectionVector();
+            } else {
+                dir2 = zxLine.getDirectionVector();
+            }
+        } else {
+            if (yzLine != null){
+                dir1 = yzLine.getDirectionVector();
+            } else {
+                dir2 = zxLine.getDirectionVector();
+            }
         }
+        addPlane(location, dir1, dir2, color, label);
+            
     }
     /**
      * Add a plane to the 3d view.
@@ -585,16 +654,13 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().setSquared(false);
         chart.getView().setBackgroundColor(Color.WHITE);
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
+        
         //Add the ChessFloor and set size
-        
-        
-        
         this.setUpChessFloor(100.f);
         chart.getScene().getGraph().addGraphListener(() -> {
             updateChessFloor(true);
         });
-        
-               
+            
         //Set up ObjectLoader and Mouse
         colladaLoader = ObjectLoader.getLoader();
         setUpMouse();
@@ -784,9 +850,12 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Updates the ChessFloor.
      * 
-     * If using a lot of VBOs objects, like the Robot or Skeleton class does and then removing and reading parts, 
-     * call this function after the change to avoid stuttering. 
-     * If the function is called before the other VBOs update it leads to stuttering transformations.
+     * If using a lot of VBOs objects, like the Robot or Skeleton class does and 
+     * then removing and reading parts, call this function after the change to 
+     * avoid stuttering. 
+     * 
+     * If the function is called before the other VBOs update it leads to 
+     * stuttering transformations.
      * 
      * @param update true if the chart should be updated directly
      */
