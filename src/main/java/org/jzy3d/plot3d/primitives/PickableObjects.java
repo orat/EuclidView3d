@@ -7,7 +7,7 @@ package org.jzy3d.plot3d.primitives;
 import org.jzy3d.maths.Coord3d;
 
 /**
- *
+ * The interface for a pickable object
  * @author Dominik Scharnagl
  */
 public interface PickableObjects {
@@ -24,8 +24,16 @@ public interface PickableObjects {
      */
     public void setNewPosition(Coord3d position);
     
+    /**
+     * Returns the position of the pickable object
+     * @return the position of the pickable object
+     */
     public Coord3d getPosition();
     
+    /**
+     * Return the ID of the pickingobject
+     * @return the pickingID
+     */
     public int getPickingId();
     
 }

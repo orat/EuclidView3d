@@ -1,14 +1,19 @@
 package de.orat.math.view.euclidview3d;
 
+import de.orat.math.euclid.AxisAlignedBoundingBox;
+import de.orat.math.euclid.CutFailedException;
+import de.orat.math.euclid.Line3d;
+import de.orat.math.euclid.Plane;
 import java.awt.Component;
 import javax.swing.JSlider;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.io.File;
-import static java.lang.Math.PI;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -46,6 +51,7 @@ import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
+import org.jzy3d.plot3d.rendering.scene.Graph.GraphListener;
 import org.jzy3d.plot3d.rendering.view.Camera;
 
 /**
@@ -57,11 +63,11 @@ public class GeometryView3d extends AbstractAnalysis {
     private int pickingId = 0;
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
-    private PickingSupport pickingSupport;
+    private PickingSupport pickingSupport; // ==null if not available
     private NewtCameraMouseController cameraMouse;
     private ObjectLoader colladaLoader;
-    private static ArrayList<EuclidRobot> robotList = new ArrayList();
-    private static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
+    protected static ArrayList<EuclidRobot> robotList = new ArrayList();
+    protected static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
     
     /**
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
@@ -75,18 +81,35 @@ public class GeometryView3d extends AbstractAnalysis {
         GeometryView3d gv = new GeometryView3d();
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
-        gv.rotateRobotsCoordsystem();
-        gv.setRobotsDH();
+        /*gv.*/
+        rotateRobotsCoordsystem();
+        /*gv.*/
+        setRobotsDH();
         gv.setUpRobotMovement();
         gv.setUpSkeletons();
+        gv.setUpSkeletonMovement();
+        gv.updateChessFloor(true);
+        
         //GeometryView3d viewer = new GeometryView3d();
         //viewer.open();
     }
     
     /**
+     * Prints out the centers of the skeletons
+     */
+    private void skeletonCenters(){
+        for(EuclidSkeleton s: skeletonList){
+            for(EuclidPart part: s.getParts()){
+                    Point3d p = new Point3d(part.getCenter().x, part.getCenter().y, part.getCenter().z);
+                    addPoint(p,Color.RED,0.2f, "");
+            }
+        }
+    }
+    
+    /**
      * Rotate all Robots to have the Z-Vector as the UP Vector.
      */
-    private static void rotateRobotsCoordsystem(){
+    protected static void rotateRobotsCoordsystem(){
         for(EuclidRobot robot: robotList){
             robot.rotateCoordSystem();
         }
@@ -95,7 +118,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Set the robot right to its DH parameters
      */ 
-    private static void setRobotsDH(){
+    protected static void setRobotsDH(){
         for(EuclidRobot robot: robotList){
             robot.moveDH();
         }
@@ -104,7 +127,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Set up the movement of the robot per sliders
      */
-    private void setUpRobotMovement(){
+    protected void setUpRobotMovement(){
         CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
         Component comp = c.getComponent(0);
         c.remove(comp);
@@ -123,53 +146,167 @@ public class GeometryView3d extends AbstractAnalysis {
                 slider.setVisible(true);
                 slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
                 final int ix = i;
-                slider.addChangeListener(new ChangeListener(){ 
-                    @Override
-                    public void stateChanged(ChangeEvent e) {
-                        JSlider source = (JSlider)e.getSource();
-                        robotList.get(0).setTheta(ix, source.getValue());
-                    }   
+                final int jx = j;
+                GeometryView3d g = this;
+                slider.addChangeListener((ChangeEvent e) -> {
+                    JSlider source = (JSlider)e.getSource();
+                    //updateing chess floor after seting the Theta Values does not lead to tearing
+                    robotList.get(jx).setTheta(ix, source.getValue(), false);
+                    updateChessFloor(true);   
                 });
                 p.add(slider);
             }
         }
-        
             p.setVisible(true);
             c.add(p); 
     }
     
-    private void setUpSkeletons(){
+    /**
+     * Set up all the skeleton
+     */
+    protected void setUpSkeletons(){
         for(EuclidSkeleton skeleton: skeletonList){
             skeleton.setUpSkeleton();
         }
     }
     
     /**
+     * Sets up the movement of the skeleton 
+     */
+    protected void setUpSkeletonMovement(){
+       for(EuclidSkeleton skeleton: skeletonList){
+            CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
+            Component comp = c.getComponent(0);
+            c.remove(comp);
+            JPanel p = new JPanel();
+            p.add(comp);
+            p.setLayout(new BoxLayout(p, 1));
+            String[] names = new String[skeleton.getParts().size()];
+            for(int i = 0; i < skeleton.getParts().size(); i++){
+                names[i] = skeleton.getParts().get(i).getName();
+            }
+            JPanel comboPanel = new JPanel();
+            comboPanel.setLayout(new BoxLayout(comboPanel, 1));
+            JPanel comboPanel2 = new JPanel();
+            comboPanel2.setLayout(new BoxLayout(comboPanel2, 1));
+            JComboBox box = new JComboBox(names);
+            box.addActionListener((ActionEvent e) -> {
+                JComboBox b = (JComboBox) e.getSource();
+                String name = (String)b.getSelectedItem();
+                setUpRotationSkeleton(skeleton, name, comboPanel2);         
+            });
+            comboPanel.add(box);
+            comboPanel.add(comboPanel2);
+            setUpRotationSkeleton(skeleton,(String)box.getSelectedItem(), comboPanel2);
+            p.add(comboPanel);
+            p.setVisible(true);
+            c.add(p);
+        } 
+    }
+    
+    /**
+     * Sets up the slider rotation of a skeleton part
+     * @param skeleton The skeleton
+     * @param name The name of the part of the skeleton
+     * @param panel The panel where the sliders 
+     */
+    private void setUpRotationSkeleton(EuclidSkeleton skeleton, String name, JPanel panel){
+        EuclidPart part = skeleton.getPart(name);
+        panel.removeAll();
+        JPanel sliderPanel = new JPanel();
+        sliderPanel.setLayout(new BoxLayout(sliderPanel, 2));
+        if(part.getIsBallJoint()){
+            for(int i = 0; i < 3; i++){
+                sliderPanel = new JPanel();
+                sliderPanel.setLayout(new BoxLayout(sliderPanel, 2));
+                JLabel axisText = new JLabel(getCoordinateAxisFromForLoop(i));
+                sliderPanel.add(axisText);
+                panel.add(sliderPanel);
+                JSlider slider = new JSlider();
+                slider.setMaximum(360);
+                slider.setMinimum(0);
+                slider.setVisible(true);
+                slider.setValue(0);
+                final int ix = i;
+                slider.addChangeListener((ChangeEvent e) -> {
+                    JSlider source = (JSlider)e.getSource();
+                    switch(ix){
+                        case 0 -> {
+                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemX(), part.getCenter(), ix, false); updateChessFloor(true);
+                        }
+                        case 1 -> {   
+                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemY(), part.getCenter(), ix, false); updateChessFloor(true);
+                        }
+                        default -> {
+                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemZ(), part.getCenter(), ix, false); updateChessFloor(true);
+                        }
+                    }
+                });
+                sliderPanel.add(slider);
+            }
+        }else{
+            JLabel axisText = new JLabel(getCoordinateAxisFromForLoop(1));
+            sliderPanel.add(axisText);
+            panel.add(sliderPanel);
+        }
+        panel.updateUI();
+    }
+    
+    /**
+     * Returns if it is the X, Y or Z coordinate axis for the rotation of the robot. 
+     * @param i The number of the loop
+     * @return The string fo the Axis label
+     */
+    private String getCoordinateAxisFromForLoop(int i){
+        return switch (i) {
+            case 0 -> "X: ";
+            case 1 -> "Y: ";
+            default -> "Z: ";
+        };
+    }
+    
+    
+    // api to add geometric objects
+    
+    /**
      * Add a point to the 3d view.
      * 
-     * @param location locattion of the point
+     * @param location location of the point [mm]
      * @param color color of the point
-     * @param width width of the point
-     * @param label the text of the label of the point, null if no label needed
+     * @param diameter diameter of the point [mm]
+     * @param label the text of the label of the point
      */
-    public void addPoint(Point3d location, Color color, float width, String label){
+    public void addPoint(Point3d location, Color color, float diameter, String label){
         //double radius = 0.6;
-        Point3d labelLocation = new Point3d(location.x, location.y,location.z - (width/2) - LabelFactory.getInstance().getOffset());
+        Point3d labelLocation = new Point3d(location.x, location.y,location.z - (diameter/2) - LabelFactory.getInstance().getOffset());
         EuclidSphere sphere = new EuclidSphere();
-        sphere.setData(location, (float) (width/2), 20, color, label, labelLocation);
+        sphere.setData(location, (float) (diameter/2), 20, color, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeDisplayed(false);
         sphere.setPickingId(pickingId++);
-        pickingSupport.registerDrawableObject(sphere, sphere);
+        if (pickingSupport != null){
+            pickingSupport.registerDrawableObject(sphere, sphere);
+        }
         chart.add(sphere);
-        pickingSupportList.add(sphere);
+        if (pickingSupport != null){
+            pickingSupportList.add(sphere);
+        }
+    }
+    public void addPointPair(Point3d location1, Point3d location2, String label, 
+                             Color color, float lineRadius, float pointDiameter, boolean isDashed){
+        
+        //TODO
+        // isDashed?
+        addPoint(location1, color, pointDiameter, label+"_1");
+        addPoint(location2, color, pointDiameter, label+"_2");
+        addLine(location1, location2, lineRadius, color, "", false);
     }
     
     /**
      * Add a sphere to the 3d view.
      * 
      * @param location
-     * @param squaredSize
+     * @param squaredSize [mm^2]
      * @param color 
      * @param label the text of the label of the sphere, null if no label needed
      */
@@ -180,8 +317,13 @@ public class GeometryView3d extends AbstractAnalysis {
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
         sphere.setPickingId(pickingId++);
-        pickingSupport.registerDrawableObject(sphere, sphere);
+        if (pickingSupport != null){
+            pickingSupport.registerDrawableObject(sphere, sphere);
+        }
         chart.add(sphere);
+        if (pickingSupport != null){
+            pickingSupportList.add(sphere);
+        }
     }
   
     /**
@@ -191,34 +333,254 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param location
      * @param color
      * @param radius
-     * @param length weglassen und die Länge anhand des Volumens der view bestimmen
      * @param label
+     * @return true if the line is inside the bounding box and visible
      */
-    public void addLine(Vector3d attitude, Point3d location, Color color, float radius, float length, String label){
-        addLine(location, 
+    public boolean addLine(Point3d location, Vector3d attitude, Color color, 
+                           float radius, String label){
+        
+        // Clipping
+        Point3d p1 = new Point3d();
+        Point3d p2 = new Point3d();
+        boolean result = clipLine(new Line3d(new Vector3d(location), attitude), p1, p2);
+       
+        if (result){
+            addLine(p1, p2,  (float) p1.distance(p2), color, label, false);
+        }
+        return result;
+    }
+    /**
+     * Add a line to the 3d view.TODO
+ statt length + normalized(attitude) einfach nur die Attitude übergeben
+     * 
+     * 
+     * @param attitude (normalized)
+     * @param location
+     * @param color
+     * @param radius
+     * @param length 
+     * @param label
+     * @param withClipping
+     * @return 
+     */
+    public boolean addLine(Point3d location, Vector3d attitude, Color color, 
+            float radius, float length, String label, boolean withClipping){
+        return addLine(location, 
             new Point3d(location.x+attitude.x*length, 
                         location.y+attitude.y*length, 
-                        location.z+attitude.z*length), radius, color, label);
+                        location.z+attitude.z*length), radius, color, label, withClipping);
     }
-    
     /**
-     * Add a line to the 3d view.
+     * Add a line to the 3d view.TODO
+ hier wird erneut clipping aufgerufen, ...
+     * 
      * 
      * @param p1 start point of the cylinder
      * @param p2 end point of the cylinder
      * @param radius radius of the cylinder
      * @param color color of the line
      * @param label the label of the line
+     * @param withClipping
      */
-    public void addLine(Point3d p1, Point3d p2, float radius, Color color, String label){
-        p1 = clipPoint(p1);
-        p2 = clipPoint(p2);
+    public boolean addLine(Point3d p1, Point3d p2, float radius, Color color, String label, boolean withClipping){
+        if (withClipping){
+            p1 = clipPoint(p1);
+            p2 = clipPoint(p2);
+        }
         Line line = new Line();
         line.setData(p1,p2, radius, 10, 0, color, label);
         line.setPickingId(pickingId++);
-        pickingSupport.registerDrawableObject(line, line);
+        if (pickingSupport != null){
+            pickingSupport.registerDrawableObject(line, line);
+        }
         chart.add(line);
-        pickingSupportList.add(line);
+        if (pickingSupport != null){
+            pickingSupportList.add(line);
+        }
+        
+        // wenn ausserhalb der bounding-box dann false
+        //TODO
+        return true;
+    }
+   
+    
+    
+    /**
+     * add circle to the 3d view.
+     * 
+     * @param origin origin of the circle
+     * @param direction normal vector of the plane the circle lays in
+     * @param radius radius of the circle
+     * @param color color of the circle
+     * @param label the label for the circle
+     * @param isDashed
+     */
+    public void addCircle(Point3d origin, Vector3d direction, float radius, 
+                          Color color, String label, boolean isDashed){
+        
+        //TODO
+        // isDashed
+        EuclidCircle circle = new EuclidCircle();
+        circle.setData(origin, direction, radius, color, label);
+        circle.setPickingId(pickingId++);
+        if (pickingSupport != null){
+            pickingSupport.registerPickableObject(circle, circle);
+        }
+        chart.add(circle);
+        if (pickingSupport != null){
+            pickingSupportList.add(circle);
+        }
+    }
+    
+    /**
+     * Add an arrow to the 3d view.
+     * 
+     * @param location midpoint of the arrow
+     * @param direction direction of the arrow
+     * @param length length of the arrow
+     * @param radius radius of the arrow
+     * @param color color of the arrow
+     * @param label the text of the label of the arrow
+     */
+    public void addArrow(Point3d location, Vector3d direction, float length, 
+                         float radius, Color color, String label){
+        Arrow arrow = new Arrow();
+        Point3d labelLocation = new Point3d(location.x, location.y - radius - LabelFactory.getInstance().getOffset(), location.z);
+        arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
+                    new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color, label);
+        arrow.setWireframeDisplayed(false);
+        arrow.setPickingId(pickingId++);
+        if (pickingSupport != null){
+            pickingSupport.registerPickableObject(arrow, arrow);
+        }
+        chart.add(arrow);
+        if (pickingSupport != null){
+            pickingSupportList.add(arrow);
+        }
+    }
+    
+    /**
+     * Add a plane to the 3d view.
+     * 
+     * @param location first point of the plane, unit is [m]
+     * @param n normal vector
+     * @param color color of the plane
+     * @param label the text of the label of the plane
+     * @return 
+     */
+    public boolean addPlane(Point3d location, Vector3d n, Color color, String label){
+        
+        // Clipping
+        //BoundingBox3d bounds = chart.getView().getAxis().getBounds();
+        
+        Plane plane = new Plane(new Vector3d(location), n);
+
+        // Ursprung auf die Ebene projezieren
+        Vector3d p_ = new Vector3d(0,0,0);
+        plane.project(p_);
+        Point3d p = new Point3d(p_);
+
+        /*Line3d xaxis = new Line3d(new Vector3d(), new Vector3d(1,0,0));
+        Line3d yaxis = new Line3d(new Vector3d(), new Vector3d(0,1,0));
+        Line3d zaxis = new Line3d(new Vector3d(), new Vector3d(0,0,1));
+        // Bestimmung der Spurpunkte
+        // Es gibt maximal 3, falls die Ebene senkrecht auf einer der 
+        // Koordinatenachsen steht, gibts nur einen Spurpunkt, 2 Spurpunkte sind auch möglich
+        Point3d p1 = null;
+        double d1 = -Double.MAX_VALUE;
+        double d2 = -Double.MAX_VALUE;
+        double d3 = -Double.MAX_VALUE;
+        try {
+            p1 = new Point3d(plane.cut(xaxis)[0]);
+            d1 = p1.x;
+        } catch (CutFailedException e){}
+        Point3d p2 = null;
+        try {
+            p2 = new Point3d(plane.cut(yaxis)[0]);
+            d2 = p2.y;
+        } catch (CutFailedException e){}
+        Point3d p3 = null;
+        try {
+            p3 = new Point3d(plane.cut(zaxis)[0]);
+            d3 = p3.z;
+        } catch (CutFailedException e){}
+
+        Vector3d dir1, dir2;
+
+        if (-d1 < -d2){
+            // p1 ist dabei
+            if (-d1 < -d3){
+                // p1 ist am dichtesten am Ursprung
+                if (-d2 < -d3){
+                    // p2 ist dabei und am zweitdichtesten am Ursprung
+
+                }
+            }
+        } else 
+
+        dir1.sub(p);
+        dir2.sub(p);*/
+        
+        // clipping
+        AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
+        Point3d[] nodes = new Point3d[4];
+        boolean result = aabb.clip(plane, nodes);
+        if (result){
+            //TODO
+            // Wie kann ich anhand der nodes eine Ebene plotten, vermutlich ist
+            // es besser ein Polygon zu plotten
+            //addPlane(location, dir1, dir2, color, label);
+        }
+        return result;
+    }
+    /**
+     * Add a plane to the 3d view.
+     * 
+     * @param location first point of the plane
+     * @param dir1 vector which is added to the first point to get the second point
+     * @param dir2 vector which is added to the second point to get the third point 
+     *             and which is added to the location to get the forth point
+     * @param color color of the plane
+     * @param label the text of the label of the plane
+     * @return false if the plane is outside the bounding-box
+     */
+    public boolean addPlane(Point3d location, Vector3d dir1, Vector3d dir2, 
+                          Color color, String label){
+        location = clipPoint(location);
+        Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
+        Point3d p2 = new Point3d(location.x+dir2.x,location.y+dir2.y, location.z+dir2.z);
+        p1 = clipPoint(p1);
+        p2 = clipPoint(p2);
+        dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
+        dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
+        EuclidPlane plane = new EuclidPlane();
+        plane.setData(location, dir1, dir2, color, label);
+        plane.setPolygonOffsetFillEnable(false);
+        plane.setWireframeDisplayed(true);
+        if (pickingSupport != null){
+            pickingSupport.registerDrawableObject(plane, plane);
+        }
+        chart.add(plane);
+        if (pickingSupport != null){    
+            pickingSupportList.add(plane);
+        }
+        // wenn ausserhalb der bounding-box false
+        //TODO
+        return true;
+    }
+    
+    
+    // helper methods
+    
+    /**
+     * Add a label with a text to the 3d view.
+     * 
+     * @param location the location of the label
+     * @param text the text of the label
+     * @param color color of the text
+     */
+    public void addLabel(Point3d location, String text, Color color){
+         chart.add(LabelFactory.getInstance().addLabel(location, text, Color.BLACK));
     }
     
     /**
@@ -249,85 +611,29 @@ public class GeometryView3d extends AbstractAnalysis {
         return point;
     }
     
-    
-    /**
-     * add circle to the 3d view.
+     /**
+     * Determine clipping point of a line with the bounding box of the current
+     * visualization.
      * 
-     * @param origin origin of the circle
-     * @param direction normal vector of the plane the circle lays in
-     * @param radius radius of the circle
-     * @param color color of the circle
-     * @param label the label for the circle
+     * In principle "Liang-Barsky Line Clipping algorithm" is a possible 
+     * implementation.
+     * 
+     * @param line
+     * @param p1 output near point
+     * @param p2 output far point
+     * @return true if there are intersection points
      */
-    public void addCircle(Point3d origin, Vector3d direction, float radius ,Color color, String label){
-        EuclidCircle circle = new EuclidCircle();
-        circle.setData(origin, direction, radius, color, label);
-        circle.setPickingId(pickingId++);
-        pickingSupport.registerPickableObject(circle, circle);
-        chart.add(circle);
-        pickingSupportList.add(circle);
+    private boolean clipLine(Line3d line, Point3d p1, Point3d p2){
+        AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
+        return aabb.clip(line, p1, p2);
     }
     
-    /**
-     * Add an arrow to the 3d view.
-     * 
-     * @param location midpoint of the arrow
-     * @param direction direction of the arrow
-     * @param length length of the arrow
-     * @param radius radius of the arrow
-     * @param color color of the arrow
-     * @param label the text of the label of the arrow
-     */
-    public void addArrow(Point3d location, Vector3d direction, float length, float radius, Color color, String label){
-        Arrow arrow = new Arrow();
-        Point3d labelLocation = new Point3d(location.x, location.y - radius - LabelFactory.getInstance().getOffset(), location.z);
-        arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
-                    new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color, label);
-        arrow.setWireframeDisplayed(false);
-        arrow.setPickingId(pickingId++);
-        pickingSupport.registerPickableObject(arrow, arrow);
-        chart.add(arrow);
-        pickingSupportList.add(arrow);
+    private AxisAlignedBoundingBox createAxisAlignedBoundBox(){
+        BoundingBox3d bounds = chart.getView().getAxis().getBounds();
+        Point3d center = new Point3d(bounds.getCenter().x, bounds.getCenter().y, bounds.getCenter().z);
+        Vector3d size = new Vector3d(bounds.getRange().x, bounds.getRange().y, bounds.getRange().z);
+        return new AxisAlignedBoundingBox(center, size);
     }
-    /**
-     * Add a plane to the 3d view.
-     * 
-     * @param location first point of the plane
-     * @param dir1 vector which is added to the first point to get the second point
-     * @param dir2 vector which is added to the second point to get the third point and which is added to the location to get the forth point
-     * @param color color of the plane
-     * @param label the text of the label of the plane, null if no label needed
-     */
-    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, 
-                         Color color, String label){
-        location = clipPoint(location);
-        Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
-        Point3d p2 = new Point3d(location.x+dir2.x,location.y+dir2.y, location.z+dir2.z);
-        p1 = clipPoint(p1);
-        p2 = clipPoint(p2);
-        dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
-        dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
-        EuclidPlane plane = new EuclidPlane();
-        plane.setData(location, dir1, dir2, color, label);
-        plane.setPolygonOffsetFillEnable(false);
-        plane.setWireframeDisplayed(true);
-        pickingSupport.registerDrawableObject(plane, plane);
-        plane.setPickingId(pickingId++);
-        chart.add(plane);
-        pickingSupportList.add(plane);
-    }
-    
-    /**
-     * Add a label with a text to the 3d view.
-     * 
-     * @param location the location of the label
-     * @param text the text of the label
-     * @param color color of the text
-     */
-    public void addLabel(Point3d location, String text, Color color){
-         chart.add(LabelFactory.getInstance().addLabel(location, text, Color.BLACK));
-    }
-    
     
     /**
      * Add a COLLADA (.dae) File Object to the Scene.
@@ -337,11 +643,12 @@ public class GeometryView3d extends AbstractAnalysis {
     public void addCOLLADA(String path){
         EuclidPart part = colladaLoader.getCOLLADA(path); 
         part.setChart(chart);
-        part.drawPart();
+        part.addToChart();
     }
     
     /**
-     * Adds a robot to the chart from COLLADA (.dae) files
+     * Adds a robot to the chart from COLLADA (.dae) files.
+     * 
      * @param paths The paths to the Collada files for the robot as a List
      */
     public void addRobot(List<String> paths){
@@ -354,10 +661,10 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add a UR5e Robot.
      * 
-     * @param paths
-     * @param delta_theta_rad 
+     * @param paths the paths to the robot parts
+     * @param delta_theta_rad the angle of the single parts
      */
-    public void addRobotUR5e(List<String> paths,double[] delta_theta_rad){ 
+    public void addRobotUR5e(List<String> paths, double[] delta_theta_rad){ 
         double[] delta_a_m = new double[]{0d, 0.000156734465764371306, 0.109039760794650886, 0.00135049423466820917, 0.30167176077633267e-05, 8.98147062591837358e-05, 0};
         double[] delta_d_m = new double[]{0d, -7.63582045015809285e-05, 136.026368377065324, -130.146527922606964, 0.12049886607637639, -0.13561334270734671, -0.000218168195914358876};
         double[] delta_alpha_rad= new double[]{0d, -0.000849612070594307767, 0.00209120614311242205, 0.0044565542371754396, -0.000376815598678081898, 0.000480742313784698894, 0};
@@ -368,9 +675,13 @@ public class GeometryView3d extends AbstractAnalysis {
         robot.addToChartParts();
     }
 
-    
-    public void addSkeleton(String path, String xml){
-        EuclidSkeleton skeleton = new EuclidSkeleton(path, xml, chart);
+    /**
+     * Adds a new skeleton to the chart.
+     * 
+     * @param path the string to the path of the skeleton
+     */
+    public void addSkeleton(String path){
+        EuclidSkeleton skeleton = new EuclidSkeleton(path, chart);
         skeletonList.add(skeleton);
         skeleton.drawOnChart();
     }
@@ -406,7 +717,7 @@ public class GeometryView3d extends AbstractAnalysis {
         q.setAnimated(false); 
         q.setHiDPIEnabled(true); 
         q.setDisableDepthBufferWhenAlpha(false);
-        
+        q.setPreserveViewportSize(true);        
         //chart = initializeChart(q);       
         
         chart = new Chart(this.getFactory(), q);
@@ -415,21 +726,16 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().setSquared(false);
         chart.getView().setBackgroundColor(Color.WHITE);
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
+        
         //Add the ChessFloor and set size
-        
-        /*
-        this.setUpChessFloor(20.f);
-        chart.getScene().getGraph().addGraphListener(new GraphListener() {
-            @Override
-            public void onMountAll() {
-                updateChessFloor();
-            }
+        this.setUpChessFloor(100.f);
+        chart.getScene().getGraph().addGraphListener(() -> {
+            updateChessFloor(true);
         });
-        */
-        
+            
         //Set up ObjectLoader and Mouse
         colladaLoader = ObjectLoader.getLoader();
-        setUpMouse();
+        setUpPickingSupport();
         //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
@@ -468,7 +774,7 @@ public class GeometryView3d extends AbstractAnalysis {
        
         double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};      
 
-        ArrayList<String> pathList = new ArrayList<String>();
+        ArrayList<String> pathList = new ArrayList<>();
         pathList.add("data/objfiles/base.dae");
         pathList.add("data/objfiles/shoulder.dae");
         pathList.add("data/objfiles/upperarm.dae");
@@ -480,10 +786,13 @@ public class GeometryView3d extends AbstractAnalysis {
         
     }
     
+    
+    // mouse control
+    
     /**
      * Sets up the mouse for picking
      */
-    private void setUpMouse(){
+    protected void setUpPickingSupport(){
         pickingSupport = new PickingSupport();
         pickingSupport.addObjectPickedListener(new EuclidPickListener());
         NewtMouse m = new NewtMouse();
@@ -492,7 +801,7 @@ public class GeometryView3d extends AbstractAnalysis {
     }
     
     /**
-     * The MouseController for the picking
+     * The MouseController for the picking of jakob
      */
     private class NewtMouse extends NewtMousePickingController{
         
@@ -566,7 +875,8 @@ public class GeometryView3d extends AbstractAnalysis {
     }
     
     /**
-     * Moves a pickableObject
+     * Moves a pickableObject.
+     * 
      * @param position the position to which the object should be moved
      * @param object the object
      */
@@ -578,6 +888,7 @@ public class GeometryView3d extends AbstractAnalysis {
     
     /**
      * Adds a moved object to the pickingSupport.
+     * 
      * @param plane the moved object
      */
     private void pickObject(PickableObjects plane){
@@ -597,25 +908,39 @@ public class GeometryView3d extends AbstractAnalysis {
         }
     }
     
+    
+    // chess floor
+    
     /**
-     * Set up the ChessFloor size
+     * Set up the ChessFloor size.
+     * 
      * @param length The length of one square
      */
-    private void setUpChessFloor(float length){
+    protected void setUpChessFloor(float length){
         ChessFloor.getSingelton(chart, length);
     }
     
     /**
-     * Updates the ChessFloor
+     * Updates the ChessFloor.
+     * 
+     * If using a lot of VBOs objects, like the Robot or Skeleton class does and 
+     * then removing and reading parts, call this function after the change to 
+     * avoid stuttering. 
+     * 
+     * If the function is called before the other VBOs update it leads to 
+     * stuttering transformations.
+     * 
+     * @param update true if the chart should be updated directly
      */
-    private void updateChessFloor(){
-        ChessFloor.getSingelton(chart);
+    public void updateChessFloor(boolean update){
+        ChessFloor.getSingelton(chart, update);
     }
     
     /**
      * Removes the ChessFloor
+     * @param update true if the chart should be updated directly
      */
-    private void removeChessFloor(){
-        chart.remove(ChessFloor.getSingelton(chart));
+    private void removeChessFloor(boolean update){
+        ChessFloor.removeSingelton(chart, update);
     }
 }

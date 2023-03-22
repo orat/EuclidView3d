@@ -13,8 +13,9 @@ import org.jzy3d.maths.Vector3d;
 import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Translate;
 
-/**One part of a Robot created from multiple DrawbaleVBO2 objects
- *
+/**
+ * One part of a robot or skeleton created from multiple DrawbaleVBO2 objects
+ * 
  * @author Dominik Scharnagl
  */
 public class EuclidPart {
@@ -28,6 +29,10 @@ public class EuclidPart {
     private boolean boundingBoxDisplayed;
     private Color boundingBoxColor;
     private String name = "";
+    private float angleX = 0;
+    private float angleY = 0;
+    private float angleZ = 0;
+    private boolean isBallJoint = true;
     
     /**
      * Creates a new RobotPart
@@ -39,6 +44,7 @@ public class EuclidPart {
         boundingBoxColor = Color.RED;
         this.setBoundingBoxDisplayed(boundingBoxDisplayed);
         x = new Coord3d(1,0,0);
+        y = new Coord3d(0,1,0);
         z = new Coord3d(0,1,0);
         coordCenter = new Coord3d(0,0,0);
     }
@@ -49,18 +55,19 @@ public class EuclidPart {
      */
     public void drawPart(Chart chart){
         this.setChart(chart);
-        drawPart();
+        addToChart();
     }
     
     /**
-     * Draw the robotpart to the chart it allready is part of
+     * Add the robotpart to the chart it allready is part of. Does not update the chart. 
+     * The chart has to be updated  after all EuclidParts have been transformed
      */
-    public void drawPart(){
+    public void addToChart(){
         for(EuclidVBO2 part: parts){
             part.setWireframeDisplayed(false);
-            chart.add(part);
+            chart.add(part, false);
         }
-         setBoundingBoxDisplayed(boundingBoxDisplayed);
+        setBoundingBoxDisplayed(boundingBoxDisplayed);
     }   
     
     /**
@@ -144,26 +151,30 @@ public class EuclidPart {
     }
     
     /**
-     * clears all the Objects from the chart
+     * clears all the Objects from the chart. 
+     * Chart will not be updated. It has to be updated manually either after clearing 
+     * or after readding the transformed parts.
      */
     private void clearObjects(){
         for(EuclidVBO2 object: getParts()){
-            chart.remove(object);
+            chart.remove(object, false);
         }
         parts.clear();
     }
     
     /**
      * Clear the objects from the chart
+     * Chart will not be updated. It has to be updated manually either after clearing 
+     * or after readding the transformed parts.
      */
     public void clearFromChart(){
         for(EuclidVBO2 object: getParts()){
-            chart.remove(object);
+            chart.remove(object, false);
         }
     }
     
     /**
-     * 
+     * Sets if the bounding boxes are displayed or not
      * @param boundingBoxDisplayed 
      */
     public void setBoundingBoxDisplayed(boolean boundingBoxDisplayed){
@@ -181,8 +192,15 @@ public class EuclidPart {
         }
     }
     
+    /**
+     * Sets the color of the bounding box
+     * @param color The color of the bounding box
+     */
     public void setBoundingBoxColor(Color color){
         this.boundingBoxColor = color; 
+        for(EuclidVBO2 object: getParts()){
+            object.setBoundingBoxColor(color);
+        }
     }
     
     /**
@@ -214,6 +232,14 @@ public class EuclidPart {
     }
  
     /**
+     * Set the y vector of the Local Vectorsystem
+     * @param y the new y vector
+     */
+    public void setLocalVectorsystemY(Coord3d y){
+        this.y = y;
+    }
+    
+    /**
      * Set the z vector of the Local Vectorsystem
      * @param z the new z vector
      */
@@ -221,6 +247,10 @@ public class EuclidPart {
         this.z = z;
     }
     
+    /**
+     * Set the center of this part
+     * @param c The center
+     */
     public void setCoordCenter(Coord3d c){
         this.coordCenter = c; 
     }
@@ -232,6 +262,14 @@ public class EuclidPart {
     public Coord3d getLocalVectorsystemX(){
         return this.x;
     }
+    
+    /**
+     * Get the y vector of the local Vectorsystem 
+     * @return the y vector
+     */
+    public Coord3d getLocalVectorsystemY(){
+        return this.y;
+    }
 
     /**
      * Get the z vector of the local Vectorsystem 
@@ -241,6 +279,10 @@ public class EuclidPart {
         return this.z;
     }
     
+    /**
+     * Returns the center of the part
+     * @return the center
+     */
     public Coord3d getCenter(){
         return this.coordCenter;
     }
@@ -261,11 +303,83 @@ public class EuclidPart {
         return this.chart;
     }
     
+    /**
+     * Sets the name of the object
+     * @param name the new name of the object
+     */
     public void setName(String name){
         this.name = name;
     }
     
+    /**
+     * Returns the name of the object
+     * @return the name of the part
+     */
     public String getName(){
         return this.name;
+    }
+    
+    /**
+     * Sets if the object is attached to a ball joint or not. (For skeleton purposes)
+     * @param isBallJoint boolean value of if it is attached to a ball joint
+     */
+    public void setIsBallJoint(boolean isBallJoint){
+        this.isBallJoint = isBallJoint;
+    }
+    
+    /**
+     * Returns if the object is attached to a ball joint or not. (For skeleton purposes)
+     * @return boolean value of if it is attached to a ball joint
+     */
+    public boolean getIsBallJoint(){
+        return this.isBallJoint;
+    }
+    
+    /**
+     * Sets the x-angle of the object (For skeleton purposes
+     * @param angle the new x-angle
+     */
+    public void setAngleX(float angle){
+        this.angleX = angle;
+    }
+    
+    /**
+     * Returns the x-angle of the object (For skeleton purposes)
+     * @return the x-angle
+     */
+    public float getAngleX(){
+        return this.angleX;
+    }
+    
+    /**
+     * Sets the y-angle of the object (For skeleton purposes
+     * @param angle the new y-angle
+     */
+    public void setAngleY(float angle){
+        this.angleY = angle;
+    }
+    
+    /**
+     * Returns the y-angle of the object (For skeleton purposes)
+     * @return the y-angle
+     */
+    public float getAngleY(){
+        return this.angleY;
+    }
+    
+    /**
+     * Sets the z-angle of the object (For skeleton purposes
+     * @param angle the new z-angle
+     */
+    public void setAngleZ(float angle){
+        this.angleZ = angle;
+    }
+    
+    /**
+     * Returns the z-angle of the object (For skeleton purposes)
+     * @return the z-angle
+     */
+    public float getAngleZ(){
+        return this.angleZ;
     }
 }

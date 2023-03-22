@@ -1,5 +1,6 @@
 package org.jzy3d.plot3d.primitives;
 
+import de.orat.math.view.euclidview3d.GeometryView3d;
 import de.orat.math.view.euclidview3d.ObjectLoader;
 import de.orat.math.view.euclidview3d.test.robot.DH;
 import static java.lang.Math.PI;
@@ -48,7 +49,8 @@ public class EuclidRobot {
     } 
     
     /**
-     * Set the Data for the Robot
+     * Set the Data for the Robot.
+     * 
      * @param componentsPaths The path to the .dae Files
      * @param delta_theta_rad the delta theta in radiant for mDH
      * @param delta_alpha_rad the delta alpha in radiant for mDH
@@ -56,8 +58,8 @@ public class EuclidRobot {
      * @param delta_r_m the delta r for mDH
      */
      public void setData(List<String> componentsPaths, double[] delta_theta_rad, double[] delta_alpha_rad,double[] delta_d_m, double[] delta_r_m){
-        parts = new ArrayList<EuclidPart>();
-        dhList = new ArrayList<DH>();
+        parts = new ArrayList<>();
+        dhList = new ArrayList<>();
         ObjectLoader loader = ObjectLoader.getLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
@@ -81,7 +83,7 @@ public class EuclidRobot {
     } 
      
      /**
-      * Set Data with Degrees
+      * Set Data with Degrees for the theta values
       * @param componentsPaths The path to the .dae Files
       * @param theta the theta of the DH
       * @param alpha the alpha of the DH
@@ -171,6 +173,7 @@ public class EuclidRobot {
             parts.get(j).translateAlongVector(d, z);
             parts.get(j).setCoordCenter(new Coord3d(c.x + d * z.x, c.y + d * z.y, c.z + d * z.z));
         }
+        chart.getCanvas().getView().shoot();
     }
     
     /**
@@ -187,6 +190,7 @@ public class EuclidRobot {
             parts.get(j).translateAlongVector(r, x);
             parts.get(j).setCoordCenter(new Coord3d(c.x + r * x.x, c.y + r * x.y, c.z + r * x.z));
         }
+        chart.getCanvas().getView().shoot();
     }
     
     /**
@@ -206,6 +210,7 @@ public class EuclidRobot {
             newZ = newZ.rotate(alpha, x);
             parts.get(j).setLocalVectorsystemZ(newZ);
          }
+         chart.getCanvas().getView().shoot();
     }
     
     /**
@@ -252,8 +257,9 @@ public class EuclidRobot {
      * Set the new theta
      * @param axis the number of the axis for which the new theta will be set
      * @param theta the new theta Value
+     * @param updateChart true if the chart should be updated after rotating
      */
-    public void setTheta(int axis, float theta){
+    public void setTheta(int axis, float theta, boolean updateChart){
         DH oldDH = dhList.get(axis);
         float oldTheta = (float) oldDH.getTheta();
         float rotateTheta = theta - oldTheta;
@@ -270,6 +276,10 @@ public class EuclidRobot {
         }
         newDh = new DH(theta, oldDH.getAlpha(), oldDH.getD(), oldDH.getR());
         dhList.set(axis, newDh);
+       
+        if(updateChart){
+            chart.getCanvas().getView().shoot();
+        }
     }
     
     /**
@@ -281,6 +291,9 @@ public class EuclidRobot {
         }
     }
     
+    /**
+     * Print out the Rotational centers of each robot part
+     */
     public void getCoordCenters(){
         for(int i = 0; i < parts.size(); i++){
             System.out.println(parts.get(i).getCenter());
@@ -305,6 +318,10 @@ public class EuclidRobot {
         }
     }
     
+    /**
+     * Sets the bounding boxes of the robot parts 
+     * @param bbx true if the bounding boxes of each part should be displayed, false otherwise
+     */
     public void setBoundingBoxDisplayed(boolean bbx){
         for(EuclidPart part: parts){
             part.setBoundingBoxDisplayed(bbx);
@@ -320,6 +337,9 @@ public class EuclidRobot {
     }
     
     
+    /**
+     * Print out all DH values
+     */
     public void printDHS(){
         for(int i = 0; i < dhList.size(); i++){
             System.out.println("D: " + dhList.get(i).getD() + " - R: " + dhList.get(i).getR());

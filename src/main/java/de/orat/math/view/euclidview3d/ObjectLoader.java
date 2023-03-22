@@ -44,8 +44,10 @@ public class ObjectLoader {
     }
     
     /**
-     * Add a COLLADA (.dae) File Object to the Scene
+     * Add a COLLADA (.dae) File Object to the Scene.
+     * 
      * @param path the path to the COLLADA File
+     * @return 
     */
     public EuclidPart getCOLLADA(String path){
         List<EuclidVBO2> objects = getParts(path);
@@ -119,6 +121,12 @@ public class ObjectLoader {
         }
         if(string.equals("Box02")){
             return false;
+        }
+        if(string.equals("LeftToe")){
+           return false; 
+        }
+        if(string.equals("RightToe")){
+           return false; 
         }
         return true;
     }

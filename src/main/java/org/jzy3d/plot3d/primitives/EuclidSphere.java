@@ -12,8 +12,9 @@ import org.jzy3d.plot3d.primitives.pickable.PickableSphere;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
 
 /**
- *
- * @author Nutzer
+ * The class for a sphere.
+ * 
+ * @author Dominik Scharnagl
  */
 public class EuclidSphere extends Composite implements Pickable, PickableObjects{
     
@@ -21,12 +22,21 @@ public class EuclidSphere extends Composite implements Pickable, PickableObjects
     private DrawableText label;
     private int pickingId; 
 
+    /**
+     * Set the data of the sphere
+     * @param position the center position for the sphere
+     * @param radius the radius of the sphere
+     * @param slicing the slicing
+     * @param color the color of the sphere
+     * @param label the text of the label of the sphere
+     * @param labelLocation the location of the sphere
+     */
     public void setData(Point3d position, float radius, int slicing, Color color, String label, Point3d labelLocation){
-        sphere = new PickableSphere(new Coord3d(position.x,position.x,position.z),radius,slicing,color);
+        sphere = new PickableSphere(new Coord3d(position.x,position.y,position.z),radius,slicing,color);
         this.add(sphere);
         this.label = LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK);
         this.add(this.label);
-        setNewPosition(new Coord3d(position.x,position.x,position.z));
+        setNewPosition(new Coord3d(position.x,position.y,position.z));
     }
     
     @Override

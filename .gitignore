@@ -1,1 +1,13 @@
-/target
+#Ignore temporary files
+**/.*.kate-swp
+**/.directory
+hs_err_pid*
+
+#Ignore generated folders
+**/.vs
+**/x64
+**/x32
+**/Debug
+**/Release
+**/target
+
