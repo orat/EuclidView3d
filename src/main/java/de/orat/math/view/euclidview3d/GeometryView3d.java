@@ -251,6 +251,11 @@ public class GeometryView3d extends AbstractAnalysis {
         panel.updateUI();
     }
     
+    /**
+     * Returns if it is the X, Y or Z coordinate axis for the rotation of the robot. 
+     * @param i The number of the loop
+     * @return The string fo the Axis label
+     */
     private String getCoordinateAxisFromForLoop(int i){
         return switch (i) {
             case 0 -> "X: ";

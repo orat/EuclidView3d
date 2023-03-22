@@ -5,8 +5,8 @@
 package org.jzy3d.plot3d.primitives;
 
 /**
- *
- * @author Nutzer
+ * The enum containing the different robot types
+ * @author Dominik Scharnagl
  */
 public enum RobotType {
     
