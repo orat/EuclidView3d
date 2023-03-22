@@ -1,5 +1,6 @@
 package de.orat.math.view.euclidview3d;
 
+import de.orat.math.euclid.AxisAlignedBoundingBox;
 import de.orat.math.euclid.CutFailedException;
 import de.orat.math.euclid.Line3d;
 import de.orat.math.euclid.Plane;
@@ -61,7 +62,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private int pickingId = 0;
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
-    private PickingSupport pickingSupport;
+    private PickingSupport pickingSupport; // ==null if not available
     private NewtCameraMouseController cameraMouse;
     private ObjectLoader colladaLoader;
     protected static ArrayList<EuclidRobot> robotList = new ArrayList();
@@ -264,9 +265,9 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add a point to the 3d view.
      * 
-     * @param location location of the point
+     * @param location location of the point [mm]
      * @param color color of the point
-     * @param diameter diameter of the point
+     * @param diameter diameter of the point [mm]
      * @param label the text of the label of the point
      */
     public void addPoint(Point3d location, Color color, float diameter, String label){
@@ -277,9 +278,13 @@ public class GeometryView3d extends AbstractAnalysis {
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeDisplayed(false);
         sphere.setPickingId(pickingId++);
-        pickingSupport.registerDrawableObject(sphere, sphere);
+        if (pickingSupport != null){
+            pickingSupport.registerDrawableObject(sphere, sphere);
+        }
         chart.add(sphere);
-        pickingSupportList.add(sphere);
+        if (pickingSupport != null){
+            pickingSupportList.add(sphere);
+        }
     }
     public void addPointPair(Point3d location1, Point3d location2, String label, 
                              Color color, float lineRadius, float pointDiameter, boolean isDashed){
@@ -288,14 +293,14 @@ public class GeometryView3d extends AbstractAnalysis {
         // isDashed?
         addPoint(location1, color, pointDiameter, label+"_1");
         addPoint(location2, color, pointDiameter, label+"_2");
-        addLine(location1, location2, lineRadius, color, "");
+        addLine(location1, location2, lineRadius, color, "", false);
     }
     
     /**
      * Add a sphere to the 3d view.
      * 
      * @param location
-     * @param squaredSize
+     * @param squaredSize [mm^2]
      * @param color 
      * @param label the text of the label of the sphere
      */
@@ -306,9 +311,13 @@ public class GeometryView3d extends AbstractAnalysis {
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
         sphere.setPickingId(pickingId++);
-        pickingSupport.registerDrawableObject(sphere, sphere);
+        if (pickingSupport != null){
+            pickingSupport.registerDrawableObject(sphere, sphere);
+        }
         chart.add(sphere);
-        pickingSupportList.add(sphere);
+        if (pickingSupport != null){
+            pickingSupportList.add(sphere);
+        }
     }
   
     /**
@@ -318,36 +327,78 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param location
      * @param color
      * @param radius
-     * @param length weglassen und die Länge anhand des Volumens der view bestimmen
      * @param label
+     * @return true if the line is inside the bounding box and visible
      */
-    public void addLine(Point3d location, Vector3d attitude, Color color, 
-            float radius, float length, String label){
-        addLine(location, 
-            new Point3d(location.x+attitude.x*length, 
-                        location.y+attitude.y*length, 
-                        location.z+attitude.z*length), radius, color, label);
+    public boolean addLine(Point3d location, Vector3d attitude, Color color, 
+                           float radius, String label){
+        
+        // Clipping
+        Point3d p1 = new Point3d();
+        Point3d p2 = new Point3d();
+        boolean result = clipLine(new Line3d(new Vector3d(location), attitude), p1, p2);
+       
+        if (result){
+            addLine(p1, p2,  (float) p1.distance(p2), color, label, false);
+        }
+        return result;
     }
     /**
-     * Add a line to the 3d view.
+     * Add a line to the 3d view.TODO
+ statt length + normalized(attitude) einfach nur die Attitude übergeben
+     * 
+     * 
+     * @param attitude (normalized)
+     * @param location
+     * @param color
+     * @param radius
+     * @param length 
+     * @param label
+     * @param withClipping
+     * @return 
+     */
+    public boolean addLine(Point3d location, Vector3d attitude, Color color, 
+            float radius, float length, String label, boolean withClipping){
+        return addLine(location, 
+            new Point3d(location.x+attitude.x*length, 
+                        location.y+attitude.y*length, 
+                        location.z+attitude.z*length), radius, color, label, withClipping);
+    }
+    /**
+     * Add a line to the 3d view.TODO
+ hier wird erneut clipping aufgerufen, ...
+     * 
      * 
      * @param p1 start point of the cylinder
      * @param p2 end point of the cylinder
      * @param radius radius of the cylinder
      * @param color color of the line
      * @param label the label of the line
+     * @param withClipping
      */
-    public void addLine(Point3d p1, Point3d p2, float radius, Color color, String label){
-        p1 = clipPoint(p1);
-        p2 = clipPoint(p2);
+    public boolean addLine(Point3d p1, Point3d p2, float radius, Color color, String label, boolean withClipping){
+        if (withClipping){
+            p1 = clipPoint(p1);
+            p2 = clipPoint(p2);
+        }
         Line line = new Line();
         line.setData(p1,p2, radius, 10, 0, color, label);
         line.setPickingId(pickingId++);
-        pickingSupport.registerDrawableObject(line, line);
+        if (pickingSupport != null){
+            pickingSupport.registerDrawableObject(line, line);
+        }
         chart.add(line);
-        pickingSupportList.add(line);
+        if (pickingSupport != null){
+            pickingSupportList.add(line);
+        }
+        
+        // wenn ausserhalb der bounding-box dann false
+        //TODO
+        return true;
     }
    
+    
+    
     /**
      * add circle to the 3d view.
      * 
@@ -366,9 +417,13 @@ public class GeometryView3d extends AbstractAnalysis {
         EuclidCircle circle = new EuclidCircle();
         circle.setData(origin, direction, radius, color, label);
         circle.setPickingId(pickingId++);
-        pickingSupport.registerPickableObject(circle, circle);
+        if (pickingSupport != null){
+            pickingSupport.registerPickableObject(circle, circle);
+        }
         chart.add(circle);
-        pickingSupportList.add(circle);
+        if (pickingSupport != null){
+            pickingSupportList.add(circle);
+        }
     }
     
     /**
@@ -389,20 +444,25 @@ public class GeometryView3d extends AbstractAnalysis {
                     new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color, label);
         arrow.setWireframeDisplayed(false);
         arrow.setPickingId(pickingId++);
-        pickingSupport.registerPickableObject(arrow, arrow);
+        if (pickingSupport != null){
+            pickingSupport.registerPickableObject(arrow, arrow);
+        }
         chart.add(arrow);
-        pickingSupportList.add(arrow);
+        if (pickingSupport != null){
+            pickingSupportList.add(arrow);
+        }
     }
     
     /**
      * Add a plane to the 3d view.
      * 
-     * @param location first point of the plane
+     * @param location first point of the plane, unit is [m]
      * @param n normal vector
      * @param color color of the plane
      * @param label the text of the label of the plane
+     * @return 
      */
-    public void addPlane(Point3d location, Vector3d n, Color color, String label){
+    public boolean addPlane(Point3d location, Vector3d n, Color color, String label){
         
         // Clipping
         //BoundingBox3d bounds = chart.getView().getAxis().getBounds();
@@ -455,42 +515,17 @@ public class GeometryView3d extends AbstractAnalysis {
         dir1.sub(p);
         dir2.sub(p);*/
         
-        Plane xyplane = new Plane(new Vector3d(0,0,0), new Vector3d(0,0,1));
-        Plane yzplane = new Plane(new Vector3d(0,0,0), new Vector3d(1,0,0));
-        Plane zxplane = new Plane(new Vector3d(0,0,0), new Vector3d(0,1,0));
-        
-        Line3d xyLine = null;
-        Line3d yzLine = null;
-        Line3d zxLine = null;
-        
-        try {
-            xyLine = xyplane.cut(plane);
-        } catch (CutFailedException e){}
-        try {
-            yzLine = yzplane.cut(plane);
-        } catch (CutFailedException e){}
-        try {
-            zxLine = zxplane.cut(plane);
-        } catch (CutFailedException e){}
-        
-        Vector3d dir1 = null;
-        Vector3d dir2 = null;
-        if (xyLine != null){
-            dir1 = xyLine.getDirectionVector();
-            if (yzLine != null){
-                dir2 = yzLine.getDirectionVector();
-            } else {
-                dir2 = zxLine.getDirectionVector();
-            }
-        } else {
-            if (yzLine != null){
-                dir1 = yzLine.getDirectionVector();
-            } else {
-                dir2 = zxLine.getDirectionVector();
-            }
+        // clipping
+        AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
+        Point3d[] nodes = new Point3d[4];
+        boolean result = aabb.clip(plane, nodes);
+        if (result){
+            //TODO
+            // Wie kann ich anhand der nodes eine Ebene plotten, vermutlich ist
+            // es besser ein Polygon zu plotten
+            //addPlane(location, dir1, dir2, color, label);
         }
-        addPlane(location, dir1, dir2, color, label);
-            
+        return result;
     }
     /**
      * Add a plane to the 3d view.
@@ -501,8 +536,9 @@ public class GeometryView3d extends AbstractAnalysis {
      *             and which is added to the location to get the forth point
      * @param color color of the plane
      * @param label the text of the label of the plane
+     * @return false if the plane is outside the bounding-box
      */
-    public void addPlane(Point3d location, Vector3d dir1, Vector3d dir2, 
+    public boolean addPlane(Point3d location, Vector3d dir1, Vector3d dir2, 
                           Color color, String label){
         location = clipPoint(location);
         Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
@@ -515,10 +551,16 @@ public class GeometryView3d extends AbstractAnalysis {
         plane.setData(location, dir1, dir2, color, label);
         plane.setPolygonOffsetFillEnable(false);
         plane.setWireframeDisplayed(true);
-        pickingSupport.registerDrawableObject(plane, plane);
-        plane.setPickingId(pickingId++);
+        if (pickingSupport != null){
+            pickingSupport.registerDrawableObject(plane, plane);
+        }
         chart.add(plane);
-        pickingSupportList.add(plane);
+        if (pickingSupport != null){    
+            pickingSupportList.add(plane);
+        }
+        // wenn ausserhalb der bounding-box false
+        //TODO
+        return true;
     }
     
     
@@ -561,6 +603,30 @@ public class GeometryView3d extends AbstractAnalysis {
             point.z = bounds.getZmax();
         }
         return point;
+    }
+    
+     /**
+     * Determine clipping point of a line with the bounding box of the current
+     * visualization.
+     * 
+     * In principle "Liang-Barsky Line Clipping algorithm" is a possible 
+     * implementation.
+     * 
+     * @param line
+     * @param p1 output near point
+     * @param p2 output far point
+     * @return true if there are intersection points
+     */
+    private boolean clipLine(Line3d line, Point3d p1, Point3d p2){
+        AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
+        return aabb.clip(line, p1, p2);
+    }
+    
+    private AxisAlignedBoundingBox createAxisAlignedBoundBox(){
+        BoundingBox3d bounds = chart.getView().getAxis().getBounds();
+        Point3d center = new Point3d(bounds.getCenter().x, bounds.getCenter().y, bounds.getCenter().z);
+        Vector3d size = new Vector3d(bounds.getRange().x, bounds.getRange().y, bounds.getRange().z);
+        return new AxisAlignedBoundingBox(center, size);
     }
     
     /**
@@ -663,7 +729,7 @@ public class GeometryView3d extends AbstractAnalysis {
             
         //Set up ObjectLoader and Mouse
         colladaLoader = ObjectLoader.getLoader();
-        setUpMouse();
+        setUpPickingSupport();
         //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
@@ -720,7 +786,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Sets up the mouse for picking
      */
-    protected void setUpMouse(){
+    protected void setUpPickingSupport(){
         pickingSupport = new PickingSupport();
         pickingSupport.addObjectPickedListener(new EuclidPickListener());
         NewtMouse m = new NewtMouse();
@@ -816,6 +882,7 @@ public class GeometryView3d extends AbstractAnalysis {
     
     /**
      * Adds a moved object to the pickingSupport.
+     * 
      * @param plane the moved object
      */
     private void pickObject(PickableObjects plane){

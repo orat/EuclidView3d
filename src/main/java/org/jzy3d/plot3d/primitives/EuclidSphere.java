@@ -12,7 +12,8 @@ import org.jzy3d.plot3d.primitives.pickable.PickableSphere;
 import org.jzy3d.plot3d.text.drawable.DrawableText;
 
 /**
- * The class for a sphere
+ * The class for a sphere.
+ * 
  * @author Dominik Scharnagl
  */
 public class EuclidSphere extends Composite implements Pickable, PickableObjects{
