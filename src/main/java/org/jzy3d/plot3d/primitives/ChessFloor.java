@@ -9,14 +9,9 @@ import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.colors.Color;
-import org.jzy3d.maths.Array;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.plot3d.primitives.vbo.drawable.DrawableVBO2;
 
-/**
- *
- * @author Nutzer
- */
 public class ChessFloor{
     
     private static Chart chart;
@@ -28,37 +23,40 @@ public class ChessFloor{
     private Color heightColor;
     
     /**
-     * Creates a new Chess Floor as a Singelton
-     * @param chart The chart to which the chess Floor should be added
-     * @param length The lenght of a square of the chess floor
-     * @return The chessfloor
-     */
-    public static ChessFloor getSingelton(Chart chart, float length){
-        if(singelton == null){
-            singelton = new ChessFloor(chart, length);
-        } else {
-            singelton.setLength(length);
-            //singelton.update();
-        }
-        return singelton;
-    }
-    
-    /**
-     * Returns the chessfloor singelton with the fixed length of 1.0f for each squre
+     * Update an existing chessfloor - creates one before, if it does not yet exist.
+     * 
+     * @param width of a square
      * @param chart The chart to which the chessfloor should be added
      * @param updateChart true if the cart should be updated directly
-     * @return The chess Floor
+     * @return The chess floor singleton
      */
-    public static ChessFloor getSingelton(Chart chart, boolean updateChart){
-        if(singelton == null){
-            singelton = new ChessFloor(chart, 1.0f);
-        }
+    public static ChessFloor update(float width, Chart chart, boolean updateChart){
+        configure(chart, width);
         singelton.update();
         if(updateChart){
             chart.getCanvas().getView().shoot();
         }
         return singelton;
     }
+    
+    /**
+     * Creates a new Chess Floor as a Singelton if needed, else only set
+     * the width of the existing chess floor.
+     * 
+     * @param chart The chart to which the chess Floor should be added
+     * @param width The lenght of a square of the chess floor
+     * @return The chessfloor
+     */
+    public static ChessFloor configure(Chart chart, float width){
+        if(singelton == null){
+            singelton = new ChessFloor(chart, width);
+        } else {
+            singelton.setLength(width);
+            //singelton.update();
+        }
+        return singelton;
+    }
+    
     
     public static void removeSingelton(Chart chart2, boolean updateChart){
         if(singelton != null && chart2 == chart){
@@ -73,9 +71,9 @@ public class ChessFloor{
      * @param chart The chart to which it should be added
      * @param length The lenght of a square
      */
-    private ChessFloor(Chart chart, float length){
+    private ChessFloor(Chart newchart, float length){
         this.drawables = new LinkedList();
-        this.chart = chart;
+        chart = newchart;
         this.length = length;
         this.update();
     }
@@ -83,7 +81,7 @@ public class ChessFloor{
     /**
      * Updates the ChessFloor.
      */
-    public void update(){
+    public final void update(){
         this.removeChart();
         this.drawables.clear();
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();

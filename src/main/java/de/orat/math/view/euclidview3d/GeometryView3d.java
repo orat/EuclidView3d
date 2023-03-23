@@ -16,6 +16,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.jogamp.vecmath.Point3d;
@@ -58,7 +59,8 @@ import org.jzy3d.plot3d.rendering.view.Camera;
  */
 public class GeometryView3d extends AbstractAnalysis {
 
-    //private Chart chart;
+    public static float CHESS_FLOOR_WIDTH = 100;
+    
     private int pickingId = 0;
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
@@ -75,22 +77,24 @@ public class GeometryView3d extends AbstractAnalysis {
         super(new NewtChartFactory());  
     }
     
-    
     public static void main(String[] args) throws Exception {
         GeometryView3d gv = new GeometryView3d();
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
-        /*gv.*/
         rotateRobotsCoordsystem();
-        /*gv.*/
-        setRobotsDH();
-        gv.setUpRobotMovement();
-        gv.setUpSkeletons();
-        gv.setUpSkeletonMovement();
-        gv.updateChessFloor(true);
         
-        //GeometryView3d viewer = new GeometryView3d();
-        //viewer.open();
+        setRobotsDH();
+        
+        // muss das nicht alles im EVT aufgerufen werden?
+        // unklar, ob das nötig ist
+        // invokeAndWait should fail, when I am already in the EDT
+        //FIXME
+        SwingUtilities.invokeAndWait(() -> {
+            gv.setUpRobotMovement();
+            gv.setUpSkeletons();
+            gv.setUpSkeletonMovement();
+           // gv.updateChessFloor(true, 1f);
+        });
     }
     
     /**
@@ -99,8 +103,8 @@ public class GeometryView3d extends AbstractAnalysis {
     private void skeletonCenters(){
         for(EuclidSkeleton s: skeletonList){
             for(EuclidPart part: s.getParts()){
-                    Point3d p = new Point3d(part.getCenter().x, part.getCenter().y, part.getCenter().z);
-                    addPoint(p,Color.RED,0.2f, "");
+                Point3d p = new Point3d(part.getCenter().x, part.getCenter().y, part.getCenter().z);
+                addPoint(p,Color.RED,0.2f, "");
             }
         }
     }
@@ -151,13 +155,13 @@ public class GeometryView3d extends AbstractAnalysis {
                     JSlider source = (JSlider)e.getSource();
                     //updateing chess floor after seting the Theta Values does not lead to tearing
                     robotList.get(jx).setTheta(ix, source.getValue(), false);
-                    updateChessFloor(true);   
+                    //updateChessFloor(true, CHESS_FLOOR_WIDTH);   
                 });
                 p.add(slider);
             }
         }
-            p.setVisible(true);
-            c.add(p); 
+        p.setVisible(true);
+        c.add(p); 
     }
     
     /**
@@ -204,7 +208,8 @@ public class GeometryView3d extends AbstractAnalysis {
     }
     
     /**
-     * Sets up the slider rotation of a skeleton part
+     * Sets up the slider rotation of a skeleton part.
+     * 
      * @param skeleton The skeleton
      * @param name The name of the part of the skeleton
      * @param panel The panel where the sliders 
@@ -231,19 +236,19 @@ public class GeometryView3d extends AbstractAnalysis {
                     JSlider source = (JSlider)e.getSource();
                     switch(ix){
                         case 0 -> {
-                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemX(), part.getCenter(), ix, false); updateChessFloor(true);
+                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemX(), part.getCenter(), ix, false); updateChessFloor(true, CHESS_FLOOR_WIDTH);
                         }
                         case 1 -> {   
-                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemY(), part.getCenter(), ix, false); updateChessFloor(true);
+                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemY(), part.getCenter(), ix, false); updateChessFloor(true, CHESS_FLOOR_WIDTH);
                         }
                         default -> {
-                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemZ(), part.getCenter(), ix, false); updateChessFloor(true);
+                            skeleton.rotate(name, source.getValue(), part.getLocalVectorsystemZ(), part.getCenter(), ix, false); updateChessFloor(true, CHESS_FLOOR_WIDTH);
                         }
                     }
                 });
                 sliderPanel.add(slider);
             }
-        }else{
+        } else {
             JLabel axisText = new JLabel(getCoordinateAxisFromForLoop(1));
             sliderPanel.add(axisText);
             panel.add(sliderPanel);
@@ -286,8 +291,20 @@ public class GeometryView3d extends AbstractAnalysis {
             pickingSupportList.add(sphere);
         }
     }
+    /**
+     * Add real point pair.
+     * 
+     * No imaginary point pairs, because these are visualized as ipns circles.
+     * 
+     * @param location1 unit in [mm]
+     * @param location2 unit in [mm]
+     * @param label
+     * @param color
+     * @param lineRadius
+     * @param pointDiameter
+     */
     public void addPointPair(Point3d location1, Point3d location2, String label, 
-                             Color color, float lineRadius, float pointDiameter, boolean isDashed){
+                             Color color, float lineRadius, float pointDiameter){
         
         //TODO
         // isDashed?
@@ -299,15 +316,15 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add a sphere to the 3d view.
      * 
-     * @param location
-     * @param squaredSize [mm^2]
+     * @param location unit in [mm]
+     * @param radius [mm] > 0
      * @param color 
      * @param label the text of the label of the sphere
      */
-    public void addSphere(Point3d location, double squaredSize, Color color, String label){
+    public void addSphere(Point3d location, double radius, Color color, String label){
         EuclidSphere sphere = new EuclidSphere();
-        Point3d labelLocation = new Point3d(location.x,location.y, location.z - Math.sqrt(Math.abs(squaredSize)) - LabelFactory.getInstance().getOffset());
-        sphere.setData(location,(float) Math.sqrt(Math.abs(squaredSize)),10, color, label, labelLocation);
+        Point3d labelLocation = new Point3d(location.x,location.y, location.z - radius - LabelFactory.getInstance().getOffset());
+        sphere.setData(location,(float) radius,10, color, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
         sphere.setPickingId(pickingId++);
@@ -344,9 +361,9 @@ public class GeometryView3d extends AbstractAnalysis {
         return result;
     }
     /**
-     * Add a line to the 3d view.TODO
- statt length + normalized(attitude) einfach nur die Attitude übergeben
-     * 
+     * Add a line to the 3d view.
+     * TODO
+     * statt length + normalized(attitude) einfach nur die Attitude übergeben
      * 
      * @param attitude (normalized)
      * @param location
@@ -365,8 +382,10 @@ public class GeometryView3d extends AbstractAnalysis {
                         location.z+attitude.z*length), radius, color, label, withClipping);
     }
     /**
-     * Add a line to the 3d view.TODO
- hier wird erneut clipping aufgerufen, ...
+     * Add a line to the 3d view.
+     * 
+     * TODO
+     * hier wird erneut clipping aufgerufen, ...
      * 
      * 
      * @param p1 start point of the cylinder
@@ -375,6 +394,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param color color of the line
      * @param label the label of the line
      * @param withClipping
+     * @return false if line is outside the bounding-box
      */
     public boolean addLine(Point3d p1, Point3d p2, float radius, Color color, String label, boolean withClipping){
         if (withClipping){
@@ -397,8 +417,6 @@ public class GeometryView3d extends AbstractAnalysis {
         return true;
     }
    
-    
-    
     /**
      * add circle to the 3d view.
      * 
@@ -460,7 +478,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param n normal vector
      * @param color color of the plane
      * @param label the text of the label of the plane
-     * @return 
+     * @return false if outside the bounding-box
      */
     public boolean addPlane(Point3d location, Vector3d n, Color color, String label){
         
@@ -551,6 +569,7 @@ public class GeometryView3d extends AbstractAnalysis {
         plane.setData(location, dir1, dir2, color, label);
         plane.setPolygonOffsetFillEnable(false);
         plane.setWireframeDisplayed(true);
+        plane.setPickingId(pickingId++);
         if (pickingSupport != null){
             pickingSupport.registerDrawableObject(plane, plane);
         }
@@ -722,10 +741,10 @@ public class GeometryView3d extends AbstractAnalysis {
         chart.getView().getAxis().getLayout().setMainColor(Color.BLACK);
         
         //Add the ChessFloor and set size
-        this.setUpChessFloor(100.f);
-        chart.getScene().getGraph().addGraphListener(() -> {
-            updateChessFloor(true);
-        });
+        //this.setUpChessFloor(100.f);
+        //chart.getScene().getGraph().addGraphListener(() -> {
+        //    updateChessFloor(true, CHESS_FLOOR_WIDTH);
+        //});
             
         //Set up ObjectLoader and Mouse
         colladaLoader = ObjectLoader.getLoader();
@@ -908,30 +927,32 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Set up the ChessFloor size.
      * 
-     * @param length The length of one square
+     * @param width The length of one square
      */
-    protected void setUpChessFloor(float length){
-        ChessFloor.getSingelton(chart, length);
+    protected void setUpChessFloor(float width){
+        ChessFloor.configure(chart, width);
     }
     
     /**
      * Updates the ChessFloor.
      * 
-     * If using a lot of VBOs objects, like the Robot or Skeleton class does and 
+     * If using a lot of VBOs objects, like the Robot or Skeleton class does and
      * then removing and reading parts, call this function after the change to 
-     * avoid stuttering. 
+     * avoid stuttering.
      * 
      * If the function is called before the other VBOs update it leads to 
      * stuttering transformations.
      * 
      * @param update true if the chart should be updated directly
+     * @param width
      */
-    public void updateChessFloor(boolean update){
-        ChessFloor.getSingelton(chart, update);
+    public void updateChessFloor(boolean update, float width){
+        ChessFloor.update(width, chart, update);
     }
     
     /**
-     * Removes the ChessFloor
+     * Removes the ChessFloor.
+     * 
      * @param update true if the chart should be updated directly
      */
     private void removeChessFloor(boolean update){
