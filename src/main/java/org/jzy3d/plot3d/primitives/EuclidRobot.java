@@ -87,7 +87,7 @@ public class EuclidRobot{
     } 
      
      /**
-      * Set Data with Degrees
+      * Set Data with Degrees for the theta values
       * @param componentsPaths The path to the .dae Files
       * @param theta the theta of the DH
       * @param alpha the alpha of the DH
@@ -322,6 +322,10 @@ public class EuclidRobot{
         }
     }
     
+    /**
+     * Sets the bounding boxes of the robot parts 
+     * @param bbx true if the bounding boxes of each part should be displayed, false otherwise
+     */
     public void setBoundingBoxDisplayed(boolean bbx){
         for(EuclidPart part: parts){
             part.setBoundingBoxDisplayed(bbx);

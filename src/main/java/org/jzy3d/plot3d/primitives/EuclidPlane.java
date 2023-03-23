@@ -92,6 +92,10 @@ public class EuclidPlane extends Composite implements Pickable, PickableObjects 
         return this.pickingID;
     }
     
+    /**
+     * Returns the coordinates of the plane as an array
+     * @return the coordinates inside an array
+     */
     public Coord3d[] getCoordArray(){
         return plane.getCoordArray();
     }

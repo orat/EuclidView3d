@@ -13,8 +13,9 @@ import org.jzy3d.maths.Vector3d;
 import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Translate;
 
-/**One part of a Robot created from multiple DrawbaleVBO2 objects
- *
+/**
+ * One part of a robot or skeleton created from multiple DrawbaleVBO2 objects
+ * 
  * @author Dominik Scharnagl
  */
 public class EuclidPart {
@@ -193,7 +194,7 @@ public class EuclidPart {
     
     /**
      * Sets the color of the bounding box
-     * @param color 
+     * @param color The color of the bounding box
      */
     public void setBoundingBoxColor(Color color){
         this.boundingBoxColor = color; 
@@ -246,6 +247,10 @@ public class EuclidPart {
         this.z = z;
     }
     
+    /**
+     * Set the center of this part
+     * @param c The center
+     */
     public void setCoordCenter(Coord3d c){
         this.coordCenter = c; 
     }
@@ -274,6 +279,10 @@ public class EuclidPart {
         return this.z;
     }
     
+    /**
+     * Returns the center of the part
+     * @return the center
+     */
     public Coord3d getCenter(){
         return this.coordCenter;
     }
@@ -304,7 +313,7 @@ public class EuclidPart {
     
     /**
      * Returns the name of the object
-     * @return 
+     * @return the name of the part
      */
     public String getName(){
         return this.name;

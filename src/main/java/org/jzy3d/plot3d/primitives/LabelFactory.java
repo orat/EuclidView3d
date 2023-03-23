@@ -18,6 +18,9 @@ public class LabelFactory {
     private static LabelFactory singelton;
     private final float labelOffset = 0.5f;
     
+    /**
+     * Private constructor for singeltons
+     */
     private LabelFactory(){
         
     }
