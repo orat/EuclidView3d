@@ -30,8 +30,10 @@ public class EuclidRobot{
     private RobotType type;
     
     /**
-     * Creat a Robot
+     * Creat a Robot.
+     * 
      * @param chart the chart to which the robot should be added.
+     * @param type
      */
     public EuclidRobot(Chart chart, RobotType type){
         super();
@@ -44,8 +46,8 @@ public class EuclidRobot{
      * @param componentsPaths the paths to the .dae Files
      */
     public void setData(List<String> componentsPaths){
-        parts = new ArrayList<EuclidPart>();
-        dhList = new ArrayList<DH>();
+        parts = new ArrayList<>();
+        dhList = new ArrayList<>();
         ObjectLoader loader = ObjectLoader.getLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
@@ -87,7 +89,8 @@ public class EuclidRobot{
     } 
      
      /**
-      * Set Data with Degrees for the theta values
+      * Set Data with degrees for the theta values.
+      * 
       * @param componentsPaths The path to the .dae Files
       * @param theta the theta of the DH
       * @param alpha the alpha of the DH
@@ -95,8 +98,8 @@ public class EuclidRobot{
       * @param r the r of the DH 
       */
      public void setDataDegrees(List<String> componentsPaths, double[] theta, double[] alpha,double[] d, double[] r){
-        parts = new ArrayList<EuclidPart>();
-        dhList = new ArrayList<DH>();
+        parts = new ArrayList<>();
+        dhList = new ArrayList<>();
         ObjectLoader loader = ObjectLoader.getLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
