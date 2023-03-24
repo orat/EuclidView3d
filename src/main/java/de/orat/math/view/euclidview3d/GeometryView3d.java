@@ -283,8 +283,8 @@ public class GeometryView3d extends AbstractAnalysis {
         sphere.setData(location, (float) (diameter/2), 20, color, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeDisplayed(false);
-        sphere.setPickingId(pickingId++);
         if (pickingSupport != null){
+            sphere.setPickingId(pickingId++);
             pickingSupport.registerDrawableObject(sphere, sphere);
         }
         chart.add(sphere);
@@ -328,8 +328,8 @@ public class GeometryView3d extends AbstractAnalysis {
         sphere.setData(location,(float) radius,10, color, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(Color.BLACK);
-        sphere.setPickingId(pickingId++);
         if (pickingSupport != null){
+            sphere.setPickingId(pickingId++);
             pickingSupport.registerDrawableObject(sphere, sphere);
         }
         chart.add(sphere);
@@ -404,8 +404,8 @@ public class GeometryView3d extends AbstractAnalysis {
         }
         Line line = new Line();
         line.setData(p1,p2, radius, 10, 0, color, label);
-        line.setPickingId(pickingId++);
         if (pickingSupport != null){
+            line.setPickingId(pickingId++);
             pickingSupport.registerDrawableObject(line, line);
         }
         chart.add(line);
@@ -435,8 +435,8 @@ public class GeometryView3d extends AbstractAnalysis {
         // isDashed
         EuclidCircle circle = new EuclidCircle();
         circle.setData(origin, direction, radius, color, label);
-        circle.setPickingId(pickingId++);
         if (pickingSupport != null){
+            circle.setPickingId(pickingId++);
             pickingSupport.registerPickableObject(circle, circle);
         }
         chart.add(circle);
@@ -462,8 +462,8 @@ public class GeometryView3d extends AbstractAnalysis {
         arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
                     new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color, label);
         arrow.setWireframeDisplayed(false);
-        arrow.setPickingId(pickingId++);
         if (pickingSupport != null){
+            arrow.setPickingId(pickingId++);
             pickingSupport.registerPickableObject(arrow, arrow);
         }
         chart.add(arrow);
@@ -484,56 +484,9 @@ public class GeometryView3d extends AbstractAnalysis {
     public boolean addPlane(Point3d location, Vector3d n, Color color, String label){
         
         // Clipping
-        //BoundingBox3d bounds = chart.getView().getAxis().getBounds();
         
         Plane plane = new Plane(new Vector3d(location), n);
 
-        // Ursprung auf die Ebene projezieren
-        Vector3d p_ = new Vector3d(0,0,0);
-        plane.project(p_);
-        Point3d p = new Point3d(p_);
-
-        /*Line3d xaxis = new Line3d(new Vector3d(), new Vector3d(1,0,0));
-        Line3d yaxis = new Line3d(new Vector3d(), new Vector3d(0,1,0));
-        Line3d zaxis = new Line3d(new Vector3d(), new Vector3d(0,0,1));
-        // Bestimmung der Spurpunkte
-        // Es gibt maximal 3, falls die Ebene senkrecht auf einer der 
-        // Koordinatenachsen steht, gibts nur einen Spurpunkt, 2 Spurpunkte sind auch möglich
-        Point3d p1 = null;
-        double d1 = -Double.MAX_VALUE;
-        double d2 = -Double.MAX_VALUE;
-        double d3 = -Double.MAX_VALUE;
-        try {
-            p1 = new Point3d(plane.cut(xaxis)[0]);
-            d1 = p1.x;
-        } catch (CutFailedException e){}
-        Point3d p2 = null;
-        try {
-            p2 = new Point3d(plane.cut(yaxis)[0]);
-            d2 = p2.y;
-        } catch (CutFailedException e){}
-        Point3d p3 = null;
-        try {
-            p3 = new Point3d(plane.cut(zaxis)[0]);
-            d3 = p3.z;
-        } catch (CutFailedException e){}
-
-        Vector3d dir1, dir2;
-
-        if (-d1 < -d2){
-            // p1 ist dabei
-            if (-d1 < -d3){
-                // p1 ist am dichtesten am Ursprung
-                if (-d2 < -d3){
-                    // p2 ist dabei und am zweitdichtesten am Ursprung
-
-                }
-            }
-        } else 
-
-        dir1.sub(p);
-        dir2.sub(p);*/
-        
         // clipping
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
         Point3d[] nodes = aabb.clip(plane);
@@ -549,9 +502,9 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add a plane to the 3d view.
      * 
-     * @param location first point of the plane
-     * @param dir1 vector which is added to the first point to get the second point
-     * @param dir2 vector which is added to the second point to get the third point 
+     * @param location first point of the plane [mm]
+     * @param dir1 vector which is added to the first point to get the second point, unit in [mm]
+     * @param dir2 vector which is added to the second point to get the third point, unit in [mm]
      *             and which is added to the location to get the forth point
      * @param color color of the plane
      * @param label the text of the label of the plane
@@ -570,8 +523,8 @@ public class GeometryView3d extends AbstractAnalysis {
         plane.setData(location, dir1, dir2, color, label);
         plane.setPolygonOffsetFillEnable(false);
         plane.setWireframeDisplayed(true);
-        plane.setPickingId(pickingId++);
         if (pickingSupport != null){
+            plane.setPickingId(pickingId++);
             pickingSupport.registerDrawableObject(plane, plane);
         }
         chart.add(plane);
