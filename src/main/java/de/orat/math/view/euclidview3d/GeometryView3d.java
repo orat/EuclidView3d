@@ -1,7 +1,6 @@
 package de.orat.math.view.euclidview3d;
 
 import de.orat.math.euclid.AxisAlignedBoundingBox;
-import de.orat.math.euclid.CutFailedException;
 import de.orat.math.euclid.Line3d;
 import de.orat.math.euclid.Plane;
 import java.awt.Component;
@@ -10,15 +9,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.analysis.AbstractAnalysis;
@@ -66,7 +62,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
     private PickingSupport pickingSupport; // ==null if not available
     private NewtCameraMouseController cameraMouse;
-    private ObjectLoader colladaLoader;
+    protected ObjectLoader colladaLoader;
     protected static ArrayList<EuclidRobot> robotList = new ArrayList();
     protected static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
     
@@ -82,19 +78,19 @@ public class GeometryView3d extends AbstractAnalysis {
         AnalysisLauncher.open(gv);
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
-        
         setRobotsDH();
+        gv.setUpRobotMovement();
         
         // muss das nicht alles im EVT aufgerufen werden?
         // unklar, ob das nötig ist
         // invokeAndWait should fail, when I am already in the EDT
         //FIXME
-        SwingUtilities.invokeAndWait(() -> {
+        /*SwingUtilities.invokeAndWait(() -> {
             gv.setUpRobotMovement();
-            gv.setUpSkeletons();
-            gv.setUpSkeletonMovement();
+            //gv.setUpSkeletons();
+            //gv.setUpSkeletonMovement();
            // gv.updateChessFloor(true, 1f);
-        });
+        });*/
     }
     
     /**
@@ -540,9 +536,9 @@ public class GeometryView3d extends AbstractAnalysis {
         
         // clipping
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
-        Point3d[] nodes = new Point3d[4];
-        boolean result = aabb.clip(plane, nodes);
-        if (result){
+        Point3d[] nodes = aabb.clip(plane);
+        boolean result = false;
+        if (nodes.length > 2){
             //TODO
             // Wie kann ich anhand der nodes eine Ebene plotten, vermutlich ist
             // es besser ein Polygon zu plotten
@@ -736,10 +732,8 @@ public class GeometryView3d extends AbstractAnalysis {
         q.setHiDPIEnabled(true); 
         q.setDisableDepthBufferWhenAlpha(false);
         q.setPreserveViewportSize(true);        
-        //chart = initializeChart(q);       
-        
+        //chart = initializeChart(q); 
         chart = new Chart(this.getFactory(), q);
-        
         //chart = myfactory.newChart(q);
         chart.getView().setSquared(false);
         chart.getView().setBackgroundColor(Color.WHITE);
@@ -753,12 +747,12 @@ public class GeometryView3d extends AbstractAnalysis {
             
         //Set up ObjectLoader and Mouse
         colladaLoader = ObjectLoader.getLoader();
-        setUpPickingSupport();
+        //setUpPickingSupport();
         //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
         //light.setType(Light.Type.POSITIONAL);
         Light light = chart.addLightOnCamera();
         
-        addSkeleton("data/golembones/golembones.obj");
+        //addSkeleton("data/golembones/golembones.obj");
         
         /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
