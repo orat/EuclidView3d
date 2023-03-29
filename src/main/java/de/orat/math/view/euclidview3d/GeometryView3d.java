@@ -37,6 +37,7 @@ import org.jzy3d.plot3d.primitives.EuclidCircle;
 import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidRobot;
 import org.jzy3d.plot3d.primitives.EuclidPart;
+import org.jzy3d.plot3d.primitives.EuclidPlane2;
 import org.jzy3d.plot3d.primitives.EuclidSkeleton;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
@@ -79,14 +80,14 @@ public class GeometryView3d extends AbstractAnalysis {
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
         setRobotsDH();
-        gv.setUpRobotMovement();
+        gv.setUpRobotMovementUIWithSliders();
         
         // muss das nicht alles im EVT aufgerufen werden?
         // unklar, ob das nötig ist
         // invokeAndWait should fail, when I am already in the EDT
         //FIXME
         /*SwingUtilities.invokeAndWait(() -> {
-            gv.setUpRobotMovement();
+            gv.setUpRobotMovementUIWithSliders();
             //gv.setUpSkeletons();
             //gv.setUpSkeletonMovement();
            // gv.updateChessFloor(true, 1f);
@@ -124,9 +125,11 @@ public class GeometryView3d extends AbstractAnalysis {
     } 
     
     /**
-     * Set up the movement of the robot per sliders
+     * Set up the movement of the robot per sliders.
+     * 
+     * Usage for demonstration purpose only.
      */
-    protected void setUpRobotMovement(){
+    protected void setUpRobotMovementUIWithSliders(){
         CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
         Component comp = c.getComponent(0);
         c.remove(comp);
@@ -475,7 +478,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add a plane to the 3d view.
      * 
-     * @param location first point of the plane, unit is [m]
+     * @param location first point of the plane, unit is [mm]
      * @param n normal vector
      * @param color color of the plane
      * @param label the text of the label of the plane
@@ -489,34 +492,37 @@ public class GeometryView3d extends AbstractAnalysis {
 
         // clipping
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
-        Point3d[] nodes = aabb.clip(plane);
+        Point3d[] corners = aabb.clip(plane); // corners of a polygon in a plane
+        
         boolean result = false;
-        if (nodes.length > 2){
-            //TODO
-            // Wie kann ich anhand der nodes eine Ebene plotten, vermutlich ist
-            // es besser ein Polygon zu plotten
-            //addPlane(location, dir1, dir2, color, label);
+        if (corners.length > 2){
+            addPlane(location, corners, color, label);
+            result = true;
+            System.out.println("addPlane: "+String.valueOf(corners.length)+" corners found!");
+        } else {
+            System.out.println("addPlane \""+label+"\" failed. Corners cauld not be determined!");
         }
         return result;
     }
     /**
      * Add a plane to the 3d view.
      * 
-     * @param location first point of the plane [mm]
+     * @param location center of the plane (first point) [mm]
      * @param dir1 vector which is added to the first point to get the second point, unit in [mm]
      * @param dir2 vector which is added to the second point to get the third point, unit in [mm]
      *             and which is added to the location to get the forth point
      * @param color color of the plane
      * @param label the text of the label of the plane
-     * @return false if the plane is outside the bounding-box
+     * @return false, if the plane is outside the bounding-box and not visualized
+     * @deprecated
      */
     public boolean addPlane(Point3d location, Vector3d dir1, Vector3d dir2, 
                           Color color, String label){
         location = clipPoint(location);
         Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
         Point3d p2 = new Point3d(location.x+dir2.x,location.y+dir2.y, location.z+dir2.z);
-        p1 = clipPoint(p1);
-        p2 = clipPoint(p2);
+        //p1 = clipPoint(p1);
+        //p2 = clipPoint(p2);
         dir1 = new Vector3d(p1.x-location.x, p1.y-location.y, p1.z-location.z);
         dir2 = new Vector3d(p2.x-location.x, p2.y-location.y, p2.z-location.z);
         EuclidPlane plane = new EuclidPlane();
@@ -534,6 +540,30 @@ public class GeometryView3d extends AbstractAnalysis {
         // wenn ausserhalb der bounding-box false
         //TODO
         return true;
+    }
+    
+    /**
+     * Add a plane to the 3d view.
+     * 
+     * @param location center of the plane (first point) [mm]
+     * @param corners
+     * @param color color of the plane
+     * @param label the text of the label of the plane
+     */
+    protected void addPlane(Point3d location, Point3d[] corners, 
+                          Color color, String label){
+        EuclidPlane2 plane = new EuclidPlane2();
+        plane.setData(location, corners, color, label);
+        plane.setPolygonOffsetFillEnable(false);
+        plane.setWireframeDisplayed(true);
+        if (pickingSupport != null){
+            plane.setPickingId(pickingId++);
+            pickingSupport.registerDrawableObject(plane, plane);
+        }
+        chart.add(plane);
+        if (pickingSupport != null){    
+            pickingSupportList.add(plane);
+        }
     }
     
     
@@ -620,7 +650,7 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public void addRobot(List<String> paths){
         EuclidRobot robot = new EuclidRobot(chart, RobotType.notype);
-        robot.setData(paths);
+        robot.setDataDAEComponents(paths);
         robotList.add(robot);
         robot.addToChartParts();
     }
@@ -637,7 +667,7 @@ public class GeometryView3d extends AbstractAnalysis {
         double[] delta_alpha_rad= new double[]{0d, -0.000849612070594307767, 0.00209120614311242205, 0.0044565542371754396, -0.000376815598678081898, 0.000480742313784698894, 0};
         
         EuclidRobot robot = new EuclidRobot(chart, RobotType.UR5e);
-        robot.setData(paths, delta_theta_rad, delta_alpha_rad, delta_d_m, delta_a_m);
+        robot.setDataWithUR5eDHDeltas(paths, delta_theta_rad, delta_alpha_rad, delta_d_m, delta_a_m);
         robotList.add(robot);
         robot.addToChartParts();
     }

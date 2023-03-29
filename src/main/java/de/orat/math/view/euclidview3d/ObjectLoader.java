@@ -84,11 +84,22 @@ public class ObjectLoader {
         }
         //Combine Objects into one composite
         return new EuclidPart(objects);
-     }
+    }
     
+    /**
+     * 
+     * @param path
+     * @return 
+     * @throws IllegalArgumentException if the path is not found
+     */ 
     private List<EuclidVBO2> getParts(String path){
         //Load COLLADA files (creates a seperate thread)
         AIScene aiScene = aiImportFile(path, 0);
+        
+        if (aiScene == null){
+            System.out.println("getParts() failed for path \""+path+"\"!");
+            throw new IllegalArgumentException("Path \""+path+"\" not found!");
+        }
         
         //process Materials
         int numMaterials = aiScene.mNumMaterials();
