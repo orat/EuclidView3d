@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import org.jogamp.vecmath.Point3d;
+import org.jogamp.vecmath.Point3f;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
@@ -27,6 +28,7 @@ import org.jzy3d.chart.controllers.mouse.picking.PickingSupport;
 import org.jzy3d.chart.factories.NewtChartFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.BoundingBox3d;
+import org.jzy3d.maths.BoundingBox3d.Corners;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Utils2;
 import org.jzy3d.painters.IPainter;
@@ -355,17 +357,23 @@ public class GeometryView3d extends AbstractAnalysis {
                            float radius, String label){
         
         // Clipping
-        Point3d p1 = new Point3d();
-        Point3d p2 = new Point3d();
-        boolean result = clipLine(new Line3d(new Vector3d(location), attitude), p1, p2);
+        //Point3d p1 = new Point3d();
+        //Point3d p2 = new Point3d();
+        //output
+        Point3d[] p = new Point3d[]{};
+        boolean result = clipLine(new Line3d(new Vector3d(location), attitude), p);
        
         if (result){
-            addLine(p1, p2,  (float) p1.distance(p2), color, label, false);
+            addLine(p[0], p[1],  (float) p[0].distance(p[1]), color, label, false);
+        } else {
+            System.out.println("Clipping of line \""+label+"\" failed!");
         }
         return result;
     }
+    
     /**
      * Add a line to the 3d view.
+     * 
      * TODO
      * statt length + normalized(attitude) einfach nur die Attitude übergeben
      * 
@@ -492,13 +500,24 @@ public class GeometryView3d extends AbstractAnalysis {
 
         // clipping
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
+        
+        // testweise die Ecken der bounding box visualisieren
+        /*List<Point3d> points = aabb.getCorners();
+        for (int i=0;i<points.size();i++){
+            this.addPoint(points.get(i), Color.BLUE, 30, String.valueOf(i));
+        }*/
+        
         Point3d[] corners = aabb.clip(plane); // corners of a polygon in a plane
         
         boolean result = false;
         if (corners.length > 2){
             addPlane(location, corners, color, label);
             result = true;
-            System.out.println("addPlane: "+String.valueOf(corners.length)+" corners found!");
+            System.out.println("addPlane \""+label+"\": "+String.valueOf(corners.length)+" corners found:");
+            for (int i=0;i<corners.length;i++){
+                System.out.println("Corner "+String.valueOf(i)+": ("+String.valueOf(corners[i].x)+", "+
+                        String.valueOf(corners[i].y)+", "+String.valueOf(corners[i].z)+")");
+            }
         } else {
             System.out.println("addPlane \""+label+"\" failed. Corners cauld not be determined!");
         }
@@ -616,20 +635,29 @@ public class GeometryView3d extends AbstractAnalysis {
      * implementation.
      * 
      * @param line
-     * @param p1 output near point
-     * @param p2 output far point
+     * @param p output near point, far point, [] if no intersection, maybe only one point
      * @return true if there are intersection points
      */
-    private boolean clipLine(Line3d line, Point3d p1, Point3d p2){
+    private boolean clipLine(Line3d line, Point3d[] p){
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
-        return aabb.clip(line, p1, p2);
+        return aabb.clip2(line, p);
     }
     
     private AxisAlignedBoundingBox createAxisAlignedBoundBox(){
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
         Point3d center = new Point3d(bounds.getCenter().x, bounds.getCenter().y, bounds.getCenter().z);
-        Vector3d size = new Vector3d(bounds.getRange().x, bounds.getRange().y, bounds.getRange().z);
-        return new AxisAlignedBoundingBox(center, size);
+        Vector3d size = new Vector3d(bounds.getRange().x*2, bounds.getRange().y*2, bounds.getRange().z*2);
+        Corners corners = bounds.getCorners();
+        Point3f xyzmin = new Point3f(corners.getXminYminZmin().toArray());
+        Point3f xyminzmax = new Point3f(corners.getXminYminZmax().toArray()); 
+        Point3f xminymaxzmin = new Point3f(corners.getXminYmaxZmin().toArray());
+        Point3f xminymaxzmax = new Point3f(corners.getXminYmaxZmax().toArray());
+        Point3f xmaxyzmin = new Point3f(corners.getXmaxYminZmin().toArray());
+        Point3f xmaxyminzmax = new Point3f(corners.getXmaxYminZmax().toArray());
+        Point3f xymaxzmin = new Point3f(corners.getXmaxYmaxZmin().toArray());
+        Point3f xyzmax = new Point3f(corners.getXmaxYmaxZmax().toArray());
+        return new AxisAlignedBoundingBox(xyzmin, xyminzmax, xminymaxzmin,
+                xminymaxzmax, xmaxyzmin, xmaxyminzmax, xymaxzmin, xyzmax, center, size);
     }
     
     /**

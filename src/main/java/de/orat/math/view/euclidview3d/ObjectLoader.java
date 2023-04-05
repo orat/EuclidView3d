@@ -87,7 +87,6 @@ public class ObjectLoader {
     }
     
     /**
-     * 
      * @param path
      * @return 
      * @throws IllegalArgumentException if the path is not found
