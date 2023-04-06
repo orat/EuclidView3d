@@ -284,11 +284,13 @@ public class AxisAlignedBoundingBox {
      * TODO
      * untested, seems not to work
      * 
+     * https://gist.github.com/aadnk/7123926
+     * weiterer java code, der verwendet werden könnte
+     * 
      * @param line to clip on the AA-bounding-box
-     * @param out output near point, far point or empty array if no intersection
-     * @return true if there are intersection points
+     * @return output near point, far point or empty array if no intersection
      */
-    public boolean clip2(Line3d line, Point3d[] out){
+    public Point3d[] clip2(Line3d line){
          
         Vector3d halfSize = new Vector3d(this.size);
         halfSize.scale(0.5d);
@@ -312,10 +314,7 @@ public class AxisAlignedBoundingBox {
         if (tMin > near) near = tMin;
         if (tMax < far) far = tMax;
         if (near > far || far < 0){
-            //p1 = null;
-            //p2 = null;
-            out = new Point3d[]{};
-            return false;
+            return new Point3d[]{};
         }
 
         // Y
@@ -326,10 +325,7 @@ public class AxisAlignedBoundingBox {
         if (tMin > near) near = tMin;
         if (tMax < far) far = tMax;
         if (near > far || far < 0){
-            //p1 = null;
-            //p2 = null;
-            out = new Point3d[]{};
-            return false;
+            return new Point3d[]{};
         }
 
         // Z
@@ -340,10 +336,7 @@ public class AxisAlignedBoundingBox {
         if (tMin > near) near = tMin;
         if (tMax < far) far = tMax;
         if (near > far || far < 0){
-            //p1 = null;
-            //p2 = null;
-            out = new Point3d[]{};
-            return false;
+            return new Point3d[]{};
         }
 
         Point3d p1 = new Point3d(line.getOrigin());
@@ -354,8 +347,7 @@ public class AxisAlignedBoundingBox {
         dir = new Vector3d(line.getDirectionVector());
         dir.scale(far);
         p2.add(dir); 
-        out = new Point3d[]{p1,p2};
-        return true;
+        return new Point3d[]{p1,p2};
     }
     
    /** 

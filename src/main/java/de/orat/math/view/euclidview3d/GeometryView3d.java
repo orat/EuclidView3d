@@ -347,28 +347,27 @@ public class GeometryView3d extends AbstractAnalysis {
      * Add a line to the 3d view.
      * 
      * @param attitude
-     * @param location
+     * @param location unit in [mm]
      * @param color
-     * @param radius
+     * @param radius unit in [mm]
      * @param label
      * @return true if the line is inside the bounding box and visible
      */
     public boolean addLine(Point3d location, Vector3d attitude, Color color, 
-                           float radius, String label){
+                           double radius, String label){
         
         // Clipping
-        //Point3d p1 = new Point3d();
-        //Point3d p2 = new Point3d();
-        //output
-        Point3d[] p = new Point3d[]{};
-        boolean result = clipLine(new Line3d(new Vector3d(location), attitude), p);
-       
-        if (result){
-            addLine(p[0], p[1],  (float) p[0].distance(p[1]), color, label, false);
+        Point3d[] p = clipLine(new Line3d(new Vector3d(location), attitude));
+        System.out.println("line: p1=("+String.valueOf(p[0].x)+
+                ", "+String.valueOf(p[0].y)+", "+String.valueOf(p[0].z)+"), p2=("+
+                String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));
+        
+        if (p.length == 2){
+            return addLine(p[0], p[1],  (float) radius, color, label, false);
         } else {
             System.out.println("Clipping of line \""+label+"\" failed!");
+            return false;
         }
-        return result;
     }
     
     /**
@@ -378,13 +377,13 @@ public class GeometryView3d extends AbstractAnalysis {
      * statt length + normalized(attitude) einfach nur die Attitude übergeben
      * 
      * @param attitude (normalized)
-     * @param location
+     * @param location unit in [mm]
      * @param color
-     * @param radius
-     * @param length 
+     * @param radius unit in [mm]
+     * @param length  unit in [mm]
      * @param label
-     * @param withClipping
-     * @return 
+     * @param withClipping true, if clipping is wanted
+     * @return true if the line can be visualized in the axis-aligned-bounding-box
      */
     public boolean addLine(Point3d location, Vector3d attitude, Color color, 
             float radius, float length, String label, boolean withClipping){
@@ -396,19 +395,16 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add a line to the 3d view.
      * 
-     * TODO
-     * hier wird erneut clipping aufgerufen, ...
-     * 
-     * 
-     * @param p1 start point of the cylinder
-     * @param p2 end point of the cylinder
-     * @param radius radius of the cylinder
+     * @param p1 start point of the cylinder unit in [mm]
+     * @param p2 end point of the cylinder unit in [mm]
+     * @param radius radius of the cylinder unit in [mm]
      * @param color color of the line
      * @param label the label of the line
-     * @param withClipping
+     * @param withClipping true if clipping is wanted
      * @return false if line is outside the bounding-box
      */
-    public boolean addLine(Point3d p1, Point3d p2, float radius, Color color, String label, boolean withClipping){
+    public boolean addLine(Point3d p1, Point3d p2, float radius, Color color, 
+                            String label, boolean withClipping){
         if (withClipping){
             p1 = clipPoint(p1);
             p2 = clipPoint(p2);
@@ -638,9 +634,9 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param p output near point, far point, [] if no intersection, maybe only one point
      * @return true if there are intersection points
      */
-    private boolean clipLine(Line3d line, Point3d[] p){
+    private Point3d[] clipLine(Line3d line){
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
-        return aabb.clip2(line, p);
+        return aabb.clip2(line);
     }
     
     private AxisAlignedBoundingBox createAxisAlignedBoundBox(){
