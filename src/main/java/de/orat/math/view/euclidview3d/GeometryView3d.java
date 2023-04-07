@@ -346,7 +346,7 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add a line to the 3d view.
      * 
-     * @param attitude
+     * @param attitude (normalization not needed, but magnitude is not used)
      * @param location unit in [mm]
      * @param color
      * @param radius unit in [mm]
@@ -363,7 +363,12 @@ public class GeometryView3d extends AbstractAnalysis {
                 String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));
         
         if (p.length == 2){
-            return addLine(p[0], p[1],  (float) radius, color, label, false);
+            // neu clipping scheint aber nicht korrekt zu funktionieren
+            //return addLine(p[0], p[1],  (float) radius, color, label, false);
+            //FIXME
+            // scheint auch nicht zu funktionieren
+            attitude.normalize();
+            return addLine(location, attitude, color, (float) radius, 100, label, true);
         } else {
             System.out.println("Clipping of line \""+label+"\" failed!");
             return false;
@@ -405,9 +410,17 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public boolean addLine(Point3d p1, Point3d p2, float radius, Color color, 
                             String label, boolean withClipping){
+        System.out.println("line: p1=("+String.valueOf(p1.x)+
+                ", "+String.valueOf(p1.y)+", "+String.valueOf(p1.z)+"), p2=("+
+                String.valueOf(p2.x)+", "+String.valueOf(p2.y)+", "+String.valueOf(p2.z));
+        // das clipping scheint keine Auswirkungen zu haben clipped-p1 = p1 ...
+        //FIXME
         if (withClipping){
             p1 = clipPoint(p1);
             p2 = clipPoint(p2);
+            System.out.println("line: clipped p1=("+String.valueOf(p1.x)+
+                ", "+String.valueOf(p1.y)+", "+String.valueOf(p1.z)+"), clipped p2=("+
+                String.valueOf(p2.x)+", "+String.valueOf(p2.y)+", "+String.valueOf(p2.z));
         }
         Line line = new Line();
         line.setData(p1,p2, radius, 10, 0, color, label);

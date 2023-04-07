@@ -185,6 +185,11 @@ public class AxisAlignedBoundingBox {
                                 plane.getNormalVector(),  new Point3d(plane.getOrigin()));
         if (hitPoint != null) corners.add(hitPoint);
         
+        System.out.println("unsorted:");
+        for (int i=0;i<corners.size();i++){
+                System.out.println("Corner "+String.valueOf(i)+": ("+String.valueOf(corners.get(i).x)+", "+
+                        String.valueOf(corners.get(i).y)+", "+String.valueOf(corners.get(i).z)+")");
+        }
         return sortVerticies(corners, plane.n).toArray(Point3d[]::new);
     }
     
@@ -225,16 +230,71 @@ public class AxisAlignedBoundingBox {
     private List<Point3d> sortVerticies(List<Point3d> points, Vector3d n) {
         // get centroid
         Point3d centerPoint = findCentroid(points);
+        
+        Vector3d r = new Vector3d(points.get(0));
+        r.sub(centerPoint);
+            
         Collections.sort(points, (a, b) -> {
-            //double a1 = (Math.toDegrees(Math.atan2(a.x - centerPoint.x, a.y - centerPoint.y)) + 360) % 360;
-            //double a2 = (Math.toDegrees(Math.atan2(b.x - centerPoint.x, b.y - centerPoint.y)) + 360) % 360;
-            double a1 = clockwise_around_center(a, centerPoint, n);
-            double a2 = clockwise_around_center(b, centerPoint, n);
-            return (int) (a1 - a2);
+            double a1 = (Math.toDegrees(Math.atan2(a.x - centerPoint.x, a.y - centerPoint.y)) + 360) % 360;
+            double a2 = (Math.toDegrees(Math.atan2(b.x - centerPoint.x, b.y - centerPoint.y)) + 360) % 360;
+            
+            // funktioniert auch nicht
+            //double a1 = clockwise_around_center(a, centerPoint, n);
+            //double a2 = clockwise_around_center(b, centerPoint, n);
+            
+            //return (int) (a1 - a2);
+            
+            Vector3d p = new Vector3d();
+            p.cross(r, new Vector3d(centerPoint));
+            boolean result = less(a, b, new Vector3d(centerPoint), p, r);
+            if (result) return 1; else return -1;
         });
+        
         return points;
     }
     
+    /**
+     * Sorting vertices laying in a plane.
+     *
+     * This implementation uses only dot and cross products and no inverse trig 
+     * or square roots or anything. You pick the first vertex v in your list and 
+     * use that as your reference. Then you cross that vector r = v - center with 
+     * the normal vector to get a half-space partition vector p. If the two 
+     * inputs are on the same side of p then you can use the triple product 
+     * without any problems because the cylindrical angle between them will be 
+     * less than π. There’s some edge cases to look out for though so I figured 
+     * I’d just share some pseudocode. 
+     * 
+     * following
+     * https://stackoverflow.com/questions/47949485/sorting-a-list-of-3d-points-in-clockwise-order?noredirect=1&lq=1
+     * 
+     * @param v1
+     * @param v2
+     * @param c be the center around which the counterclockwise sort is to be performed
+     * @param p cross(r, c), the half-plane partition vector
+     * @param r vertices[0] - c, use an arbitrary vector as the twelve o’clock reference
+     * @return true, if v1 is clockwise from v2 around c
+     */
+    private boolean less(Point3d v1, Point3d v2, Vector3d c, Vector3d p, Vector3d r){
+        Vector3d u1 = new Vector3d(v1);
+        u1.sub(c);
+        Vector3d u2 = new Vector3d(v2);
+        u2.sub(c);
+        double h1 = u1.dot(p);
+        double h2 = u2.dot(p);
+        if (h2 <= 0 && h1 > 0) 
+            return false;
+        else if (h1 <= 0 && h2 > 0)
+            return true;
+        else if (h1 == 0 && h2 == 0)
+            return u1.dot(r) > 0 & u2.dot(r) < 0;
+        else {
+            Vector3d cross = new Vector3d();
+            cross.cross(u1, u2);
+            return cross.dot(c) > 0;
+        }
+    }
+   
     // Make arctan2 function that returns a value from [0, 2 pi) instead of [-pi, pi)
     private static double arctan2(double y, double x){
         double result = Math.atan2(y, x);
