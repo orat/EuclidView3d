@@ -363,12 +363,11 @@ public class GeometryView3d extends AbstractAnalysis {
                 String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));
         
         if (p.length == 2){
-            // neu clipping scheint aber nicht korrekt zu funktionieren
-            //return addLine(p[0], p[1],  (float) radius, color, label, false);
+            return addLine(p[0], p[1],  (float) radius, color, label, false);
             //FIXME
-            // scheint auch nicht zu funktionieren
-            attitude.normalize();
-            return addLine(location, attitude, color, (float) radius, 100, label, true);
+            // scheint nicht zu funktionieren
+            //attitude.normalize();
+            //return addLine(location, attitude, color, (float) radius, 100, label, true);
         } else {
             System.out.println("Clipping of line \""+label+"\" failed!");
             return false;
