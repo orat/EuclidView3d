@@ -343,6 +343,7 @@ public class AxisAlignedBoundingBox {
      * 
      * TODO
      * untested, seems not to work
+     * Linien scheinen alle in den Ursprung verschoben zu werden
      * 
      * https://gist.github.com/aadnk/7123926
      * weiterer java code, der verwendet werden könnte
@@ -403,11 +404,33 @@ public class AxisAlignedBoundingBox {
         Vector3d dir = new Vector3d(line.getDirectionVector());
         dir.scale(near);
         p1.add(dir);
+        
         Point3d p2 = new Point3d(line.getOrigin());
         dir = new Vector3d(line.getDirectionVector());
         dir.scale(far);
         p2.add(dir); 
         return new Point3d[]{p1,p2};
+    }
+    
+    // test
+    public Point3d[] clip3(Line3d line){
+        Point3d hitPoint1 = new Point3d();
+        boolean result = clipRay(line, hitPoint1);
+        if (result){
+            Point3d hitPoint2 = new Point3d();
+            Vector3d direction2 = line.getDirectionVector();
+            direction2.negate();
+            Line3d line2 = new Line3d(line.getOrigin(),direction2);
+            result = clipRay(line2, hitPoint2);
+            if (result){
+                return new Point3d[]{hitPoint1, hitPoint2};
+            } else {
+                System.out.println("clip3: Only 1 hitpoint found!");
+            }
+        } else {
+            System.out.println("clip3: No hitPoints found!");
+        }
+        return null;
     }
     
    /** 

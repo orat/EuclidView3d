@@ -649,6 +649,8 @@ public class GeometryView3d extends AbstractAnalysis {
     private Point3d[] clipLine(Line3d line){
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
         return aabb.clip2(line);
+        // funktioniert nicht, führt zum Absturz, out of memory
+        //return aabb.clip3(line);
     }
     
     private AxisAlignedBoundingBox createAxisAlignedBoundBox(){
