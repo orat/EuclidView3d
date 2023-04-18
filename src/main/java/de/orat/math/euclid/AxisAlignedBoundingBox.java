@@ -12,9 +12,11 @@ import org.jogamp.vecmath.Vector3d;
  */
 public class AxisAlignedBoundingBox {
     
+    // first variant to represent the AABB (based on center and size-vector)
     private Point3d center;
     private Vector3d size; // diagonal durch die ganze box
     
+    // second variant to represent the AABB (based on corners)
     Point3d xyzmin;
     Point3d xyminzmax; 
     Point3d xminymaxzmin;
@@ -24,18 +26,27 @@ public class AxisAlignedBoundingBox {
     Point3d xymaxzmin;
     Point3d xyzmax;
         
+    // third variant to represent the AABB (based on two diagonal points)
+    Point3f min;
+    Point3f max;
+    
     public AxisAlignedBoundingBox(Point3f xyzmin, Point3f xyminzmax, 
                                   Point3f xminymaxzmin, Point3f xminyzmax, 
                                   Point3f xmaxyzmin, Point3f xmaxyminzmax,
                                   Point3f xymaxzmin, Point3f xyzmax, Point3d center, Vector3d size){
         this.xyzmin = new Point3d(xyzmin);
+        this.min = xyzmin; // copy for easy access of third representation variant
+        
         this.xyminzmax = new Point3d(xyminzmax);
         this.xminymaxzmin = new Point3d(xminymaxzmin);
         this.xminyzmax = new Point3d(xminyzmax);
         this.xmaxyzmin = new Point3d(xmaxyzmin);
         this.xmaxyminzmax = new Point3d(xmaxyminzmax);
         this.xymaxzmin = new Point3d(xymaxzmin);
+        
         this.xyzmax = new Point3d(xyzmax);
+        this.max = xyzmax; // copy for easy access of third representation variant
+        
         this.center = center;
         this.size = size;
     }
@@ -326,10 +337,10 @@ public class AxisAlignedBoundingBox {
     }
     
     // https://www.geometrictools.com/GTE/Mathematics/IntrLine3AlignedBox3.h
-    public boolean clip(Line3d line, Point3d[] out){
+    /*public boolean clip(Line3d line, Point3d[] out){
         //TODO
         throw new RuntimeException("not yet implmeneted!");
-    }
+    }*/
     
     /**
      * Determine clipping point of a line with the bounding box of the current
@@ -340,13 +351,6 @@ public class AxisAlignedBoundingBox {
      * 
      * Implementation is adapted from:
      * https://stackoverflow.com/questions/3106666/intersection-of-line-segment-with-axis-aligned-box-in-c-sharp
-     * 
-     * TODO
-     * untested, seems not to work
-     * Linien scheinen alle in den Ursprung verschoben zu werden
-     * 
-     * https://gist.github.com/aadnk/7123926
-     * weiterer java code, der verwendet werden könnte
      * 
      * @param line to clip on the AA-bounding-box
      * @return output near point, far point or empty array if no intersection
@@ -412,7 +416,13 @@ public class AxisAlignedBoundingBox {
         return new Point3d[]{p1,p2};
     }
     
-    // test
+    
+    /** 
+     * Clipping of a line based on clipping of a ray (clipRay()).
+     * 
+     * @param line ray with origin as starting point
+     * @return 0, 1, or 2 clipping points
+     */
     public Point3d[] clip3(Line3d line){
         Point3d hitPoint1 = new Point3d();
         boolean result = clipRay(line, hitPoint1);
@@ -430,8 +440,36 @@ public class AxisAlignedBoundingBox {
         } else {
             System.out.println("clip3: No hitPoints found!");
         }
-        return null;
+        return new Point3d[]{};
     }
+    
+    /** 
+     * Clipping of a line based on clipping of a ray (clipRay2()).
+     * 
+     * Scheint nicht mit L_45 zu funktionieren, aber sonst ja
+     * FIXME
+     * 
+     * @param line ray with origin as starting point
+     * @return 0, 1, or 2 clipping points
+     */
+    public Point3d[] clip4(Line3d line){
+        Point3d hitPoint1 = clipRay2(line);
+        if (hitPoint1 != null){
+            Vector3d direction2 = line.getDirectionVector();
+            direction2.negate();
+            Line3d line2 = new Line3d(line.getOrigin(),direction2);
+            Point3d hitPoint2 = clipRay2(line2);
+            if (hitPoint2 != null){
+                return new Point3d[]{hitPoint1, hitPoint2};
+            } else {
+                System.out.println("clip4: Only 1 hitpoint found!");
+            }
+        } else {
+            System.out.println("clip4: No hitPoints found!");
+        }
+        return new Point3d[]{};
+    }
+    
     
    /** 
     *  Fast Ray-Box Intersection
@@ -535,5 +573,71 @@ public class AxisAlignedBoundingBox {
         hitPoint.y = coord[1];
         hitPoint.z = coord[2];
         return true; /* ray hits box */
+    }
+    
+    /**
+     * Calculates intersection with the given ray between a certain distance
+     * interval.
+     * 
+     * following https://gist.github.com/aadnk/7123926
+     * 
+     * <p>
+     * Ray-box intersection is using IEEE numerical properties to ensure the
+     * test is both robust and efficient, as described in:
+     * <br>
+     * <code>Amy Williams, Steve Barrus, R. Keith Morley, and Peter Shirley: "An
+     * Efficient and Robust Ray-Box Intersection Algorithm" Journal of graphics
+     * tools, 10(1):49-54, 2005</code>
+     * 
+     * @param ray incident ray
+     * @param minDist
+     * @param maxDist
+     * @return intersection point on the bounding box (only the first is
+     *         returned) or null if no intersection
+     */
+    public Point3d clipRay2(Line3d ray/*, float minDist, float maxDist*/) {
+        Vector3d invDir = new Vector3d(1f / ray.n.x, 1f / ray.n.y, 1f / ray.n.z);
+
+        boolean signDirX = invDir.x < 0;
+        boolean signDirY = invDir.y < 0;
+        boolean signDirZ = invDir.z < 0;
+
+        Point3f bbox = signDirX ? max : min;
+        double tmin = (bbox.x - ray.o.x) * invDir.x;
+        bbox = signDirX ? min : max;
+        double tmax = (bbox.x - ray.o.x) * invDir.x;
+        bbox = signDirY ? max : min;
+        double tymin = (bbox.y - ray.o.y) * invDir.y;
+        bbox = signDirY ? min : max;
+        double tymax = (bbox.y - ray.o.y) * invDir.y;
+
+        if ((tmin > tymax) || (tymin > tmax)) {
+            return null;
+        }
+        if (tymin > tmin) {
+            tmin = tymin;
+        }
+        if (tymax < tmax) {
+            tmax = tymax;
+        }
+
+        bbox = signDirZ ? max : min;
+        double tzmin = (bbox.z - ray.o.z) * invDir.z;
+        bbox = signDirZ ? min : max;
+        double tzmax = (bbox.z - ray.o.z) * invDir.z;
+
+        if ((tmin > tzmax) || (tzmin > tmax)) {
+            return null;
+        }
+        if (tzmin > tmin) {
+            tmin = tzmin;
+        }
+        if (tzmax < tmax) {
+            tmax = tzmax;
+        }
+        //if ((tmin < maxDist) && (tmax > minDist)) {
+            return ray.getPointAtDistance(tmin);
+        //}
+        //return null;
     }
 }

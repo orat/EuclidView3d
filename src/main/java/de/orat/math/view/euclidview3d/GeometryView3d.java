@@ -358,9 +358,9 @@ public class GeometryView3d extends AbstractAnalysis {
         
         // Clipping
         Point3d[] p = clipLine(new Line3d(new Vector3d(location), attitude));
-        System.out.println("line: p1=("+String.valueOf(p[0].x)+
+        /*System.out.println("line: p1=("+String.valueOf(p[0].x)+
                 ", "+String.valueOf(p[0].y)+", "+String.valueOf(p[0].z)+"), p2=("+
-                String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));
+                String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));*/
         
         if (p.length == 2){
             return addLine(p[0], p[1],  (float) radius, color, label, false);
@@ -648,7 +648,13 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     private Point3d[] clipLine(Line3d line){
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
+        
+        // bis auf L_45 scheint das zu funktionieren
+        //return aabb.clip4(line);
+        
+        // funktioniert nicht
         return aabb.clip2(line);
+        
         // funktioniert nicht, führt zum Absturz, out of memory
         //return aabb.clip3(line);
     }
@@ -656,7 +662,8 @@ public class GeometryView3d extends AbstractAnalysis {
     private AxisAlignedBoundingBox createAxisAlignedBoundBox(){
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
         Point3d center = new Point3d(bounds.getCenter().x, bounds.getCenter().y, bounds.getCenter().z);
-        Vector3d size = new Vector3d(bounds.getRange().x*2, bounds.getRange().y*2, bounds.getRange().z*2);
+        //Vector3d size = new Vector3d(bounds.getRange().x*2, bounds.getRange().y*2, bounds.getRange().z*2);
+        Vector3d size = new Vector3d(bounds.getRange().x, bounds.getRange().y, bounds.getRange().z);
         Corners corners = bounds.getCorners();
         Point3f xyzmin = new Point3f(corners.getXminYminZmin().toArray());
         Point3f xyminzmax = new Point3f(corners.getXminYminZmax().toArray()); 
@@ -666,6 +673,9 @@ public class GeometryView3d extends AbstractAnalysis {
         Point3f xmaxyminzmax = new Point3f(corners.getXmaxYminZmax().toArray());
         Point3f xymaxzmin = new Point3f(corners.getXmaxYmaxZmin().toArray());
         Point3f xyzmax = new Point3f(corners.getXmaxYmaxZmax().toArray());
+        System.out.println("AABB at c=("+String.valueOf(center.x)+", "+String.valueOf(center.y)+
+                ", "+String.valueOf(center.z)+") with size=("+String.valueOf(size.x)+", "+
+                String.valueOf(size.y)+", "+String.valueOf(size.z)+")");
         return new AxisAlignedBoundingBox(xyzmin, xyminzmax, xminymaxzmin,
                 xminymaxzmax, xmaxyzmin, xmaxyminzmax, xymaxzmin, xyzmax, center, size);
     }

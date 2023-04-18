@@ -51,20 +51,20 @@ public class Line3d {
     // das scheint falsch zu sein!!!!!!!!!!!
     //FIXME
     /*public static final Vector3d project(Vector3d P1, Vector3d n, Vector3d P) {
-        Vector3d result = null;
+        Vector3d nvec = null;
         Vector3d P2 = new Vector3d(P1);
         P2.add(n);
         double m = n.x*(P2.x-P1.x)+n.y*(P2.y-P1.y)+n.z*(P2.z-P1.z);
         // P liegt auf der Geraden
         if (m == 0.0d){
-            result = P;
+            nvec = P;
         } else {
             double t = -(n.x*(P1.x-P.x)+n.y*(P1.y-P.y)+n.z*(P1.z-P.z))/m;
-            result = new Vector3d(n);
-            result.scale(t);
-            result.add(P1);
+            nvec = new Vector3d(n);
+            nvec.scale(t);
+            nvec.add(P1);
         }
-        return result;
+        return nvec;
         
     }*/
     
@@ -73,7 +73,7 @@ public class Line3d {
      * Es wird davon ausgegangen, dass n bereits normiert ist
      * P1 ein beliebiger Punkt auf der Geraden
      * P der Punkt der projiziert werden soll. Dieser ist auch gleich
-     * das result
+     * das nvec
      */
     public static final Vector3d project(final Vector3d P1, final Vector3d n, Vector3d P) {
        // t ist der (vorzeichenbehaftete)
@@ -110,6 +110,14 @@ public class Line3d {
         return sphere.cut(this);
     }
     
+    public Point3d getPointAtDistance(double t){
+        Vector3d nvec = new Vector3d(n);
+        nvec.normalize();
+        nvec.scale(t);
+        Point3d result = new Point3d(o);
+        result.add(nvec);
+        return result;
+    }
     public static void main(String[] args){
         Line3d line = new Line3d(new Vector3d(0,-1349,-0.7),new Vector3d(-0.1,0.95,0.2));
         Vector3d p = line.project(new Vector3d(209,295,934));
