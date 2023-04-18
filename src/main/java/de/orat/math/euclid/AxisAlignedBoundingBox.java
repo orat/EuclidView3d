@@ -33,7 +33,10 @@ public class AxisAlignedBoundingBox {
     public AxisAlignedBoundingBox(Point3f xyzmin, Point3f xyminzmax, 
                                   Point3f xminymaxzmin, Point3f xminyzmax, 
                                   Point3f xmaxyzmin, Point3f xmaxyminzmax,
-                                  Point3f xymaxzmin, Point3f xyzmax, Point3d center, Vector3d size){
+                                  Point3f xymaxzmin, Point3f xyzmax, 
+                                  Point3d center, Vector3d size){
+        
+        // representation variant 2
         this.xyzmin = new Point3d(xyzmin);
         this.min = xyzmin; // copy for easy access of third representation variant
         
@@ -47,6 +50,7 @@ public class AxisAlignedBoundingBox {
         this.xyzmax = new Point3d(xyzmax);
         this.max = xyzmax; // copy for easy access of third representation variant
         
+        // representation variant 1
         this.center = center;
         this.size = size;
     }

@@ -36,10 +36,9 @@ import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.ChessFloor;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidCircle;
-import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidRobot;
 import org.jzy3d.plot3d.primitives.EuclidPart;
-import org.jzy3d.plot3d.primitives.EuclidPlane2;
+import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSkeleton;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
@@ -541,9 +540,9 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param color color of the plane
      * @param label the text of the label of the plane
      * @return false, if the plane is outside the bounding-box and not visualized
-     * @deprecated
+     * @Deprecated
      */
-    public boolean addPlane(Point3d location, Vector3d dir1, Vector3d dir2, 
+    /*public boolean addPlaneDeprecated(Point3d location, Vector3d dir1, Vector3d dir2, 
                           Color color, String label){
         location = clipPoint(location);
         Point3d p1 = new Point3d(location.x+dir1.x,location.y+dir1.y, location.z+dir1.z);
@@ -567,7 +566,7 @@ public class GeometryView3d extends AbstractAnalysis {
         // wenn ausserhalb der bounding-box false
         //TODO
         return true;
-    }
+    }*/
     
     /**
      * Add a plane to the 3d view.
@@ -579,7 +578,7 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     protected void addPlane(Point3d location, Point3d[] corners, 
                           Color color, String label){
-        EuclidPlane2 plane = new EuclidPlane2();
+        EuclidPlane plane = new EuclidPlane();
         plane.setData(location, corners, color, label);
         plane.setPolygonOffsetFillEnable(false);
         plane.setWireframeDisplayed(true);
@@ -661,9 +660,12 @@ public class GeometryView3d extends AbstractAnalysis {
     
     private AxisAlignedBoundingBox createAxisAlignedBoundBox(){
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
+        
+        // representation variant 1
         Point3d center = new Point3d(bounds.getCenter().x, bounds.getCenter().y, bounds.getCenter().z);
-        //Vector3d size = new Vector3d(bounds.getRange().x*2, bounds.getRange().y*2, bounds.getRange().z*2);
         Vector3d size = new Vector3d(bounds.getRange().x, bounds.getRange().y, bounds.getRange().z);
+        
+        // representation variant 2
         Corners corners = bounds.getCorners();
         Point3f xyzmin = new Point3f(corners.getXminYminZmin().toArray());
         Point3f xyminzmax = new Point3f(corners.getXminYminZmax().toArray()); 
@@ -677,7 +679,8 @@ public class GeometryView3d extends AbstractAnalysis {
                 ", "+String.valueOf(center.z)+") with size=("+String.valueOf(size.x)+", "+
                 String.valueOf(size.y)+", "+String.valueOf(size.z)+")");
         return new AxisAlignedBoundingBox(xyzmin, xyminzmax, xminymaxzmin,
-                xminymaxzmax, xmaxyzmin, xmaxyminzmax, xymaxzmin, xyzmax, center, size);
+                xminymaxzmax, xmaxyzmin, xmaxyminzmax, xymaxzmin, xyzmax, 
+                center, size);
     }
     
     /**

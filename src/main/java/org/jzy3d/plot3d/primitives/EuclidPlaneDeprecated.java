@@ -9,36 +9,50 @@ import org.jzy3d.plot3d.primitives.pickable.PickablePolygon;
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2022
+ * @Deprecated
  */
-public class EuclidPlane2 extends Composite implements Pickable, PickableObjects {	
-   
-    private Point3d[] corners;
-    private Point3d location;
+public class EuclidPlaneDeprecated extends Composite implements Pickable, PickableObjects {	
+    
+    //protected /*Translucent*/Quad quad;
+    private Vector3d dir1;
+    private Vector3d dir2;
     private String label;
     private int pickingID = 0;
     private PickablePolygon plane;
     
-    /**
-     * @param location
-     * @param corners polygon points laying all in the same plane
-     * @param color
-     * @param label 
-     */
-    public void setData(Point3d location, Point3d[] corners, Color color, String label){
-        this.corners = corners;
-        this.location = location;
+    public void setData(Point3d location, Vector3d dir1, Vector3d dir2, Color color, String label){
+        //quad = new /*Translucent*/Quad(); 
+     
+        this.dir1 = dir1;
+        this.dir2 = dir2;
         this.color = color;
         this.label = label;
         
         plane = new PickablePolygon();
         
-        for (int i=0;i<corners.length;i++){
-            Coord3d coord3d = new Coord3d();
-            coord3d.set((float) corners[i].x, (float) corners[i].y, (float) corners[i].z);
-            plane.add(new Point(coord3d, color));
-        }
-        plane.setColor(color);
-        add(plane);
+        Coord3d coord3d = new Coord3d();
+        coord3d.set((float) location.x, (float) location.y, (float) location.z);
+        Point firstPoint = new Point(coord3d, color);
+
+        coord3d = new Coord3d();
+        coord3d.set((float) (location.x+dir1.x), (float) (location.y + dir1.y), (float) (location.z+dir1.z));
+        Point secondPoint = new Point(coord3d, color);
+
+        coord3d = new Coord3d();
+        coord3d.set((float) (location.x+dir2.x+dir1.x), (float) (location.y + dir2.y+dir1.y), (float) (location.z+dir2.z+dir1.z));
+        Point thirdPoint = new Point(coord3d, color);
+
+        coord3d = new Coord3d();
+        coord3d.set((float) (location.x+dir2.x), (float) (location.y + dir2.y), (float) (location.z+dir2.z));
+        Point forthPoint = new Point(coord3d, color);
+
+        /*quad.*/plane.add(firstPoint);
+        /*quad.*/plane.add(secondPoint);
+        /*quad.*/plane.add(thirdPoint);
+        /*quad.*/plane.add(forthPoint);
+
+        /*quad.*/plane.setColor(color);
+        this.add(plane);
         
         Coord3d lowestPoint = plane.getCoordArray()[0];
         for(Coord3d coord: plane.getCoordArray()){
@@ -58,12 +72,7 @@ public class EuclidPlane2 extends Composite implements Pickable, PickableObjects
     @Override
     public void setNewPosition(Coord3d position) {
         this.clear();
-        Point3d pos = new Point3d(position.x,position.y,position.z);
-        for (int i=0;i<corners.length;i++){
-            corners[i].sub(location);
-            corners[i].add(pos);
-        }
-        this.setData(pos, corners, color, label);
+        this.setData(new Point3d(position.x,position.y,position.z), dir1, dir2, color, label);
     }
 
     @Override
@@ -82,8 +91,7 @@ public class EuclidPlane2 extends Composite implements Pickable, PickableObjects
     }
     
     /**
-     * Returns the coordinates of the plane as an array.
-     * 
+     * Returns the coordinates of the plane as an array
      * @return the coordinates inside an array
      */
     public Coord3d[] getCoordArray(){

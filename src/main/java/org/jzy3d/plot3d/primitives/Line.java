@@ -9,7 +9,6 @@ import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Transform;
 import org.jzy3d.plot3d.transform.Translate;
-import org.jzy3d.plot3d.transform.TranslateDrawable;
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2019
