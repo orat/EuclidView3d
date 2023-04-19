@@ -651,8 +651,8 @@ public class GeometryView3d extends AbstractAnalysis {
         // bis auf L_45 scheint das zu funktionieren
         //return aabb.clip4(line);
         
-        // funktioniert nicht
-        return aabb.clip2(line);
+        // funktioniert
+        return aabb.clip(line);
         
         // funktioniert nicht, führt zum Absturz, out of memory
         //return aabb.clip3(line);
@@ -678,6 +678,10 @@ public class GeometryView3d extends AbstractAnalysis {
         System.out.println("AABB at c=("+String.valueOf(center.x)+", "+String.valueOf(center.y)+
                 ", "+String.valueOf(center.z)+") with size=("+String.valueOf(size.x)+", "+
                 String.valueOf(size.y)+", "+String.valueOf(size.z)+")");
+        // size scheint korrekt, aber die xyzmin, und andere min-Werte scheinen zu klein zu sein
+        // und damit wird die AABB zu gross
+        //TODO weiter oben wo sie berechnet werden
+        // aber die corners werden doch direkt ausgelesen
         return new AxisAlignedBoundingBox(xyzmin, xyminzmax, xminymaxzmin,
                 xminymaxzmax, xmaxyzmin, xmaxyminzmax, xymaxzmin, xyzmax, 
                 center, size);

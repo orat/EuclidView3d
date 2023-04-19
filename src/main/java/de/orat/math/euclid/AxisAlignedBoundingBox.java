@@ -38,7 +38,6 @@ public class AxisAlignedBoundingBox {
         
         // representation variant 2
         this.xyzmin = new Point3d(xyzmin);
-        this.min = xyzmin; // copy for easy access of third representation variant
         
         this.xyminzmax = new Point3d(xyminzmax);
         this.xminymaxzmin = new Point3d(xminymaxzmin);
@@ -48,11 +47,15 @@ public class AxisAlignedBoundingBox {
         this.xymaxzmin = new Point3d(xymaxzmin);
         
         this.xyzmax = new Point3d(xyzmax);
-        this.max = xyzmax; // copy for easy access of third representation variant
         
         // representation variant 1
         this.center = center;
         this.size = size;
+        
+        // third representation variant
+        this.min = xyzmin; 
+        this.max = xyzmax; 
+        
     }
     
     public List<Point3d> getCorners(){
@@ -124,7 +127,7 @@ public class AxisAlignedBoundingBox {
      * @param plane_point point on the plane
      * @return hitPoint, if the plane hits the line segment
      */
-    private Point3d cutLineSegmentPlane(Point3d lineSegment_start, Point3d lineSegment_end, 
+    private static Point3d cutLineSegmentPlane(Point3d lineSegment_start, Point3d lineSegment_end, 
             Vector3d plane_normal, Point3d plane_point){
         
         Vector3d ray = new Vector3d(lineSegment_end);
@@ -154,7 +157,7 @@ public class AxisAlignedBoundingBox {
      * polygon, which represents the "clipped plane".<p>
      * 
      * @param plane
-     * @return polygon corners
+     * @return sortest array of polygon corners
      */
     public Point3d[] clip(Plane plane){
         
@@ -200,11 +203,11 @@ public class AxisAlignedBoundingBox {
                                 plane.getNormalVector(),  new Point3d(plane.getOrigin()));
         if (hitPoint != null) corners.add(hitPoint);
         
-        System.out.println("unsorted:");
+        /*System.out.println("unsorted:");
         for (int i=0;i<corners.size();i++){
                 System.out.println("Corner "+String.valueOf(i)+": ("+String.valueOf(corners.get(i).x)+", "+
                         String.valueOf(corners.get(i).y)+", "+String.valueOf(corners.get(i).z)+")");
-        }
+        }*/
         return sortVerticies(corners, plane.n).toArray(Point3d[]::new);
     }
     
@@ -350,34 +353,33 @@ public class AxisAlignedBoundingBox {
      * Determine clipping point of a line with the bounding box of the current
      * visualization.
      * 
-     * In principle "Liang-Barsky Line Clipping algorithm" is a possible 
-     * implementation.
-     * 
      * Implementation is adapted from:
      * https://stackoverflow.com/questions/3106666/intersection-of-line-segment-with-axis-aligned-box-in-c-sharp
+     * 
+     * This is the used and working implementation. 
      * 
      * @param line to clip on the AA-bounding-box
      * @return output near point, far point or empty array if no intersection
      */
-    public Point3d[] clip2(Line3d line){
+    public Point3d[] clip(Line3d line){
          
         Vector3d halfSize = new Vector3d(this.size);
         halfSize.scale(0.5d);
         
-        Point3d min = new Point3d(center);
-        min.sub(halfSize);
-        min.sub(line.getOrigin()); // ist 0
+        Point3d min_ = new Point3d(center);
+        min_.sub(halfSize);
+        min_.sub(line.getOrigin()); // ist 0
         
-        Point3d max = new Point3d(center);
-        max.add(halfSize);
-        max.sub(line.getOrigin());
+        Point3d max_ = new Point3d(center);
+        max_.add(halfSize);
+        max_.sub(line.getOrigin());
             
         double near = -Double.MAX_VALUE;
         double far = Double.MAX_VALUE;
 
         // X
-        double t1 = min.x / line.getDirectionVector().x;
-        double t2 = max.x / line.getDirectionVector().x;
+        double t1 = min_.x / line.getDirectionVector().x;
+        double t2 = max_.x / line.getDirectionVector().x;
         double tMin = Math.min(t1, t2);
         double tMax = Math.max(t1, t2);
         if (tMin > near) near = tMin;
@@ -387,8 +389,8 @@ public class AxisAlignedBoundingBox {
         }
 
         // Y
-        t1 = min.y / line.getDirectionVector().y;
-        t2 = max.y / line.getDirectionVector().y;
+        t1 = min_.y / line.getDirectionVector().y;
+        t2 = max_.y / line.getDirectionVector().y;
         tMin = Math.min(t1, t2);
         tMax = Math.max(t1, t2);
         if (tMin > near) near = tMin;
@@ -398,8 +400,8 @@ public class AxisAlignedBoundingBox {
         }
 
         // Z
-        t1 = min.z / line.getDirectionVector().z;
-        t2 = max.z / line.getDirectionVector().z;
+        t1 = min_.z / line.getDirectionVector().z;
+        t2 = max_.z / line.getDirectionVector().z;
         tMin = Math.min(t1, t2);
         tMax = Math.max(t1, t2);
         if (tMin > near) near = tMin;
@@ -423,6 +425,8 @@ public class AxisAlignedBoundingBox {
     
     /** 
      * Clipping of a line based on clipping of a ray (clipRay()).
+     * 
+     * Does not work - produces memory overflow and crash.
      * 
      * @param line ray with origin as starting point
      * @return 0, 1, or 2 clipping points
