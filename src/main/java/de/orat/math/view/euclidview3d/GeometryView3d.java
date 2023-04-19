@@ -17,6 +17,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Point3f;
+import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
@@ -281,7 +282,11 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param label the text of the label of the point
      */
     public void addPoint(Point3d location, Color color, float diameter, String label){
-        //double radius = 0.6;
+        
+        if (!isValid(location)){
+            throw new IllegalArgumentException("addPoint(): location with illegal values!");
+        }
+        
         Point3d labelLocation = new Point3d(location.x, location.y,location.z - (diameter/2) - LabelFactory.getInstance().getOffset());
         EuclidSphere sphere = new EuclidSphere();
         sphere.setData(location, (float) (diameter/2), 20, color, label, labelLocation);
@@ -304,18 +309,29 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param location1 unit in [mm]
      * @param location2 unit in [mm]
      * @param label
-     * @param color
+     * @param color1 color for point one
+     * @param color2 color for point two
      * @param lineRadius
      * @param pointDiameter
      */
     public void addPointPair(Point3d location1, Point3d location2, String label, 
-                             Color color, float lineRadius, float pointDiameter){
+                             Color color1, Color color2, float lineRadius, float pointDiameter){
+        
+        if (!isValid(location1) || !isValid(location2)) 
+            throw new IllegalArgumentException("addPointPair only allowed for two valid points as arguments!");
         
         //TODO
         // isDashed?
-        addPoint(location1, color, pointDiameter, label+"_1");
-        addPoint(location2, color, pointDiameter, label+"_2");
-        addLine(location1, location2, lineRadius, color, "", false);
+        addPoint(location1, color1, pointDiameter, label+"_1");
+        addPoint(location2, color2, pointDiameter, label+"_2");
+        // mit line stürzt es ab
+        //addLine(location1, location2, lineRadius, color, label+"_line"/*, false*/);
+    }
+    
+    public static boolean isValid(Tuple3d tuple3d){
+        if (!Double.isFinite(tuple3d.x)) return false;
+        if (!Double.isFinite(tuple3d.y)) return false;
+        return Double.isFinite(tuple3d.z);
     }
     
     /**
@@ -355,6 +371,10 @@ public class GeometryView3d extends AbstractAnalysis {
     public boolean addLine(Point3d location, Vector3d attitude, Color color, 
                            double radius, String label){
         
+        if (!isValid(location) || !isValid(attitude)){
+            throw new IllegalArgumentException("addLine(): location or attitude with illegal values!");
+        }
+        
         // Clipping
         Point3d[] p = clipLine(new Line3d(new Vector3d(location), attitude));
         /*System.out.println("line: p1=("+String.valueOf(p[0].x)+
@@ -362,7 +382,7 @@ public class GeometryView3d extends AbstractAnalysis {
                 String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));*/
         
         if (p.length == 2){
-            return addLine(p[0], p[1],  (float) radius, color, label, false);
+            return addLine(p[0], p[1],  (float) radius, color, label/*, false*/);
             //FIXME
             // scheint nicht zu funktionieren
             //attitude.normalize();
@@ -388,40 +408,44 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param withClipping true, if clipping is wanted
      * @return true if the line can be visualized in the axis-aligned-bounding-box
      */
-    public boolean addLine(Point3d location, Vector3d attitude, Color color, 
+    /*public boolean addLine(Point3d location, Vector3d attitude, Color color, 
             float radius, float length, String label, boolean withClipping){
         return addLine(location, 
             new Point3d(location.x+attitude.x*length, 
                         location.y+attitude.y*length, 
                         location.z+attitude.z*length), radius, color, label, withClipping);
-    }
+    }*/
     /**
      * Add a line to the 3d view.
      * 
      * @param p1 start point of the cylinder unit in [mm]
      * @param p2 end point of the cylinder unit in [mm]
-     * @param radius radius of the cylinder unit in [mm]
+     * @param lineRadius lineRadius of the cylinder unit in [mm]
      * @param color color of the line
      * @param label the label of the line
-     * @param withClipping true if clipping is wanted
      * @return false if line is outside the bounding-box
      */
-    public boolean addLine(Point3d p1, Point3d p2, float radius, Color color, 
-                            String label, boolean withClipping){
-        System.out.println("line: p1=("+String.valueOf(p1.x)+
+    public boolean addLine(Point3d p1, Point3d p2, float lineRadius, Color color, 
+                            String label/*, boolean withClipping*/){
+        
+        if (!isValid(p1) || !isValid(p2)){
+            throw new IllegalArgumentException("addLine(): p1 or p2 with illegal values!");
+        }
+        
+        System.out.println("line \""+label+"\": p1=("+String.valueOf(p1.x)+
                 ", "+String.valueOf(p1.y)+", "+String.valueOf(p1.z)+"), p2=("+
-                String.valueOf(p2.x)+", "+String.valueOf(p2.y)+", "+String.valueOf(p2.z));
+                String.valueOf(p2.x)+", "+String.valueOf(p2.y)+", "+String.valueOf(p2.z)+")");
         // das clipping scheint keine Auswirkungen zu haben clipped-p1 = p1 ...
         //FIXME
-        if (withClipping){
+        /*if (withClipping){
             p1 = clipPoint(p1);
             p2 = clipPoint(p2);
             System.out.println("line: clipped p1=("+String.valueOf(p1.x)+
                 ", "+String.valueOf(p1.y)+", "+String.valueOf(p1.z)+"), clipped p2=("+
                 String.valueOf(p2.x)+", "+String.valueOf(p2.y)+", "+String.valueOf(p2.z));
-        }
+        }*/
         Line line = new Line();
-        line.setData(p1,p2, radius, 10, 0, color, label);
+        line.setData(p1,p2, lineRadius, 10, 0, color, label);
         if (pickingSupport != null){
             line.setPickingId(pickingId++);
             pickingSupport.registerDrawableObject(line, line);
@@ -467,18 +491,23 @@ public class GeometryView3d extends AbstractAnalysis {
      * Add an arrow to the 3d view.
      * 
      * @param location midpoint of the arrow
-     * @param direction direction of the arrow
+     * @param attitude attitude of the arrow
      * @param length length of the arrow
      * @param radius radius of the arrow
      * @param color color of the arrow
      * @param label the text of the label of the arrow
      */
-    public void addArrow(Point3d location, Vector3d direction, float length, 
+    public void addArrow(Point3d location, Vector3d attitude, float length, 
                          float radius, Color color, String label){
+        
+        if (!isValid(location) || !isValid(attitude)){
+            throw new IllegalArgumentException("addArrow(): location or attitude with illegal values!");
+        }
+        
         Arrow arrow = new Arrow();
         Point3d labelLocation = new Point3d(location.x, location.y - radius - LabelFactory.getInstance().getOffset(), location.z);
         arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
-                    new Coord3d(direction.x,direction.y,direction.z), length), radius,10,0, color, label);
+                    new Coord3d(attitude.x,attitude.y,attitude.z), length), radius,10,0, color, label);
         arrow.setWireframeDisplayed(false);
         if (pickingSupport != null){
             arrow.setPickingId(pickingId++);
@@ -501,6 +530,10 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     public boolean addPlane(Point3d location, Vector3d n, Color color, String label){
         
+        if (!isValid(location) || !isValid(n)){
+            throw new IllegalArgumentException("addPlane(): location or attitude with illegal values!");
+        }
+        
         // Clipping
         
         Plane plane = new Plane(new Vector3d(location), n);
@@ -520,11 +553,11 @@ public class GeometryView3d extends AbstractAnalysis {
         if (corners.length > 2){
             addPlane(location, corners, color, label);
             result = true;
-            System.out.println("addPlane \""+label+"\": "+String.valueOf(corners.length)+" corners found:");
-            for (int i=0;i<corners.length;i++){
+            //System.out.println("addPlane \""+label+"\": "+String.valueOf(corners.length)+" corners found:");
+            /*for (int i=0;i<corners.length;i++){
                 System.out.println("Corner "+String.valueOf(i)+": ("+String.valueOf(corners[i].x)+", "+
                         String.valueOf(corners[i].y)+", "+String.valueOf(corners[i].z)+")");
-            }
+            }*/
         } else {
             System.out.println("addPlane \""+label+"\" failed. Corners cauld not be determined!");
         }
@@ -576,8 +609,9 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param color color of the plane
      * @param label the text of the label of the plane
      */
-    protected void addPlane(Point3d location, Point3d[] corners, 
+    private void addPlane(Point3d location, Point3d[] corners, 
                           Color color, String label){
+        
         EuclidPlane plane = new EuclidPlane();
         plane.setData(location, corners, color, label);
         plane.setPolygonOffsetFillEnable(false);
