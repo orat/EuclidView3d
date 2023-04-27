@@ -8,9 +8,7 @@ package de.orat.math.euclid;
 import org.jogamp.vecmath.*;
 
 /**
- *
  * @author Oliver Rettig
- *
  */
 public class Line3d {
     

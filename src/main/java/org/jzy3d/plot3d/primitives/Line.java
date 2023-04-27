@@ -13,7 +13,7 @@ import org.jzy3d.plot3d.transform.Translate;
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2019
  */
-public class Line extends Composite implements Pickable, PickableObjects{	
+public class Line extends Composite implements Pickable, PickableObjects {	
     
     protected Cylinder cylinder;
     private int pickingId = 0;
@@ -25,7 +25,8 @@ public class Line extends Composite implements Pickable, PickableObjects{
     private int rings;
     private String label;
 
-    public void setData(Point3d p1, Point3d p2, float radius, int slices, int rings, Color color, String label){
+    public void setData(Point3d p1, Point3d p2, float radius, int slices, 
+                        int rings, Color color, String label){
         
         this.radius = radius;
         this.slices = slices;
@@ -89,7 +90,8 @@ public class Line extends Composite implements Pickable, PickableObjects{
     @Override
     public void setNewPosition(Coord3d position) {
         this.clear();
-        this.setData(new Point3d(position.x,position.y,position.z), new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, slices, rings, color, label);
+        this.setData(new Point3d(position.x,position.y,position.z), 
+                new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, slices, rings, color, label);
     }
     
     @Override

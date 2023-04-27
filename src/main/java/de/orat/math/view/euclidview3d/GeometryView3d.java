@@ -504,9 +504,7 @@ public class GeometryView3d extends AbstractAnalysis {
         }
         
         Arrow arrow = new Arrow();
-        Point3d labelLocation = new Point3d(location.x, location.y - radius - LabelFactory.getInstance().getOffset(), location.z);
-        arrow.setData(Utils2.createVector3d(new Coord3d(location.x,location.y,location.z), 
-                    new Coord3d(attitude.x,attitude.y,attitude.z), length), radius,10,0, color, label);
+        arrow.setData(location, attitude, radius,10,0, color, label);
         arrow.setWireframeDisplayed(false);
         if (pickingSupport != null){
             arrow.setPickingId(pickingId++);
