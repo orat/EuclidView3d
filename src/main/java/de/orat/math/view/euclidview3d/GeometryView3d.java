@@ -462,20 +462,18 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * add circle to the 3d view.
      * 
-     * @param origin origin of the circle
-     * @param direction normal vector of the plane the circle lays in
-     * @param radius radius of the circle
+     * @param location location of the circle in [mm]
+     * @param direction (not normalized) normal vector of the (carrier) plane (the circle lays in)
+     * @param radius radius of the circle in [mm]
      * @param color color of the circle
      * @param label the label for the circle
-     * @param isDashed
+     * @param isStippled
      */
-    public void addCircle(Point3d origin, Vector3d direction, float radius, 
-                          Color color, String label, boolean isDashed){
-        
-        //TODO
-        // isDashed
+    public void addCircle(Point3d location, Vector3d direction, float radius, 
+                          Color color, String label, boolean isStippled){
         EuclidCircle circle = new EuclidCircle();
-        circle.setData(origin, direction, radius, color, label);
+        circle.setData(location, direction, radius, color, label, isStippled);
+        
         if (pickingSupport != null){
             circle.setPickingId(pickingId++);
             pickingSupport.registerPickableObject(circle, circle);
@@ -489,14 +487,13 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Add an arrow to the 3d view.
      * 
-     * @param location midpoint of the arrow
-     * @param attitude attitude of the arrow
-     * @param length length of the arrow
-     * @param radius radius of the arrow
+     * @param location midpoint of the arrow in [mm]
+     * @param attitude attitude of the arrow in [mm]
+      * @param radius radius of the arrow in [mm]
      * @param color color of the arrow
      * @param label the text of the label of the arrow
      */
-    public void addArrow(Point3d location, Vector3d attitude, float length, 
+    public void addArrow(Point3d location, Vector3d attitude, 
                          float radius, Color color, String label){
         
         if (!isValid(location) || !isValid(attitude)){
