@@ -76,8 +76,8 @@ public class EuclidCircle extends Composite implements Pickable, PickableObjects
         axes = getOrthogonalsToDirection(n);
         
         this.radius = r;
-        System.out.println("Circle \""+label+"\" r="+String.valueOf(r)+" o=("+String.valueOf(origin.x)+","+String.valueOf(origin.y)+
-                ", "+String.valueOf(origin.z)+")");
+        //System.out.println("Circle \""+label+"\" r="+String.valueOf(r)+" o=("+String.valueOf(origin.x)+","+String.valueOf(origin.y)+
+        //        ", "+String.valueOf(origin.z)+")");
         
         this.ringColor = color;
         this.stippled = stippled;
@@ -114,13 +114,15 @@ public class EuclidCircle extends Composite implements Pickable, PickableObjects
         this.add(lineStrip);
         
         //Add label
-        Vector3d origin_firstPoint = new Vector3d(origin.x+firstPoint.x, origin.y+firstPoint.y, origin.z+firstPoint.z);
-        ratio = (float) (LabelFactory.getInstance().getOffset()+origin_firstPoint.length())/(float) origin_firstPoint.length();
-        vec_p1_origin.scale(ratio);
-        Point3d labelLocation = new Point3d(p1.x+vec_p1_origin.x, p1.y+vec_p1_origin.y,p1.z+vec_p1_origin.z);
-        DrawableText labelText = LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK);
-        labelText.applyGeometryTransform(trans);
-        this.add(labelText);
+        if (label != null){
+            Vector3d origin_firstPoint = new Vector3d(origin.x+firstPoint.x, origin.y+firstPoint.y, origin.z+firstPoint.z);
+            ratio = (float) (LabelFactory.getInstance().getOffset()+origin_firstPoint.length())/(float) origin_firstPoint.length();
+            vec_p1_origin.scale(ratio);
+            Point3d labelLocation = new Point3d(p1.x+vec_p1_origin.x, p1.y+vec_p1_origin.y,p1.z+vec_p1_origin.z);
+            DrawableText labelText = LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK);
+            labelText.applyGeometryTransform(trans);
+            this.add(labelText);
+        }
     }
     
     /**

@@ -460,7 +460,7 @@ public class GeometryView3d extends AbstractAnalysis {
     }
    
     /**
-     * add circle to the 3d view.
+     * Add circle to the 3d view.
      * 
      * @param location location of the circle in [mm]
      * @param direction (not normalized) normal vector of the (carrier) plane (the circle lays in)

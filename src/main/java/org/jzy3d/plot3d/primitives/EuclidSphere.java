@@ -34,8 +34,10 @@ public class EuclidSphere extends Composite implements Pickable, PickableObjects
     public void setData(Point3d position, float radius, int slicing, Color color, String label, Point3d labelLocation){
         sphere = new PickableSphere(new Coord3d(position.x,position.y,position.z),radius,slicing,color);
         this.add(sphere);
-        this.label = LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK);
-        this.add(this.label);
+        if (label != null){
+            this.label = LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK);
+            this.add(this.label);
+        }
         setNewPosition(new Coord3d(position.x,position.y,position.z));
     }
     

@@ -45,8 +45,10 @@ public class EuclidPlane extends Composite implements Pickable, PickableObjects 
                 lowestPoint = coord;
             }
         }
-        Point3d labelLocation = new Point3d(lowestPoint.x, lowestPoint.y, lowestPoint.z - LabelFactory.getInstance().getOffset());
-        this.add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        if (label != null){
+            Point3d labelLocation = new Point3d(lowestPoint.x, lowestPoint.y, lowestPoint.z - LabelFactory.getInstance().getOffset());
+            this.add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        }
     }
 
     @Override

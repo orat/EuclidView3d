@@ -58,8 +58,10 @@ public class Line extends Composite implements Pickable, PickableObjects {
         
         org.jogamp.vecmath.Vector3d negative_direction = new org.jogamp.vecmath.Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
         negative_direction.scale((2*LabelFactory.getInstance().getOffset())/negative_direction.length());
-        Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
-        add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        if (label != null){
+            Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
+            add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        }
     }
     
     private static Rotate createRotateTo(Coord3d from, Coord3d to){

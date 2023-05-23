@@ -59,8 +59,11 @@ public class Arrow extends Composite implements Pickable, PickableObjects {
         trans.add(translate);
         applyGeometryTransform(trans);
         
-        Point3d labelLocation = new Point3d(position.x, position.y - radius - LabelFactory.getInstance().getOffset(), position.z);
-        this.add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        // add label
+        if (label != null){
+            Point3d labelLocation = new Point3d(position.x, position.y - radius - LabelFactory.getInstance().getOffset(), position.z);
+            this.add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        }
     }
     
     private static Rotate createRotateTo(Coord3d from, Coord3d to){
