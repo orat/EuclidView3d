@@ -15,17 +15,17 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 
 /**
- *
- * Exept for the Constructor, setDataDAEComponents and addToChart the Transforming operations have to be executed after the init, 
- because the Robot consists off multiple VBO objects, which can only be transfromed after the initialisation. 
+ * Exept for the Constructor, setDataDAEComponents and addToChart the Transforming 
+ * operations have to be executed after the init, because the Robot consists off 
+ * multiple VBO objects, which can only be transfromed after the initialisation. 
  * 
  * @author Dominik Scharnagl
  */
-public class EuclidRobot{
+public class EuclidRobot {
     
     private ArrayList<EuclidPart> parts;
     private Chart chart = null;
-    private Color boundingBoxColor = Color.RED;
+    //private Color boundingBoxColor = Color.RED;
     private ArrayList<DH> dhList;
     private RobotType type;
     
@@ -56,10 +56,9 @@ public class EuclidRobot{
     } 
     
     /**
-     * Set the Data for the Robot.
+     * Set the DH-parameters for the Robot from the given delta-values. 
      * 
-     * TODO
-     * contains nominal DH parameters for UR5e specific robot
+     * The nominal parameters are defined inside the method.
      * 
      * @param componentsPaths The path to the .dae Files
      * @param delta_theta_rad the delta theta in radiant for mDH
@@ -180,7 +179,8 @@ public class EuclidRobot{
     }
     
     /**
-     * Translate a part along R
+     * Translate a part along R (a, this segments).
+     * 
      * @param i the DH R Parameter in the list
      * @param j the object which will be translated
      */
@@ -227,6 +227,9 @@ public class EuclidRobot{
     
     /**
      * Rotate the Coordinate System to have the Z-Vector up top for UR5e.
+     * 
+     * FIXME
+     * Woher kommen die Zahlenwerte für Abstände und Winkel?
      */
     public void rotateCoordSystemUR5e(){
         for(int i = 0; i < parts.size(); i++){
