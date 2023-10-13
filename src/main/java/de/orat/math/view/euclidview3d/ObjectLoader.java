@@ -93,7 +93,14 @@ public class ObjectLoader {
      */ 
     private List<EuclidVBO2> getParts(String path){
         //Load COLLADA files (creates a seperate thread)
-        AIScene aiScene = aiImportFile(path, 0);
+        
+        System.out.println("path="+path);
+        //String completePath = this.getClass().getResource(path).getPath();
+        //System.out.println("complete path="+completePath);
+        
+        String filePath = ResourceManager.extract(path);
+        System.out.println("filePath="+filePath);
+        AIScene aiScene = aiImportFile(filePath, 0);
         
         if (aiScene == null){
             System.out.println("getParts() failed for path \""+path+"\"!");

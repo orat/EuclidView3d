@@ -860,13 +860,13 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};      
 
         ArrayList<String> pathList = new ArrayList<>();
-        pathList.add("data/objfiles/base.dae");
-        pathList.add("data/objfiles/shoulder.dae");
-        pathList.add("data/objfiles/upperarm.dae");
-        pathList.add("data/objfiles/forearm.dae");
-        pathList.add("data/objfiles/wrist1.dae");
-        pathList.add("data/objfiles/wrist2.dae");
-        pathList.add("data/objfiles/wrist3.dae");
+        pathList.add("/data/objfiles/base.dae");
+        pathList.add("/data/objfiles/shoulder.dae");
+        pathList.add("/data/objfiles/upperarm.dae");
+        pathList.add("/data/objfiles/forearm.dae");
+        pathList.add("/data/objfiles/wrist1.dae");
+        pathList.add("/data/objfiles/wrist2.dae");
+        pathList.add("/data/objfiles/wrist3.dae");
         addRobotUR5e(pathList, delta_theta_rad);
     }
     
@@ -1050,7 +1050,8 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         EuclidSphere sphere = new EuclidSphere();
         Point3d labelLocation = new Point3d(location.x,location.y, location.z - radius - LabelFactory.getInstance().getOffset());
         
-        org.jzy3d.colors.Color col = org.jzy3d.colors.Color.color(color.getRGB());
+        org.jzy3d.colors.Color col = new org.jzy3d.colors.Color(color.getRed(),color.getGreen(),color.getBlue(), color.getAlpha());
+        //org.jzy3d.colors.Color col = org.jzy3d.colors.Color.fromAWT(color.getRGB());
         
         sphere.setData(location,(float) radius,10, col, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
