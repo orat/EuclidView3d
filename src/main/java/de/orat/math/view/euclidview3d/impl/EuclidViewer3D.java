@@ -3,10 +3,7 @@ package de.orat.math.view.euclidview3d.impl;
 import de.orat.math.euclid.AxisAlignedBoundingBox;
 import de.orat.math.euclid.Line3d;
 import de.orat.math.euclid.Plane;
-import de.orat.math.view.euclidview3d.GeometryView3d;
-import static de.orat.math.view.euclidview3d.GeometryView3d.CHESS_FLOOR_WIDTH;
 import de.orat.math.view.euclidview3d.ObjectLoader;
-import de.orat.view3d.euclid3dviewapi.api.BoundingBox3D;
 import de.orat.view3d.euclid3dviewapi.spi.iEuclidViewer3D;
 import java.awt.Color;
 import java.awt.Component;
@@ -93,7 +90,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
         setRobotsDH();
-        /*gv.*/setUpRobotMovementUIWithSliders();
+        //setUpRobotMovementUIWithSliders();
         
         // muss das nicht alles im EVT aufgerufen werden?
         // unklar, ob das nötig ist
@@ -107,7 +104,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         });*/
         
         chart.open();
-        chart.addMouseCameraController(); // bessser nur addMouse() verwenden?
+        chart.addMouseCameraController(); // besser nur addMouse() verwenden?
     }
     
     /**
@@ -164,6 +161,8 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
     
     /**
      * Set up the movement of the robot per sliders.
+     * 
+     * Adds slider to the chart panal to control the movement of the robot.<p>
      * 
      * Usage for demonstration purpose only.
      */

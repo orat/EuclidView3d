@@ -4,6 +4,18 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Diese Implementierung ist ein Workaround. Besser sollte es wie folgt gehen:
+ * 
+ * If the resources are packed in another data file (e.g. a .jar file) and you 
+ * don't want to extract them to disk, you must use aiImportFileEx. The last 
+ * argument is an AIFileIO structure that can be used to define a virtual 
+ * filesystem. The callbacks you setup there will be used by Assimp while 
+ * parsing a scene. I've successfully used it in the past and you can nicely 
+ * implement extraction/decompression to memory buffers, avoiding expensive IO.
+ * 
+ * @author Oliver Rettig (Oliver.Rettig@orat.de)
+ */
 public class ResourceManager {
 
     // Stores paths to files with the global jarFilePath as the key
