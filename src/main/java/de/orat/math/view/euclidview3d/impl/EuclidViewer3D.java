@@ -1,10 +1,11 @@
 package de.orat.math.view.euclidview3d.impl;
 
-import de.orat.math.euclid.AxisAlignedBoundingBox;
-import de.orat.math.euclid.Line3d;
-import de.orat.math.euclid.Plane;
 import de.orat.math.view.euclidview3d.ObjectLoader;
+import de.orat.view3d.euclid3dviewapi.spi.iAABB;
 import de.orat.view3d.euclid3dviewapi.spi.iEuclidViewer3D;
+import de.orat.view3d.euclid3dviewapi.util.AxisAlignedBoundingBox;
+import de.orat.view3d.euclid3dviewapi.util.Line;
+import de.orat.view3d.euclid3dviewapi.util.Plane;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -38,6 +39,7 @@ import org.jzy3d.painters.IPainter;
 import org.jzy3d.plot3d.primitives.Arrow;
 import org.jzy3d.plot3d.primitives.ChessFloor;
 import org.jzy3d.plot3d.primitives.Composite;
+import org.jzy3d.plot3d.primitives.EuclidCube;
 import org.jzy3d.plot3d.primitives.DrawableTypes;
 import org.jzy3d.plot3d.primitives.EuclidCircle;
 import org.jzy3d.plot3d.primitives.EuclidPart;
@@ -46,7 +48,6 @@ import org.jzy3d.plot3d.primitives.EuclidRobot;
 import org.jzy3d.plot3d.primitives.EuclidSkeleton;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
-import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.RobotType;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
@@ -114,18 +115,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         chart.dispose();
     }
     
-    public de.orat.view3d.euclid3dviewapi.api.BoundingBox3D getBoundingBox(){
-        BoundingBox3d bounds = chart.getView().getAxis().getBounds();
-        
-        // representation variant 1
-        //Point3d center = new Point3d(bounds.getCenter().x, bounds.getCenter().y, bounds.getCenter().z);
-        //Vector3d size = new Vector3d(bounds.getRange().x, bounds.getRange().y, bounds.getRange().z);
-        
-        // representation variant 2
-        BoundingBox3d.Corners corners = bounds.getCorners();
-        return new de.orat.view3d.euclid3dviewapi.api.BoundingBox3D(new Point3f(corners.getXminYminZmin().toArray()),
-                                  new Point3f(corners.getXmaxYmaxZmax().toArray()));
-    }
+    
     
     // implementation 
     
@@ -316,7 +306,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param diameter diameter of the point [mm]
      * @param label the text of the label of the point
      */
-    public void addPoint(Point3d location, org.jzy3d.colors.Color color, float diameter, String label){
+    private void addPoint(Point3d location, org.jzy3d.colors.Color color, float diameter, String label){
         
         if (!isValid(location)){
             throw new IllegalArgumentException("addPoint(): location with illegal values!");
@@ -336,32 +326,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
             pickingSupportList.add(sphere);
         }
     }
-    /**
-     * Add real point pair.
-     * 
-     * No imaginary point pairs, because these are visualized as ipns circles.
-     * 
-     * @param location1 unit in [mm]
-     * @param location2 unit in [mm]
-     * @param label
-     * @param color1 color for point one
-     * @param color2 color for point two
-     * @param lineRadius
-     * @param pointDiameter
-     */
-    public void addPointPair(Point3d location1, Point3d location2, String label, 
-                             org.jzy3d.colors.Color color1, org.jzy3d.colors.Color color2, float lineRadius, float pointDiameter){
-        
-        if (!isValid(location1) || !isValid(location2)) 
-            throw new IllegalArgumentException("addPointPair only allowed for two valid points as arguments!");
-        
-        //TODO
-        // isDashed?
-        addPoint(location1, color1, pointDiameter, label+"_1");
-        addPoint(location2, color2, pointDiameter, label+"_2");
-        // mit line stürzt es ab
-        //addLine(location1, location2, lineRadius, color, label+"_line"/*, false*/);
-    }
+    
     
     public static boolean isValid(Tuple3d tuple3d){
         if (!Double.isFinite(tuple3d.x)) return false;
@@ -379,7 +344,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param label
      * @return true if the line is inside the bounding box and visible
      */
-    public boolean addLine(Point3d location, Vector3d attitude, org.jzy3d.colors.Color color, 
+    /*Composite addLine(Point3d location, Vector3d attitude, org.jzy3d.colors.Color color, 
                            double radius, String label){
         
         if (!isValid(location) || !isValid(attitude)){
@@ -387,22 +352,22 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         }
         
         // Clipping
-        Point3d[] p = clipLine(new Line3d(new Vector3d(location), attitude));
-        /*System.out.println("line: p1=("+String.valueOf(p[0].x)+
-                ", "+String.valueOf(p[0].y)+", "+String.valueOf(p[0].z)+"), p2=("+
-                String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));*/
+        Point3d[] p = clipLine(new de.orat.view3d.euclid3dviewapi.util.Line(new Vector3d(location), attitude));
+        //System.out.println("line: p1=("+String.valueOf(p[0].x)+
+        //        ", "+String.valueOf(p[0].y)+", "+String.valueOf(p[0].z)+"), p2=("+
+        //        String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));
         
         if (p.length == 2){
-            return addLine(p[0], p[1],  (float) radius, color, label/*, false*/);
+            return addLine(p[0], p[1],  (float) radius, color, label);
             //FIXME
             // scheint nicht zu funktionieren
             //attitude.normalize();
             //return addLine(location, attitude, color, (float) radius, 100, label, true);
         } else {
             System.out.println("Clipping of line \""+label+"\" failed!");
-            return false;
+            return null;
         }
-    }
+    }*/
     
     /**
      * Add a line to the 3d view.
@@ -436,8 +401,8 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param label the label of the line
      * @return false if line is outside the bounding-box
      */
-    public boolean addLine(Point3d p1, Point3d p2, float lineRadius, org.jzy3d.colors.Color color, 
-                            String label/*, boolean withClipping*/){
+    Composite addLine(Point3d p1, Point3d p2, float lineRadius, org.jzy3d.colors.Color color, 
+                            String label){
         
         if (!isValid(p1) || !isValid(p2)){
             throw new IllegalArgumentException("addLine(): p1 or p2 with illegal values!");
@@ -455,7 +420,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
                 ", "+String.valueOf(p1.y)+", "+String.valueOf(p1.z)+"), clipped p2=("+
                 String.valueOf(p2.x)+", "+String.valueOf(p2.y)+", "+String.valueOf(p2.z));
         }*/
-        Line line = new Line();
+        org.jzy3d.plot3d.primitives.Line line = new org.jzy3d.plot3d.primitives.Line();
         line.setData(p1,p2, lineRadius, 10, 0, color, label);
         if (pickingSupport != null){
             line.setPickingId(pickingId++);
@@ -465,10 +430,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         if (pickingSupport != null){
             pickingSupportList.add(line);
         }
-        
-        // wenn ausserhalb der bounding-box dann false
-        //TODO
-        return true;
+        return line;
     }
    
     /**
@@ -479,12 +441,20 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param radius radius of the circle in [mm]
      * @param color color of the circle
      * @param label the label for the circle
-     * @param isStippled
+     * @param isDashed
+     * 
+     * TODO
+     * implementation of isFull
      */
-    public void addCircle(Point3d location, Vector3d direction, float radius, 
-                          org.jzy3d.colors.Color color, String label, boolean isStippled){
+    Composite addCircle(Point3d location, Vector3d direction, float radius, 
+                          org.jzy3d.colors.Color color, String label, boolean isDashed, boolean isFull){
+        
+        if (!isValid(location) || !isValid(direction)){
+            throw new IllegalArgumentException("addCircle(): location or attitude with illegal values!");
+        }
+        
         EuclidCircle circle = new EuclidCircle();
-        circle.setData(location, direction, radius, color, label, isStippled);
+        circle.setData(location, direction, radius, color, label, isDashed);
         
         if (pickingSupport != null){
             circle.setPickingId(pickingId++);
@@ -494,6 +464,39 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         if (pickingSupport != null){
             pickingSupportList.add(circle);
         }
+        return circle;
+    }
+    
+    @Override
+    public long addCube(Point3d location, Vector3d dir, double width, 
+            Color color, String label, boolean transparency) {
+        
+        if (!isValid(location) || !isValid(dir)){
+            throw new IllegalArgumentException("addCube(): location or attitude with illegal values!");
+        }
+        EuclidCube cube = new EuclidCube();
+        Point3d labelLocation = location;
+        //TODO offset zu labelLocation entsprechend width hinzufügen aber in welche Richtung?
+        // abhängig von dir?
+        //TODO
+        // transparency if true, dann default-value für alpha setzen
+        
+        org.jzy3d.colors.Color col = new org.jzy3d.colors.Color(color.getRed(),
+                color.getGreen(),color.getBlue(), color.getAlpha());
+        cube.setData(location, (float) width, (float) width, (float) width, 
+                col, label, labelLocation);
+                
+        if (pickingSupport != null){
+            cube.setPickingId(pickingId++);
+            pickingSupport.registerPickableObject(cube, cube);
+        }
+        chart.add(cube);
+        if (pickingSupport != null){
+            pickingSupportList.add(cube);
+        }
+        
+        viewObjects.put(compositeId, cube);
+        return compositeId++;
     }
     
     /**
@@ -501,11 +504,11 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * 
      * @param location midpoint of the arrow in [mm]
      * @param attitude attitude of the arrow in [mm]
-      * @param radius radius of the arrow in [mm]
+     * @param radius radius of the arrow in [mm]
      * @param color color of the arrow
      * @param label the text of the label of the arrow
      */
-    public void addArrow(Point3d location, Vector3d attitude, 
+    Composite addArrow(Point3d location, Vector3d attitude, 
                          float radius, org.jzy3d.colors.Color color, String label){
         
         if (!isValid(location) || !isValid(attitude)){
@@ -523,52 +526,9 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         if (pickingSupport != null){
             pickingSupportList.add(arrow);
         }
+        return arrow;
     }
     
-    /**
-     * Add a plane to the 3d view.
-     * 
-     * @param location first point of the plane, unit is [mm]
-     * @param n normal vector
-     * @param color color of the plane
-     * @param label the text of the label of the plane
-     * @return false if outside the bounding-box
-     */
-    public boolean addPlane(Point3d location, Vector3d n, org.jzy3d.colors.Color color, String label){
-        
-        if (!isValid(location) || !isValid(n)){
-            throw new IllegalArgumentException("addPlane(): location or attitude with illegal values!");
-        }
-        
-        // Clipping
-        
-        Plane plane = new Plane(new Vector3d(location), n);
-
-        // clipping
-        AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
-        
-        // testweise die Ecken der bounding box visualisieren
-        /*List<Point3d> points = aabb.getCorners();
-        for (int i=0;i<points.size();i++){
-            this.addPoint(points.get(i), Color.BLUE, 30, String.valueOf(i));
-        }*/
-        
-        Point3d[] corners = aabb.clip(plane); // corners of a polygon in a plane
-        
-        boolean result = false;
-        if (corners.length > 2){
-            addPlane(location, corners, color, label);
-            result = true;
-            //System.out.println("addPlane \""+label+"\": "+String.valueOf(corners.length)+" corners found:");
-            /*for (int i=0;i<corners.length;i++){
-                System.out.println("Corner "+String.valueOf(i)+": ("+String.valueOf(corners[i].x)+", "+
-                        String.valueOf(corners[i].y)+", "+String.valueOf(corners[i].z)+")");
-            }*/
-        } else {
-            System.out.println("addPlane \""+label+"\" failed. Corners cauld not be determined!");
-        }
-        return result;
-    }
     /**
      * Add a plane to the 3d view.
      * 
@@ -607,6 +567,18 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         return true;
     }*/
     
+    
+    @Override
+    public long addPolygone(Point3d location, Point3d[] corners, Color color, 
+            String label, boolean showNormal, boolean transparency) {
+        
+        org.jzy3d.colors.Color col = new org.jzy3d.colors.Color(color.getRed(),color.getGreen(),color.getBlue(), color.getAlpha());
+        Composite composite = addPolygone(location, corners, 
+                          col, label);
+        viewObjects.put(compositeId, composite);
+        return compositeId++;
+    }
+
     /**
      * Add a plane to the 3d view.
      * 
@@ -615,8 +587,13 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param color color of the plane
      * @param label the text of the label of the plane
      */
-    private void addPlane(Point3d location, Point3d[] corners, 
+    Composite addPolygone(Point3d location, Point3d[] corners, 
                           org.jzy3d.colors.Color color, String label){
+        
+        //TODO test corners auf illagal values
+        if (!isValid(location)){
+            throw new IllegalArgumentException("addPlane(): location with illegal values!");
+        }
         
         EuclidPlane plane = new EuclidPlane();
         plane.setData(location, corners, color, label);
@@ -630,6 +607,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         if (pickingSupport != null){    
             pickingSupportList.add(plane);
         }
+        return plane;
     }
     
     
@@ -642,19 +620,19 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param text the text of the label
      * @param color color of the text
      */
-    public void addLabel(Point3d location, String text, org.jzy3d.colors.Color color){
+    void addLabel(Point3d location, String text, org.jzy3d.colors.Color color){
          chart.add(LabelFactory.getInstance().addLabel(location, text, org.jzy3d.colors.Color.BLACK));
     }
     
     /**
      * Clips a point.
      * 
-     * Projection of the point to the bounding box.
+     * Projection of the point to the bounding box. Needed to implement mouse functionality.
      * 
      * @param point The point which should be clipped
      * @return the clipped point
      */
-    public Point3d clipPoint(Point3d point){
+    private Point3d clipPoint(Point3d point){
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
         if (point.x < bounds.getXmin()){
             point.x = bounds.getXmin();
@@ -685,7 +663,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param p output near point, far point, [] if no intersection, maybe only one point
      * @return true if there are intersection points
      */
-    private Point3d[] clipLine(Line3d line){
+    /*private Point3d[] clipLine(de.orat.view3d.euclid3dviewapi.util.Line line){
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
         
         // bis auf L_45 scheint das zu funktionieren
@@ -696,7 +674,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         
         // funktioniert nicht, führt zum Absturz, out of memory
         //return aabb.clip3(line);
-    }
+    }*/
     
     private AxisAlignedBoundingBox createAxisAlignedBoundBox(){
         BoundingBox3d bounds = chart.getView().getAxis().getBounds();
@@ -732,7 +710,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * 
      * @param path the path to the COLLADA File
      */
-    public void addCOLLADA(String path){
+    void addCOLLADA(String path){
         EuclidPart part = colladaLoader.getCOLLADA(path); 
         part.setChart(chart);
         part.addToChart();
@@ -756,7 +734,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param paths the paths to the robot parts
      * @param delta_theta_rad the angle of the single parts
      */
-    public void addRobotUR5e(List<String> paths, double[] delta_theta_rad){ 
+    void addRobotUR5e(List<String> paths, double[] delta_theta_rad){ 
         double[] delta_a_m = new double[]{0d, 0.000156734465764371306, 0.109039760794650886, 0.00135049423466820917, 0.30167176077633267e-05, 8.98147062591837358e-05, 0};
         double[] delta_d_m = new double[]{0d, -7.63582045015809285e-05, 136.026368377065324, -130.146527922606964, 0.12049886607637639, -0.13561334270734671, -0.000218168195914358876};
         double[] delta_alpha_rad= new double[]{0d, -0.000849612070594307767, 0.00209120614311242205, 0.0044565542371754396, -0.000376815598678081898, 0.000480742313784698894, 0};
@@ -882,6 +860,53 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         m.setPickingSupport(pickingSupport);
         m.register(chart);
     }
+
+    
+    @Override
+    public boolean removeNode(long id) {
+        Composite node = viewObjects.get(id);
+        boolean result = false;
+        if (node != null){
+            chart.remove(node);
+            result = true;
+        }
+        return result;
+    }
+
+    @Override
+    public long addCircle(Point3d location, Vector3d normal, double radius, 
+            Color color, String label, boolean isDashed, boolean isFull) {
+        
+        org.jzy3d.colors.Color col = new org.jzy3d.colors.Color(color.getRed(),color.getGreen(),color.getBlue(), color.getAlpha());
+        Composite circle = addCircle(location, normal, (float) radius, 
+                          col, label, isDashed, isFull);
+        viewObjects.put(compositeId, circle);
+        return compositeId++;
+    }
+
+    
+
+    @Override
+    public void transform(long id, Matrix4d transform) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public iAABB getAABB() {
+        return this.createAxisAlignedBoundBox();
+    }
+    /*public de.orat.view3d.euclid3dviewapi.api.BoundingBox3D getBoundingBox(){
+        BoundingBox3d bounds = chart.getView().getAxis().getBounds();
+        
+        // representation variant 1
+        //Point3d center = new Point3d(bounds.getCenter().x, bounds.getCenter().y, bounds.getCenter().z);
+        //Vector3d size = new Vector3d(bounds.getRange().x, bounds.getRange().y, bounds.getRange().z);
+        
+        // representation variant 2
+        BoundingBox3d.Corners corners = bounds.getCorners();
+        return new de.orat.view3d.euclid3dviewapi.api.BoundingBox3D(new Point3f(corners.getXminYminZmin().toArray()),
+                                  new Point3f(corners.getXmaxYmaxZmax().toArray()));
+    }*/
     
     /**
      * The MouseController for the picking of jakob
@@ -1045,13 +1070,18 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @param color 
      * @param label the text of the label of the sphere
      */
-    public long addSphere(Point3d location, double radius, java.awt.Color color, String label){
+    @Override
+    public long addSphere(Point3d location, double radius, java.awt.Color color, 
+                          String label, boolean transparent){
+        
+        if (!isValid(location) ){
+            throw new IllegalArgumentException("addSphere(): location with illegal values!");
+        }
+        
         EuclidSphere sphere = new EuclidSphere();
         Point3d labelLocation = new Point3d(location.x,location.y, location.z - radius - LabelFactory.getInstance().getOffset());
         
         org.jzy3d.colors.Color col = new org.jzy3d.colors.Color(color.getRed(),color.getGreen(),color.getBlue(), color.getAlpha());
-        //org.jzy3d.colors.Color col = org.jzy3d.colors.Color.fromAWT(color.getRGB());
-        
         sphere.setData(location,(float) radius,10, col, label, labelLocation);
         sphere.setPolygonOffsetFillEnable(false);
         sphere.setWireframeColor(org.jzy3d.colors.Color.BLACK);
@@ -1069,24 +1099,28 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
     }
   
     @Override
-    public long addLine(Point3d p1, Point3d p2, Color color, double radius, String label) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public long addLine(Point3d p1, Point3d p2, Color color, double lineRadius, String label) {
+        org.jzy3d.colors.Color col = new org.jzy3d.colors.Color(color.getRed(),color.getGreen(),color.getBlue(), color.getAlpha());
+        Composite line = addLine(p1, p2, (float) lineRadius, col, label);
+        viewObjects.put(compositeId, line);
+        return compositeId++;
     }
 
     @Override
-    public long addArrow(Point3d location, Vector3d direction, double radius, Color color, String label) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public long addArrow(Point3d location, Vector3d direction, double radius, 
+                         Color color, String label) {
+        org.jzy3d.colors.Color col = new org.jzy3d.colors.Color(color.getRed(),color.getGreen(),color.getBlue(), color.getAlpha());
+        Composite composite = addArrow(location, direction, (float) radius, col, label);
+        viewObjects.put(compositeId, composite);
+        return compositeId++;
     }
 
-    @Override
-    public long addCircle(Point3d location, Vector3d normal, double radius, Color color, String label, boolean isDahed) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
-    @Override
+    /*@Override
     public long addPlane(Point3d location, Vector3d normal, Color color, String label, boolean showNormal) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+        //TODO
+    }*/
 
     @Override
     public long addRobot(int type, Point3d location, Matrix3d orientation) {
@@ -1094,13 +1128,8 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
     }
 
     @Override
-    public void moveRobot(double[] angels) {
+    public void moveRobot(long id, double[] angels) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    @Override
-    public void transform(long id, Matrix4d transform) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
 }

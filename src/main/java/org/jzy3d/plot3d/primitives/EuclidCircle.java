@@ -68,6 +68,7 @@ public class EuclidCircle extends Composite implements Pickable, PickableObjects
      * @param radius the radius of the circle
      * @param color the color of the circle
      * @param label the text for the label of the circle
+     * @param stippled
      */
     public void setData(Point3d origin, Vector3d n, float r,
                         Color color, String label, boolean stippled){

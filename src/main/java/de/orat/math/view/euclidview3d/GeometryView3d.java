@@ -1,8 +1,8 @@
 package de.orat.math.view.euclidview3d;
 
-import de.orat.math.euclid.AxisAlignedBoundingBox;
-import de.orat.math.euclid.Line3d;
-import de.orat.math.euclid.Plane;
+import de.orat.view3d.euclid3dviewapi.util.AxisAlignedBoundingBox;
+import de.orat.view3d.euclid3dviewapi.util.Line;
+import de.orat.view3d.euclid3dviewapi.util.Plane;
 import java.awt.Component;
 import javax.swing.JSlider;
 import java.awt.event.ActionEvent;
@@ -40,7 +40,6 @@ import org.jzy3d.plot3d.primitives.EuclidPlane;
 import org.jzy3d.plot3d.primitives.EuclidSkeleton;
 import org.jzy3d.plot3d.primitives.EuclidSphere;
 import org.jzy3d.plot3d.primitives.LabelFactory;
-import org.jzy3d.plot3d.primitives.Line;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.RobotType;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
@@ -372,7 +371,7 @@ public class GeometryView3d extends AbstractAnalysis {
         }
         
         // Clipping
-        Point3d[] p = clipLine(new Line3d(new Vector3d(location), attitude));
+        Point3d[] p = clipLine(new Line(new Vector3d(location), attitude));
         /*System.out.println("line: p1=("+String.valueOf(p[0].x)+
                 ", "+String.valueOf(p[0].y)+", "+String.valueOf(p[0].z)+"), p2=("+
                 String.valueOf(p[1].x)+", "+String.valueOf(p[1].y)+", "+String.valueOf(p[1].z));*/
@@ -440,7 +439,7 @@ public class GeometryView3d extends AbstractAnalysis {
                 ", "+String.valueOf(p1.y)+", "+String.valueOf(p1.z)+"), clipped p2=("+
                 String.valueOf(p2.x)+", "+String.valueOf(p2.y)+", "+String.valueOf(p2.z));
         }*/
-        Line line = new Line();
+        org.jzy3d.plot3d.primitives.Line line = new org.jzy3d.plot3d.primitives.Line();
         line.setData(p1,p2, lineRadius, 10, 0, color, label);
         if (pickingSupport != null){
             line.setPickingId(pickingId++);
@@ -670,7 +669,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param p output near point, far point, [] if no intersection, maybe only one point
      * @return true if there are intersection points
      */
-    private Point3d[] clipLine(Line3d line){
+    private Point3d[] clipLine(Line line){
         AxisAlignedBoundingBox aabb = createAxisAlignedBoundBox();
         
         // bis auf L_45 scheint das zu funktionieren

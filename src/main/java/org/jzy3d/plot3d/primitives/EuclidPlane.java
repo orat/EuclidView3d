@@ -18,7 +18,7 @@ public class EuclidPlane extends Composite implements Pickable, PickableObjects 
     private PickablePolygon plane;
     
     /**
-     * @param location
+     * @param location used e.g. to position the label
      * @param corners polygon points laying all in the same plane
      * @param color
      * @param label 
