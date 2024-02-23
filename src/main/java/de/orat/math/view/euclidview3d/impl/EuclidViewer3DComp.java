@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -31,6 +32,7 @@ import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
 import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
 import org.jzy3d.chart.controllers.mouse.picking.PickingSupport;
 import org.jzy3d.chart.factories.NewtChartFactory;
+import org.jzy3d.chart.factories.SwingChartFactory;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.painters.IPainter;
@@ -57,7 +59,7 @@ import org.jzy3d.plot3d.rendering.view.Camera;
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
+public final class EuclidViewer3DComp  implements iEuclidViewer3D{
 
     static float CHESS_FLOOR_WIDTH = 100;
     
@@ -70,11 +72,90 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
     protected static ArrayList<EuclidRobot> robotList = new ArrayList();
     protected static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
     
+    private Chart chart;
+    
     /**
      * Constructor for a EuclidViewer3D to get created by a NewtChartFactory.
      */
-    public EuclidViewer3D(){
-        super(new NewtChartFactory());  
+    public EuclidViewer3DComp() throws Exception{
+        this.init();
+        //super(new NewtChartFactory());  
+    }
+    
+     public void init() throws Exception {
+        
+        Quality q = Quality.Advanced(); 
+        q.setDepthActivated(true);
+        //q.setAlphaActivated(false);
+        q.setAnimated(false); 
+        q.setHiDPIEnabled(true); 
+        q.setDisableDepthBufferWhenAlpha(false);
+        q.setPreserveViewportSize(true);     
+        
+        //chart = new Chart(this.getFactory(), q);
+        chart = new SwingChartFactory().newChart(Quality.Advanced());
+        
+        chart.getView().setSquared(false);
+        chart.getView().setBackgroundColor(org.jzy3d.colors.Color.WHITE);
+        chart.getView().getAxis().getLayout().setMainColor(org.jzy3d.colors.Color.BLACK);
+        
+        //Add the ChessFloor and set size
+        //this.setUpChessFloor(100.f);
+        //chart.getScene().getGraph().addGraphListener(() -> {
+        //    updateChessFloor(true, CHESS_FLOOR_WIDTH);
+        //});
+            
+        //Set up ObjectLoader and Mouse
+        colladaLoader = ObjectLoader.getLoader();
+        //setUpPickingSupport();
+        //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
+        //light.setType(Light.Type.POSITIONAL);
+        Light light = chart.addLightOnCamera();
+        
+        //addSkeleton("data/golembones/golembones.obj");
+        
+        /**
+        addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
+        addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
+        
+        addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
+        
+        addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
+        
+        addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
+        addCircle(new Point3d(20,20,20), new Vector3d(0,0,1),10,Color.RED, "Circle");
+        
+        addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
+        
+        addPlane(new Point3d(0,1,5), new Vector3d(0,-10,0), new Vector3d(-10,0,0), Color.ORANGE, "ClipPlane");
+        addPoint(new Point3d(0,0,0), Color.BLUE, 0.6f, "Point1");
+        addPoint(new Point3d(1,10,1), Color.BLUE, 0.6f, "Point3");
+        addPoint(new Point3d(20,20,20), Color.BLUE, 0.6f, "Point2");    
+        addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
+        addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
+        addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
+        **/
+        
+        /*
+        double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};
+        //double[] delta_theta_rad = new double[]{0d, -8.27430119976213518e-08, 0.732984551101984239, 5.46919521494736127, 0.0810043775014757245, -3.53724730506321805e-07, -9.97447025669062626e-08};
+        double[] delta_a_m = new double[]{0d, 0, -425, -392.2, 0, 0, 0};
+        double[] delta_d_m = new double[]{0d, 162.5, 0, 0, 133.3, 997, 996};
+        double[] delta_alpha_rad= new double[]{0d, Math.PI/2, 0, 0, Math.PI/2, Math.PI/2, 0};
+        */
+        
+        
+        double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};      
+
+        ArrayList<String> pathList = new ArrayList<>();
+        pathList.add("/data/objfiles/base.dae");
+        pathList.add("/data/objfiles/shoulder.dae");
+        pathList.add("/data/objfiles/upperarm.dae");
+        pathList.add("/data/objfiles/forearm.dae");
+        pathList.add("/data/objfiles/wrist1.dae");
+        pathList.add("/data/objfiles/wrist2.dae");
+        pathList.add("/data/objfiles/wrist3.dae");
+        addRobotUR5e(pathList, delta_theta_rad);
     }
     
     /** 
@@ -83,26 +164,18 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
      * @throws Exception 
      */
     public void open() throws Exception {
-        //EuclidViewer3D gv = new EuclidViewer3D();
-        AnalysisLauncher.open(this);
+        //AnalysisLauncher.open(this);
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
         setRobotsDH();
         //setUpRobotMovementUIWithSliders();
         
-        // muss das nicht alles im EVT aufgerufen werden?
-        // unklar, ob das nötig ist
-        // invokeAndWait should fail, when I am already in the EDT
-        //FIXME
-        /*SwingUtilities.invokeAndWait(() -> {
-            gv.setUpRobotMovementUIWithSliders();
-            //gv.setUpSkeletons();
-            //gv.setUpSkeletonMovement();
-           // gv.updateChessFloor(true, 1f);
-        });*/
-        
         chart.open();
         chart.addMouseCameraController(); // besser nur addMouse() verwenden?
+    }
+    
+    public JComponent getComponent(){
+        return (JComponent) chart.getCanvas();
     }
     
     /**
@@ -173,7 +246,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
                 slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
                 final int ix = i;
                 final int jx = j;
-                EuclidViewer3D g = this;
+                EuclidViewer3DComp g = this;
                 slider.addChangeListener((ChangeEvent e) -> {
                     JSlider source = (JSlider)e.getSource();
                     //updateing chess floor after seting the Theta Values does not lead to tearing
@@ -767,83 +840,6 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
       
     }*/
 
-
-    @Override
-    public void init() throws Exception {
-        
-        Quality q = Quality.Advanced(); 
-        q.setDepthActivated(true);
-        //q.setAlphaActivated(false);
-        q.setAnimated(false); 
-        q.setHiDPIEnabled(true); 
-        q.setDisableDepthBufferWhenAlpha(false);
-        q.setPreserveViewportSize(true);        
-        //chart = initializeChart(q); 
-        chart = new Chart(this.getFactory(), q);
-        //chart = myfactory.newChart(q);
-        chart.getView().setSquared(false);
-        chart.getView().setBackgroundColor(org.jzy3d.colors.Color.WHITE);
-        chart.getView().getAxis().getLayout().setMainColor(org.jzy3d.colors.Color.BLACK);
-        
-        //Add the ChessFloor and set size
-        //this.setUpChessFloor(100.f);
-        //chart.getScene().getGraph().addGraphListener(() -> {
-        //    updateChessFloor(true, CHESS_FLOOR_WIDTH);
-        //});
-            
-        //Set up ObjectLoader and Mouse
-        colladaLoader = ObjectLoader.getLoader();
-        //setUpPickingSupport();
-        //Light light = chart.addLight(chart.getView().getBounds().getCorners().getXmaxYmaxZmax());
-        //light.setType(Light.Type.POSITIONAL);
-        Light light = chart.addLightOnCamera();
-        
-        //addSkeleton("data/golembones/golembones.obj");
-        
-        /**
-        addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
-        addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
-        
-        addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
-        
-        addArrow(new Point3d(0d, 0d, 0d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
-        
-        addLabel(new Point3d(10d, 10d, 10d), "Label", Color.BLACK);
-        addCircle(new Point3d(20,20,20), new Vector3d(0,0,1),10,Color.RED, "Circle");
-        
-        addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
-        
-        addPlane(new Point3d(0,1,5), new Vector3d(0,-10,0), new Vector3d(-10,0,0), Color.ORANGE, "ClipPlane");
-        addPoint(new Point3d(0,0,0), Color.BLUE, 0.6f, "Point1");
-        addPoint(new Point3d(1,10,1), Color.BLUE, 0.6f, "Point3");
-        addPoint(new Point3d(20,20,20), Color.BLUE, 0.6f, "Point2");    
-        addPlane(new Point3d(5d,5d,5d), new Vector3d(0d,0d,5d), new Vector3d(5d,0d,0d), Color.RED, "Plane1");
-        addLine(new Vector3d(0d,0d,-1d), new Point3d(3d,0d,3d), Color.CYAN, 0.2f, 10, "ClipLinie");
-        addArrow(new Point3d(7d, 7d, 7d), new Vector3d(0d,0d,2d), 3f, 0.5f, Color.CYAN, "Arrow1");
-        **/
-        
-        /*
-        double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};
-        //double[] delta_theta_rad = new double[]{0d, -8.27430119976213518e-08, 0.732984551101984239, 5.46919521494736127, 0.0810043775014757245, -3.53724730506321805e-07, -9.97447025669062626e-08};
-        double[] delta_a_m = new double[]{0d, 0, -425, -392.2, 0, 0, 0};
-        double[] delta_d_m = new double[]{0d, 162.5, 0, 0, 133.3, 997, 996};
-        double[] delta_alpha_rad= new double[]{0d, Math.PI/2, 0, 0, Math.PI/2, Math.PI/2, 0};
-        */
-        
-        
-        double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};      
-
-        ArrayList<String> pathList = new ArrayList<>();
-        pathList.add("/data/objfiles/base.dae");
-        pathList.add("/data/objfiles/shoulder.dae");
-        pathList.add("/data/objfiles/upperarm.dae");
-        pathList.add("/data/objfiles/forearm.dae");
-        pathList.add("/data/objfiles/wrist1.dae");
-        pathList.add("/data/objfiles/wrist2.dae");
-        pathList.add("/data/objfiles/wrist3.dae");
-        addRobotUR5e(pathList, delta_theta_rad);
-    }
-    
     
     // mouse control
     
