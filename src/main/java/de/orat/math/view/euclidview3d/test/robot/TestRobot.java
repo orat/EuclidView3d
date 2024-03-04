@@ -102,7 +102,6 @@ public class TestRobot extends AbstractAnalysis {
 
         DHAxes axes = determineDHAxesFromDH(theta_rad, alpha_rad, d_m, a_m);
         float radius = (float) 0.01;
-        float length = 0.4f;
         for (int i=0;i<axes.z.length;i++){
             Arrow arrow = new Arrow();
             //pos, dir, length
@@ -120,18 +119,24 @@ public class TestRobot extends AbstractAnalysis {
                 y = 0;
                 z +=t*dz;
             }
-            arrow.setData(Utils2.createVector3d(new Coord3d(x,y,z), 
-                    new Coord3d(dx,dy,dz), length),radius,10,0, darkred, "label");
+            float length = 0.4f;
+            // der richtungsvektor sollte die Length 4 haben
+            Vector3d dir = new Vector3d(dx,dy,dz);
+            dir.normalize();
+            dir.scale(length);
+            arrow.setData(new Point3d(x,y,z), dir,radius,10,0, darkred, "label");
                 arrow.setWireframeDisplayed(false);
             chart.add(arrow);
             
             // x-axes
-            arrow = new Arrow();
+            //TODO
+            // auskommentiert da das so nicht mehr geht, Änderungen wie sieh oben benötigt
+            /*arrow = new Arrow();
             float xlength = 0.1f;
             arrow.setData(Utils2.createVector3d(new Coord3d(x,y,z), 
                     new Coord3d(axes.x[i].x,axes.x[i].y,axes.x[i].z), xlength),radius,10,0, Color.BLUE, "label");
                 arrow.setWireframeDisplayed(false);
-            chart.add(arrow);
+            chart.add(arrow);*/
         }
 
         /*double radius = 2;

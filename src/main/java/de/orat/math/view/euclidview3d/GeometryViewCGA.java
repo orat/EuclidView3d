@@ -43,7 +43,7 @@ public class GeometryViewCGA extends GeometryView3d {
      * @param label
      */
     public void addPoint(Point3d location, String label){
-        addPoint(location, COLOR_GRADE_1, POINT_RADIUS*2, label); // oder grade 4?
+		super.addPoint(location, COLOR_GRADE_1, POINT_RADIUS * 2, label); // oder grade 4?
     }
     /**
      * Add a line to the 3d view.
@@ -54,8 +54,9 @@ public class GeometryViewCGA extends GeometryView3d {
      */
     public void addLine(Vector3d attitude, Point3d location, String label){
         //FIXME
-        float length = 1;
-        addLine(location, attitude, COLOR_GRADE_2, LINE_RADIUS, /*length,*/ label); 
+        // float length = 1;
+		// addLine(attitude, location, COLOR_GRADE_2, LINE_RADIUS, length, label);
+		super.addLine(location, attitude, COLOR_GRADE_2, LINE_RADIUS, label);
     }
     
     /**
@@ -66,7 +67,8 @@ public class GeometryViewCGA extends GeometryView3d {
      * @param label null if no label needed
      */
     public void addTangent(Point3d location, Vector3d attitude, String label){
-        addArrow(location, attitude, TANGENT_LENGTH, LINE_RADIUS, COLOR_TANGENT, label);
+		// addArrow(location, attitude, TANGENT_LENGTH, LINE_RADIUS, COLOR_TANGENT, label);
+		super.addArrow(location, attitude, LINE_RADIUS, COLOR_TANGENT, label);
     }
     
     public void addSphere(Point3d location, double radius){};

@@ -59,8 +59,11 @@ public class EuclidPart {
     }
     
     /**
-     * Add the robotpart to the chart it allready is part of. Does not update the chart. 
-     * The chart has to be updated  after all EuclidParts have been transformed
+     * Add the robotpart to the chart it already is part of. 
+     * 
+     * Does not update the chart.<p>
+     * 
+     * The chart has to be updated after all EuclidParts have been transformed
      */
     public void addToChart(){
         for(EuclidVBO2 part: parts){
@@ -71,7 +74,8 @@ public class EuclidPart {
     }   
     
     /**
-     * Translate the robotpart along a vector with a set distance
+     * Translate the robotpart along a vector with a set distance.
+     * 
      * @param distance the distance at which the robotpart should be translatet
      * @param vector the vector along the robotpart should be translatet
      */

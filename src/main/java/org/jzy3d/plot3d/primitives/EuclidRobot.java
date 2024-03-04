@@ -11,9 +11,9 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 
 /**
- *
- * Exept for the Constructor, setData and addToChart the Transforming operations have to be executed after the init, 
- * because the Robot consists off multiple VBO objects, which can only be transfromed after the initialisation. 
+ * Exept for the Constructor, setDataDAEComponents and addToChart the Transforming 
+ * operations have to be executed after the init, because the Robot consists off 
+ * multiple VBO objects, which can only be transfromed after the initialisation. 
  * 
  * @author Dominik Scharnagl
  */
@@ -21,13 +21,15 @@ public class EuclidRobot {
     
     private ArrayList<EuclidPart> parts;
     private Chart chart = null;
-    private Color boundingBoxColor = Color.RED;
+    //private Color boundingBoxColor = Color.RED;
     private ArrayList<DH> dhList;
     private RobotType type;
     
     /**
-     * Creat a Robot
+     * Creat a Robot.
+     * 
      * @param chart the chart to which the robot should be added.
+     * @param type
      */
     public EuclidRobot(Chart chart, RobotType type){
         super();
@@ -36,12 +38,13 @@ public class EuclidRobot {
     }
     
     /** 
-     * Set the Data for the Robot
+     * Set the DAE components data only for the Robot.
+     * 
      * @param componentsPaths the paths to the .dae Files
      */
-    public void setData(List<String> componentsPaths){
-        parts = new ArrayList<EuclidPart>();
-        dhList = new ArrayList<DH>();
+    public void setDataDAEComponents(List<String> componentsPaths){
+        parts = new ArrayList<>();
+        dhList = new ArrayList<>();
         ObjectLoader loader = ObjectLoader.getLoader();
         for(String path: componentsPaths){
             parts.add(loader.getCOLLADA(path));
@@ -49,7 +52,9 @@ public class EuclidRobot {
     } 
     
     /**
-     * Set the Data for the Robot.
+     * Set the DH-parameters for the Robot from the given delta-values. 
+     * 
+     * The nominal parameters are defined inside the method.
      * 
      * @param componentsPaths The path to the .dae Files
      * @param delta_theta_rad the delta theta in radiant for mDH
@@ -57,13 +62,9 @@ public class EuclidRobot {
      * @param delta_d_m the delta d for mDH
      * @param delta_r_m the delta r for mDH
      */
-     public void setData(List<String> componentsPaths, double[] delta_theta_rad, double[] delta_alpha_rad,double[] delta_d_m, double[] delta_r_m){
-        parts = new ArrayList<>();
-        dhList = new ArrayList<>();
-        ObjectLoader loader = ObjectLoader.getLoader();
-        for(String path: componentsPaths){
-            parts.add(loader.getCOLLADA(path));
-        }
+     public void setDataWithUR5eDHDeltas(List<String> componentsPaths, double[] delta_theta_rad, 
+             double[] delta_alpha_rad, double[] delta_d_m, double[] delta_r_m){
+        setDataDAEComponents(componentsPaths);
         double[] d_n_m_ = new double[]{0d, 162.5, 0d, 0d, 133.3d, 99.7d, 99.6d};
         double[] a_n_m = new double[]{0d, 0d,  -425, -392.2, 0d, 0d, 0d};
         double[] alpha_n_rad = new double[]{0d, PI/2d, 0d, 0d, PI/2, -PI/2d, 0d};
@@ -83,20 +84,17 @@ public class EuclidRobot {
     } 
      
      /**
-      * Set Data with Degrees for the theta values
+      * Set Data with degrees for the theta values.
+      * 
       * @param componentsPaths The path to the .dae Files
       * @param theta the theta of the DH
       * @param alpha the alpha of the DH
       * @param d the d of the DH
       * @param r the r of the DH 
       */
-     public void setDataDegrees(List<String> componentsPaths, double[] theta, double[] alpha,double[] d, double[] r){
-        parts = new ArrayList<EuclidPart>();
-        dhList = new ArrayList<DH>();
-        ObjectLoader loader = ObjectLoader.getLoader();
-        for(String path: componentsPaths){
-            parts.add(loader.getCOLLADA(path));
-        }
+     public void setData(List<String> componentsPaths, double[] theta, 
+                                      double[] alpha, double[] d, double[] r){
+        setDataDAEComponents(componentsPaths);
         for(int i = 0; i < theta.length; i++){
             dhList.add(new DH(theta[i], alpha[i], d[i], r[i]));
         }
@@ -177,7 +175,8 @@ public class EuclidRobot {
     }
     
     /**
-     * Translate a part along R
+     * Translate a part along R (a, this segments).
+     * 
      * @param i the DH R Parameter in the list
      * @param j the object which will be translated
      */
@@ -224,6 +223,9 @@ public class EuclidRobot {
     
     /**
      * Rotate the Coordinate System to have the Z-Vector up top for UR5e.
+     * 
+     * FIXME
+     * Woher kommen die Zahlenwerte für Abstände und Winkel?
      */
     public void rotateCoordSystemUR5e(){
         for(int i = 0; i < parts.size(); i++){
@@ -254,9 +256,10 @@ public class EuclidRobot {
     }
     
     /**
-     * Set the new theta
+     * Set the new theta value.
+     * 
      * @param axis the number of the axis for which the new theta will be set
-     * @param theta the new theta Value
+     * @param theta the new theta Value [deg]
      * @param updateChart true if the chart should be updated after rotating
      */
     public void setTheta(int axis, float theta, boolean updateChart){

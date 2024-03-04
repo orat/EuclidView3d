@@ -351,20 +351,20 @@ public class DH {
     
     /**
      * z,x sind die Richtungen der DH-Systeme, werden aus den Rotationsmatrizen
-     * rausgeholt Der Translationsanteil enspricht des jeweiligen absoluten
-     * Koordinaten des Ursprungs DH-Koordinatensystemen auf den z-Achsen.
+     * rausgeholt. Der Translationsanteil enspricht den jeweiligen absoluten
+     * Koordinaten des Ursprungs DH-Koordinatensystemen auf den z-Achsen.<p>
      *
      * TODO unklar ob diese Def der Matrix4d-Objekte der üblichen Repräsentation
-     * eines lokalen Koordinatensystems entspricht
+     * eines lokalen Koordinatensystems entspricht.<p>
      *
      * Die 3x3-Rotationsmatrix soll ja eine dir-cos-matrix sein, d.h. soll einen
      * Vektor im Koordinatensystem das die Matrix repräsentiert also z.B. die
      * z-Achse = (0,0,1) in das Basissystem transformieren. Damit das so ist mut
      * die 3. Spalte der Matrix gerade die z-Achse in Koordinaten des
      * Referenzsystems enthalten. Das ist also soweit korrekt wie ich das
-     * verwende.
+     * verwende.<p>
      *
-     * Unklar bleibt jetzt noch der translatorische Teil!!!
+     * Unklar bleibt jetzt noch der translatorische Teil!!!<p>
      *
      * @param dh1
      * @param dh2
@@ -404,6 +404,7 @@ public class DH {
         o1o2.sub(o1);
 
         // ist das richtig? oder umgekehrt?
+        //FIXME
         origin = new Point3d(o2);
         
         //scheint gar nicht zu stimmen

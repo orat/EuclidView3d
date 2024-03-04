@@ -9,12 +9,11 @@ import org.jzy3d.plot3d.primitives.pickable.Pickable;
 import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Transform;
 import org.jzy3d.plot3d.transform.Translate;
-import org.jzy3d.plot3d.transform.TranslateDrawable;
 
 /**
  * @author Dr. Oliver Rettig, DHBW-Karlsruhe, Germany, 2019
  */
-public class Line extends Composite implements Pickable, PickableObjects{	
+public class Line extends Composite implements Pickable, PickableObjects {	
     
     protected Cylinder cylinder;
     private int pickingId = 0;
@@ -26,7 +25,8 @@ public class Line extends Composite implements Pickable, PickableObjects{
     private int rings;
     private String label;
 
-    public void setData(Point3d p1, Point3d p2, float radius, int slices, int rings, Color color, String label){
+    public void setData(Point3d p1, Point3d p2, float radius, int slices, 
+                        int rings, Color color, String label){
         
         this.radius = radius;
         this.slices = slices;
@@ -58,8 +58,10 @@ public class Line extends Composite implements Pickable, PickableObjects{
         
         org.jogamp.vecmath.Vector3d negative_direction = new org.jogamp.vecmath.Vector3d(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z);
         negative_direction.scale((2*LabelFactory.getInstance().getOffset())/negative_direction.length());
-        Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
-        add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        if (label != null){
+            Point3d labelLocation = new Point3d(p1.x+negative_direction.x, p1.y+negative_direction.y,p1.z+negative_direction.z);
+            add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        }
     }
     
     private static Rotate createRotateTo(Coord3d from, Coord3d to){
@@ -90,7 +92,8 @@ public class Line extends Composite implements Pickable, PickableObjects{
     @Override
     public void setNewPosition(Coord3d position) {
         this.clear();
-        this.setData(new Point3d(position.x,position.y,position.z), new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, slices, rings, color, label);
+        this.setData(new Point3d(position.x,position.y,position.z), 
+                new Point3d(position.x+dif.x,position.y+dif.y,position.z+dif.z), radius, slices, rings, color, label);
     }
     
     @Override

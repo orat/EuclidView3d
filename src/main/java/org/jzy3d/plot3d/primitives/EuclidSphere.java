@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package org.jzy3d.plot3d.primitives;
 
 import org.jogamp.vecmath.Point3d;
@@ -34,8 +30,10 @@ public class EuclidSphere extends Composite implements Pickable, PickableObjects
     public void setData(Point3d position, float radius, int slicing, Color color, String label, Point3d labelLocation){
         sphere = new PickableSphere(new Coord3d(position.x,position.y,position.z),radius,slicing,color);
         this.add(sphere);
-        this.label = LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK);
-        this.add(this.label);
+        if (label != null){
+            this.label = LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK);
+            this.add(this.label);
+        }
         setNewPosition(new Coord3d(position.x,position.y,position.z));
     }
     

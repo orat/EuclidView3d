@@ -24,11 +24,15 @@ public class Arrow extends Composite implements Pickable, PickableObjects {
     private Vector3d vec;
     private String label;
     
-    public void setData(Vector3d vec, float radius, int slices, int rings, Color color, String label){
+    public void setData(Point3d p, org.jogamp.vecmath.Vector3d dir, float radius, 
+                        int slices, int rings, Color color, String label){
         this.radius = radius;
         this.slices = slices;
         this.rings = rings;
-        this.vec = vec;
+        this.vec =  new org.jzy3d.maths.Vector3d(
+                new Coord3d(p.x,p.y,p.z), 
+                new Coord3d(p.x+dir.x, p.y+dir.y, p.z+dir.z));
+        
         this.color = color;
         
         Coord3d position = vec.getCenter();
@@ -40,11 +44,12 @@ public class Arrow extends Composite implements Pickable, PickableObjects {
         cylinder.setData(new Coord3d(0, 0, -length/2f),
                          cylinderHeight, radius, slices, rings, color);
         cylinder.setWireframeColor(Color.GRAY);
+        add(cylinder);
+        
         cone = new Cone();
         cone.setData(new Coord3d(0, 0, length/2d-coneHeight), 
                      coneHeight, radius*1.6f, slices, rings, color);
         cone.setWireframeColor(Color.GRAY);
-        add(cylinder);
         add(cone);
         
         Transform trans = new Transform(); 
@@ -54,8 +59,11 @@ public class Arrow extends Composite implements Pickable, PickableObjects {
         trans.add(translate);
         applyGeometryTransform(trans);
         
-        Point3d labelLocation = new Point3d(position.x, position.y - radius - LabelFactory.getInstance().getOffset(), position.z);
-        this.add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        // add label
+        if (label != null){
+            Point3d labelLocation = new Point3d(position.x, position.y - radius - LabelFactory.getInstance().getOffset(), position.z);
+            this.add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
+        }
     }
     
     private static Rotate createRotateTo(Coord3d from, Coord3d to){
@@ -86,32 +94,10 @@ public class Arrow extends Composite implements Pickable, PickableObjects {
     @Override
     public void setNewPosition(Coord3d position) {
         this.clear();
-        float length = vec.norm();  
-        float coneHeight = radius*2.5f;
-        float cylinderHeight = length-coneHeight;
-        
-        cylinder = new Cylinder();
-        cylinder.setData(new Coord3d(0, 0, -length/2f),
-                         cylinderHeight, radius, slices, rings, color);
-        cylinder.setWireframeColor(Color.GRAY);
-        cone = new Cone();
-        cone.setData(new Coord3d(0, 0, length/2d-coneHeight), 
-                     coneHeight, radius*1.6f, slices, rings, color);
-        cone.setWireframeColor(Color.GRAY);
-        add(cylinder);
-        add(cone);
-        
-        Transform trans = new Transform(); 
-        Rotate rot = createRotateTo(new Coord3d(0d,0d,1d), vec.vector());
-        trans.add(rot);
-        Translate translate = new Translate(position);
-        trans.add(translate);
-        applyGeometryTransform(trans);
-        
-        //TODO label disappears after moving. Needs fixing.
-        Point3d labelLocation = new Point3d(position.x, position.y - radius - LabelFactory.getInstance().getOffset(), position.z);
-        add(LabelFactory.getInstance().addLabel(labelLocation, label, Color.BLACK));
-        
+        Coord3d v = vec.vector();
+        setData(new Point3d(position.x,position.y,position.z), 
+                new org.jogamp.vecmath.Vector3d(v.x, v.y, v.z), radius, 
+                slices, rings, color, label);  
     }
 
     @Override

@@ -1,5 +1,5 @@
 # EuclidView3d
-Viewer for 3d geometrical objects like planes, spheres, points, circles.
+Viewer for 3d geometrical objects like planes, spheres, points, circles and also complex objects like robots and sceletons.
 
 This implementation is in an very early stage.
 

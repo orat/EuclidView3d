@@ -24,7 +24,10 @@ import static org.lwjgl.assimp.Assimp.aiImportFile;
 import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 
 /**
- * An object Loader using Assimp thorugh lwjgl. Can load COLLADA and object files for now.
+ * An object Loader using Assimp through lwjgl. 
+ * 
+ * Can load COLLADA and object files for now.
+ * 
  * @author Dominik Scharnagl
  */
 public class ObjectLoader {
@@ -33,7 +36,7 @@ public class ObjectLoader {
     private List<String> lastNames = null;
     
     private ObjectLoader(){
-        lastNames = new ArrayList<String>();
+        lastNames = new ArrayList<>();
     }
     
     public static ObjectLoader getLoader(){
@@ -59,8 +62,10 @@ public class ObjectLoader {
     }
     
     /**
-     * Add a Wavefront (.obj) File Object to the Scene
+     * Add a Wavefront (.obj) File Object to the Scene.
+     * 
      * @param path the path to the COLLADA File
+     * @return 
     */
     public EuclidPart getWavefront(String path){
         List<EuclidVBO2> objects = getParts(path);
@@ -79,11 +84,26 @@ public class ObjectLoader {
         }
         //Combine Objects into one composite
         return new EuclidPart(objects);
-     }
+    }
     
+    /**
+     * @param path
+     * @return 
+     * @throws IllegalArgumentException if the path is not found
+     */ 
     private List<EuclidVBO2> getParts(String path){
-        //Load COLLADA files
-        AIScene aiScene = aiImportFile(path, 0);
+        //Load COLLADA files (creates a seperate thread)
+        //System.out.println("path="+path);
+        //String completePath = this.getClass().getResource(path).getPath();
+        //System.out.println("complete path="+completePath);
+        String filePath = ResourceManager.extract(path);
+        //System.out.println("filePath="+filePath);
+        AIScene aiScene = aiImportFile(filePath, 0);
+        
+        if (aiScene == null){
+            System.out.println("getParts() failed for path \""+path+"\"!");
+            throw new IllegalArgumentException("Path \""+path+"\" not found!");
+        }
         
         //process Materials
         int numMaterials = aiScene.mNumMaterials();
