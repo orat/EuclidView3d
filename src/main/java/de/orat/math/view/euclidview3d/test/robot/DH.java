@@ -369,7 +369,7 @@ public class DH {
      * @param dh1
      * @param dh2
      * @param x directions in neutral-pose, used to determine delta-thetas
-     * @deprecated
+     * @Deprecated
      */
     public DH(Matrix4d dh1, Matrix4d dh2, Vector3d x) {
 
