@@ -1,5 +1,6 @@
 package de.orat.math.view.euclidview3d;
 
+import java.net.URL;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,11 +94,17 @@ public class ObjectLoader {
      */ 
     private List<EuclidVBO2> getParts(String path){
         //Load COLLADA files (creates a seperate thread)
-        //System.out.println("path="+path);
-        //String completePath = this.getClass().getResource(path).getPath();
-        //System.out.println("complete path="+completePath);
+        System.out.println("path="+path);
+        // getResource() == null bei Ausführung in Euclid3dView
+        URL url = this.getClass().getResource(path);
+        if (url != null){
+            String completePath = url.getPath();
+            System.out.println("complete path="+completePath);
+        } else {
+            System.out.println("getResource()==null");
+        }
         String filePath = ResourceManager.extract(path);
-        //System.out.println("filePath="+filePath);
+        System.out.println("filePath="+filePath);
         AIScene aiScene = aiImportFile(filePath, 0);
         
         if (aiScene == null){

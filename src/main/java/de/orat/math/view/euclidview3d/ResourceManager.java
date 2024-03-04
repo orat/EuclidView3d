@@ -42,9 +42,11 @@ public class ResourceManager {
             InputStream fileStream = ResourceManager.class.getResourceAsStream(jarFilePath);
 
             // Was the resource found?
-            if(fileStream == null)
+            if(fileStream == null){
+                System.out.println("jarFilePath \""+jarFilePath+"\" not found!");
                 return null;
-
+            }
+            
             // Grab the file name
             String[] chopped = jarFilePath.split("\\/");
             String fileName = chopped[chopped.length-1];
@@ -77,6 +79,7 @@ public class ResourceManager {
             return tempFile.getAbsolutePath();
 
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }
