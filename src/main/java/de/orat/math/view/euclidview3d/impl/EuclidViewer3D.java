@@ -4,8 +4,6 @@ import de.orat.math.view.euclidview3d.ObjectLoader;
 import de.orat.view3d.euclid3dviewapi.spi.iAABB;
 import de.orat.view3d.euclid3dviewapi.spi.iEuclidViewer3D;
 import de.orat.view3d.euclid3dviewapi.util.AxisAlignedBoundingBox;
-import de.orat.view3d.euclid3dviewapi.util.Line;
-import de.orat.view3d.euclid3dviewapi.util.Plane;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;

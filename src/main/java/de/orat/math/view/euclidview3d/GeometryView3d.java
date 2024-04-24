@@ -1,5 +1,6 @@
 package de.orat.math.view.euclidview3d;
 
+import de.orat.math.view.euclidview3d.erika.SphereTreeModel;
 import de.orat.view3d.euclid3dviewapi.util.AxisAlignedBoundingBox;
 import de.orat.view3d.euclid3dviewapi.util.Line;
 import de.orat.view3d.euclid3dviewapi.util.Plane;
@@ -7,7 +8,9 @@ import java.awt.Component;
 import javax.swing.JSlider;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -63,6 +66,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private NewtCameraMouseController cameraMouse;
     protected ObjectLoader colladaLoader;
     protected static ArrayList<EuclidRobot> robotList = new ArrayList();
+    protected Map<EuclidRobot, List<JSlider>> robotSliders;
     protected static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
 
     /**
@@ -89,6 +93,12 @@ public class GeometryView3d extends AbstractAnalysis {
         setRobotsDH();
         gv.setUpRobotMovementUIWithSliders();
 
+        List<JSlider> robotSliders = gv.getRobotSliders();
+        
+        // Erika
+        SphereTreeModel spheretree = new SphereTreeModel();
+        spheretree.addtoGeometryView3d(gv);
+        
         // muss das nicht alles im EVT aufgerufen werden?
         // unklar, ob das nötig ist
         // invokeAndWait should fail, when I am already in the EDT
@@ -101,6 +111,19 @@ public class GeometryView3d extends AbstractAnalysis {
         });*/
     }
 
+    /**
+     * Get the sliders to change the angles configuration of the first defined 
+     * robot.
+     * 
+     * Predcondition: setUpRobotMovementUIWithSliders() is invoked so that the
+     * sliders are created.
+     * 
+     * @return list of sliders
+     */
+    public List<JSlider> getRobotSliders(){
+        return robotSliders.get(robotList.get(0));
+    }
+    
     /**
      * Prints out the centers of the skeletons
      */
@@ -143,7 +166,10 @@ public class GeometryView3d extends AbstractAnalysis {
         JPanel p = new JPanel();
         p.add(comp);
         p.setLayout(new BoxLayout(p, 1));
+        Map<EuclidRobot, List<JSlider>> result = new HashMap<>();
         for(int j = 0; j < robotList.size(); j++){
+            List<JSlider> sliders = new ArrayList<JSlider>();
+            result.put(robotList.get(j), sliders);
             int number = j + 1;
             String string = "Robot Number " + number;
             JLabel label = new JLabel(string);
@@ -153,7 +179,9 @@ public class GeometryView3d extends AbstractAnalysis {
                 slider.setMaximum(360);
                 slider.setMinimum(0);
                 slider.setVisible(true);
-                slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
+                //FIX
+                //slider.setValue((int) robotList.get(0).getDHs().get(i).getTheta());
+                slider.setValue((int) robotList.get(j).getDHs().get(i).getTheta());
                 final int ix = i;
                 final int jx = j;
                 GeometryView3d g = this;
@@ -164,10 +192,12 @@ public class GeometryView3d extends AbstractAnalysis {
                     //updateChessFloor(true, CHESS_FLOOR_WIDTH);
                 });
                 p.add(slider);
+                sliders.add(slider);
             }
         }
         p.setVisible(true);
         c.add(p);
+        robotSliders = result;
     }
 
     /**
@@ -737,11 +767,12 @@ public class GeometryView3d extends AbstractAnalysis {
      *
      * @param paths The paths to the Collada files for the robot as a List
      */
-    public void addRobot(List<String> paths){
+    public EuclidRobot addRobot(List<String> paths){
         EuclidRobot robot = new EuclidRobot(chart, RobotType.notype);
         robot.setDataDAEComponents(paths);
         robotList.add(robot);
         robot.addToChartParts();
+        return robot;
     }
 
     /**
@@ -750,7 +781,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * @param paths the paths to the robot parts
      * @param delta_theta_rad the angle of the single parts
      */
-    public void addRobotUR5e(List<String> paths, double[] delta_theta_rad){
+    public EuclidRobot addRobotUR5e(List<String> paths, double[] delta_theta_rad){
         double[] delta_a_m = new double[]{0d, 0.000156734465764371306, 0.109039760794650886, 0.00135049423466820917, 0.30167176077633267e-05, 8.98147062591837358e-05, 0};
         double[] delta_d_m = new double[]{0d, -7.63582045015809285e-05, 136.026368377065324, -130.146527922606964, 0.12049886607637639, -0.13561334270734671, -0.000218168195914358876};
         double[] delta_alpha_rad= new double[]{0d, -0.000849612070594307767, 0.00209120614311242205, 0.0044565542371754396, -0.000376815598678081898, 0.000480742313784698894, 0};
@@ -759,6 +790,7 @@ public class GeometryView3d extends AbstractAnalysis {
         robot.setDataWithUR5eDHDeltas(paths, delta_theta_rad, delta_alpha_rad, delta_d_m, delta_a_m);
         robotList.add(robot);
         robot.addToChartParts();
+        return robot;
     }
 
     /**

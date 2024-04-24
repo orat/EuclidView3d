@@ -1,6 +1,5 @@
 package org.jzy3d.plot3d.primitives;
 
-import de.orat.math.view.euclidview3d.GeometryView3d;
 import de.orat.math.view.euclidview3d.ObjectLoader;
 import de.orat.math.view.euclidview3d.test.robot.DH;
 import static java.lang.Math.PI;
