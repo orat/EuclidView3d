@@ -1,9 +1,12 @@
 # EuclidView3d
+
+## Description
 Viewer for 3d geometrical objects like planes, spheres, points, circles and also complex objects like robots and sceletons.
 
-This implementation is in an very early stage.
-
 Viewer component for 3d geometrical objects like planes, spheres, points, circles based on [jzy3d](https://www.jzy3d.org).
+
+## Disclaimer
+The project is in an early state of development, so it is not advised to use it in real world applications. If you have feedback or feature suggestions, please create a new GitHub Issue.
 
 ## Dependencies
 The project depends on:
