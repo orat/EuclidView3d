@@ -23,11 +23,13 @@ import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.controllers.mouse.camera.NewtCameraMouseController;
-import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
-import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
+//import org.jzy3d.chart.controllers.mouse.camera.NewtCameraMouseController;
+import org.jzy3d.chart.controllers.mouse.camera.ICameraMouseController;
+//import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
+//import org.jzy3d.chart.controllers.mouse.picking.AWTMousePickingController; //NewtMousePickingController;
 import org.jzy3d.chart.controllers.mouse.picking.PickingSupport;
-import org.jzy3d.chart.factories.NewtChartFactory;
+//import org.jzy3d.chart.factories.NewtChartFactory;
+import org.jzy3d.chart.factories.SwingChartFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.BoundingBox3d.Corners;
@@ -46,7 +48,7 @@ import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.RobotType;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
-import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
+import org.jzy3d.plot3d.rendering.canvas.CanvasSwing; //CanvasNewtAwt;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.view.Camera;
@@ -62,7 +64,7 @@ public class GeometryView3d extends AbstractAnalysis {
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
     private PickingSupport pickingSupport; // ==null if not available
-    private NewtCameraMouseController cameraMouse;
+    private /*Newt*/ICameraMouseController cameraMouse;
     protected ObjectLoader colladaLoader;
     protected static ArrayList<EuclidRobot> robotList = new ArrayList();
     protected Map<EuclidRobot, List<JSlider>> robotSliders;
@@ -72,7 +74,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * Constructor for a GeometryView3d to get created by a NewtChartFactory.
      */
     public GeometryView3d(){
-        super(new NewtChartFactory());
+        super(new SwingChartFactory() /*NewtChartFactory()*/);
     }
 
     /**
@@ -159,7 +161,7 @@ public class GeometryView3d extends AbstractAnalysis {
      * Usage for demonstration purpose only.
      */
     protected void setUpRobotMovementUIWithSliders(){
-        CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
+        CanvasSwing/*CanvasNewtAwt*/ c = (CanvasSwing) chart.getCanvas();
         Component comp = c.getComponent(0);
         c.remove(comp);
         JPanel p = new JPanel();
@@ -213,7 +215,7 @@ public class GeometryView3d extends AbstractAnalysis {
      */
     protected void setUpSkeletonMovement(){
        for(EuclidSkeleton skeleton: skeletonList){
-            CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
+            /*CanvasNewtAwt*/ CanvasSwing c = (CanvasSwing) chart.getCanvas();
             Component comp = c.getComponent(0);
             c.remove(comp);
             JPanel p = new JPanel();
@@ -907,18 +909,18 @@ public class GeometryView3d extends AbstractAnalysis {
     /**
      * Sets up the mouse for picking
      */
-    protected void setUpPickingSupport(){
+    /*protected void setUpPickingSupport(){
         pickingSupport = new PickingSupport();
         pickingSupport.addObjectPickedListener(new EuclidPickListener());
         NewtMouse m = new NewtMouse();
         m.setPickingSupport(pickingSupport);
         m.register(chart);
-    }
+    }*/
 
     /**
      * The MouseController for the picking of jakob
      */
-    private class NewtMouse extends NewtMousePickingController{
+    /*private class NewtMouse extends NewtMousePickingController{
 
         Coord3d currentMouse = null;
 
@@ -968,12 +970,12 @@ public class GeometryView3d extends AbstractAnalysis {
                 cameraMouse.register(chart);
             }
         }
-    }
+    }*/
 
     /**
      * The Listener on a picked object.
      */
-    private class EuclidPickListener implements IObjectPickedListener {
+    /*private class EuclidPickListener implements IObjectPickedListener {
         @Override
         public void objectPicked(List<? extends Object> list, PickingSupport ps) {
             if(!list.isEmpty()){
@@ -987,7 +989,7 @@ public class GeometryView3d extends AbstractAnalysis {
                 cameraMouse.unregister(chart);
             }
         }
-    }
+    }*/
 
     /**
      * Moves a pickableObject.

@@ -25,12 +25,11 @@ import org.jogamp.vecmath.Point3f;
 import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
 import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.controllers.mouse.camera.NewtCameraMouseController;
-import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
-import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
+import org.jzy3d.chart.controllers.mouse.camera.AWTCameraMouseController; //NewtCameraMouseController;
+//import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
+//import org.jzy3d.chart.controllers.mouse.picking.NewtMousePickingController;
 import org.jzy3d.chart.controllers.mouse.picking.PickingSupport;
-import org.jzy3d.chart.factories.NewtChartFactory;
-import org.jzy3d.chart.factories.SwingChartFactory;
+import org.jzy3d.chart.factories.SwingChartFactory; //NewtChartFactory;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.painters.IPainter;
@@ -49,7 +48,8 @@ import org.jzy3d.plot3d.primitives.LabelFactory;
 import org.jzy3d.plot3d.primitives.PickableObjects;
 import org.jzy3d.plot3d.primitives.RobotType;
 import org.jzy3d.plot3d.primitives.pickable.Pickable;
-import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
+//import org.jzy3d.plot3d.rendering.canvas.CanvasNewtAwt;
+import org.jzy3d.plot3d.rendering.canvas.CanvasSwing;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.view.Camera;
@@ -65,7 +65,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
     private ArrayList<PickableObjects> pickingSupportList = new ArrayList();
     private PickingSupport pickingSupport; // ==null if not available
-    private NewtCameraMouseController cameraMouse;
+    private AWTCameraMouseController cameraMouse;
     protected ObjectLoader colladaLoader;
     protected static ArrayList<EuclidRobot> robotList = new ArrayList();
     protected static ArrayList<EuclidSkeleton> skeletonList = new ArrayList();
@@ -225,7 +225,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
      * Usage for demonstration purpose only.
      */
     protected void setUpRobotMovementUIWithSliders(){
-        CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
+        CanvasSwing c = (CanvasSwing) chart.getCanvas();
         Component comp = c.getComponent(0);
         c.remove(comp);
         JPanel p = new JPanel();
@@ -272,7 +272,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
      */
     protected void setUpSkeletonMovement(){
        for(EuclidSkeleton skeleton: skeletonList){
-            CanvasNewtAwt c = (CanvasNewtAwt) chart.getCanvas();
+            CanvasSwing c = (CanvasSwing) chart.getCanvas();
             Component comp = c.getComponent(0);
             c.remove(comp);
             JPanel p = new JPanel();
@@ -849,13 +849,13 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
     /**
      * Sets up the mouse for picking
      */
-    protected void setUpPickingSupport(){
+    /*protected void setUpPickingSupport(){
         pickingSupport = new PickingSupport();
         pickingSupport.addObjectPickedListener(new EuclidPickListener());
         NewtMouse m = new NewtMouse();
         m.setPickingSupport(pickingSupport);
         m.register(chart);
-    }
+    }*/
 
     
     @Override
@@ -907,7 +907,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
     /**
      * The MouseController for the picking of jakob
      */
-    private class NewtMouse extends NewtMousePickingController{
+    /*private class NewtMouse extends NewtMousePickingController{
         
         Coord3d currentMouse = null;
         
@@ -957,12 +957,12 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
                 cameraMouse.register(chart);
             }    
         }
-    }
+    }*/
     
     /**
      * The Listener on a picked object.
      */
-    private class EuclidPickListener implements IObjectPickedListener {
+    /*private class EuclidPickListener implements IObjectPickedListener {
         @Override
         public void objectPicked(List<? extends Object> list, PickingSupport ps) {
             if(!list.isEmpty()){
@@ -971,12 +971,12 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
                     pickableObjects.add((PickableObjects) o);
                 }
                 if(cameraMouse == null){
-                    cameraMouse = (NewtCameraMouseController) chart.getMouse();   
+                    cameraMouse = (AWTCameraMouseController) chart.getMouse();   
                 }
                 cameraMouse.unregister(chart);
             }
         }
-    }
+    }*/
     
     /**
      * Moves a pickableObject.
