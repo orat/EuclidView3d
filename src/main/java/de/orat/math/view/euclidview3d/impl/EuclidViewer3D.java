@@ -87,8 +87,8 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         //EuclidViewer3D gv = new EuclidViewer3D();
         AnalysisLauncher.open(this);
         //Robots have to be rotated after initialisation.
-        rotateRobotsCoordsystem();
-        setRobotsDH();
+        //rotateRobotsCoordsystem();
+        //setRobotsDH();
         //setUpRobotMovementUIWithSliders();
         
         // muss das nicht alles im EVT aufgerufen werden?
@@ -743,6 +743,11 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         robot.addToChartParts();
     }
 
+    public long addMesh(String path, Matrix4d transform){
+        System.out.println("addMesh() not yet implemented!");
+        return -1;
+    }
+    
     /**
      * Adds a new skeleton to the chart.
      * 
@@ -834,7 +839,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         
         double[] delta_theta_rad = new double[]{0d,0d,0d,0d,0d,0d,0d};      
 
-        ArrayList<String> pathList = new ArrayList<>();
+        /*ArrayList<String> pathList = new ArrayList<>();
         pathList.add("/data/objfiles/base.dae");
         pathList.add("/data/objfiles/shoulder.dae");
         pathList.add("/data/objfiles/upperarm.dae");
@@ -842,7 +847,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         pathList.add("/data/objfiles/wrist1.dae");
         pathList.add("/data/objfiles/wrist2.dae");
         pathList.add("/data/objfiles/wrist3.dae");
-        addRobotUR5e(pathList, delta_theta_rad);
+        addRobotUR5e(pathList, delta_theta_rad);*/
     }
     
     

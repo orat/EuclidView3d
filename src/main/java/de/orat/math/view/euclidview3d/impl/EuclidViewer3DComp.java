@@ -24,8 +24,6 @@ import org.jogamp.vecmath.Point3d;
 import org.jogamp.vecmath.Point3f;
 import org.jogamp.vecmath.Tuple3d;
 import org.jogamp.vecmath.Vector3d;
-import org.jzy3d.analysis.AbstractAnalysis;
-import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.controllers.mouse.camera.NewtCameraMouseController;
 import org.jzy3d.chart.controllers.mouse.picking.IObjectPickedListener;
@@ -815,6 +813,11 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
         robot.addToChartParts();
     }
 
+    public long addMesh(String path, Matrix4d transform){
+        System.out.println("addMesh() not yet implemented!");
+        return -1;
+    }
+    
     /**
      * Adds a new skeleton to the chart.
      * 

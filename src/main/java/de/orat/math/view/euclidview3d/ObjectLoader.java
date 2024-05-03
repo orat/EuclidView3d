@@ -77,7 +77,7 @@ public class ObjectLoader {
         return new EuclidPart(objects);
     }
     
-     public EuclidPart getWavefront(String path, List<String> names){
+    public EuclidPart getWavefront(String path, List<String> names){
         lastNames = names;
         List<EuclidVBO2> objects = getParts(path);
         for(EuclidVBO2 o: objects){
@@ -167,7 +167,7 @@ public class ObjectLoader {
         //translate the Floats to an array
         float[] verticesFloat = new float[vertices.size()];
         for(int i = 0; i < vertices.size(); i++){
-            verticesFloat[i]  = vertices.get(i).floatValue();         
+            verticesFloat[i]  = vertices.get(i);         
         }
         //set up and return the object
         EuclidVBO2 vbo = new EuclidVBO2(verticesFloat, 3);

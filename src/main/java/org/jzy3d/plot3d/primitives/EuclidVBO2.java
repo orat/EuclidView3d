@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package org.jzy3d.plot3d.primitives;
 
 import org.jogamp.vecmath.Matrix4d;
@@ -13,7 +9,8 @@ import org.jzy3d.plot3d.transform.Rotate;
 import org.jzy3d.plot3d.transform.Translate;
 
 /**
- * A special VBO2 object 
+ * A special VBO2 object.
+ * 
  * @author Dominik Scharnagl
  */
 public class EuclidVBO2 extends DrawableVBO2 {
@@ -28,7 +25,8 @@ public class EuclidVBO2 extends DrawableVBO2 {
     }
     
     /**
-     * Translate the indices of the vbo
+     * Translate the indices of the vbo.
+     * 
      * @param translate the translation
      * @return the translated indices to create a new VBO object
      */
@@ -45,7 +43,8 @@ public class EuclidVBO2 extends DrawableVBO2 {
     }
     
     /**
-     * Rotate the indices of the vbo
+     * Rotate the indices of the vbo.
+     * 
      * @param rotate the rotation
      * @return the rotated indices to create a new VBO object
      */
@@ -62,7 +61,8 @@ public class EuclidVBO2 extends DrawableVBO2 {
     }
     
     /**
-     * Rotate the indices of the VBO with the Rodrigues Rotation Formula
+     * Rotate the indices of the VBO with the Rodrigues Rotation Formula.
+     * 
      * @param d the angle how much it will be rotated in degree
      * @param v the vector around it will be rotated
      * @param center the center for the translation back to origin
@@ -115,7 +115,10 @@ public class EuclidVBO2 extends DrawableVBO2 {
     }
     
     /**
-     * Rotated a Center Coordinate with the Rodrigues Rotation Formula TODO: Remove code duplication from rotateAroundVector
+     * Rotated a Center Coordinate with the Rodrigues Rotation Formula.
+     * 
+     * TODO: Remove code duplication from rotateAroundVector<p>
+     * 
      * @param d the angle around which it should be rotated
      * @param u the vector around it will be rotated
      * @param center the center for the translation back to origin

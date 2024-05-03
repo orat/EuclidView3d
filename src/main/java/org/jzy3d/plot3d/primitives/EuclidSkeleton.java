@@ -14,7 +14,8 @@ import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 
 /**
- * The skeleton object
+ * The skeleton object.
+ * 
  * @author Dominik Scharnagl
  */
 public class EuclidSkeleton {
