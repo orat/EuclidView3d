@@ -1118,14 +1118,14 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
         //TODO
     }*/
 
-    @Override
+    /*@Override
     public long addRobot(int type, Point3d location, Matrix3d orientation) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void moveRobot(long id, double[] angels) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+    }*/
 
 }
