@@ -17,6 +17,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import org.jogamp.vecmath.Matrix3d;
 import org.jogamp.vecmath.Matrix4d;
@@ -57,7 +58,7 @@ import org.jzy3d.plot3d.rendering.view.Camera;
 /**
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public final class EuclidViewer3DComp  implements iEuclidViewer3D{
+public final class EuclidViewer3DComp  implements iEuclidViewer3D {
 
     static float CHESS_FLOOR_WIDTH = 100;
     
@@ -75,12 +76,12 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
     /**
      * Constructor for a EuclidViewer3D to get created by a NewtChartFactory.
      */
-    public EuclidViewer3DComp() throws Exception{
+    public EuclidViewer3DComp() throws Exception {
         this.init();
         //super(new NewtChartFactory());  
     }
     
-     public void init() throws Exception {
+    private void init() throws Exception {
         
         Quality q = Quality.Advanced(); 
         q.setDepthActivated(true);
@@ -112,6 +113,8 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
         
         //addSkeleton("data/golembones/golembones.obj");
         
+        addPoint(new Point3d(1,1,1), org.jzy3d.colors.Color.BLUE, 0.6f, "Point1");
+       
         /**
         addPoint(new Point3d(1,1,1), Color.BLUE, 0.6f, "Point1");
         addSphere(new Point3d(20,20,20), 10, Color.ORANGE, "Sphere1");
@@ -154,6 +157,13 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
         pathList.add("/data/objfiles/wrist2.dae");
         pathList.add("/data/objfiles/wrist3.dae");
         addRobotUR5e(pathList, delta_theta_rad);
+        
+        chart.addMouse();
+        System.out.println("    EuclidViewer3DComp.init(): chart.addMouse() finished!");
+        //chart.addMouseCameraController(); // damit hats früher funktioniert, aber nicht innerhalb netbeans
+        //chart.addKeyController(); // nicht gefunden, vielleicht ist die Version von jzy3d zu alt?
+        chart.addKeyboard();
+        System.out.println("    EuclidViewer3DComp.init(): chart.addKeyboard() finished!");
     }
     
     /** 
@@ -161,15 +171,30 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
      * 
      * @throws Exception 
      */
-    public void open() throws Exception {
+    public void open() /*throws Exception */{
+        System.out.println("EuclidViewer3DComp.open()...");
         //AnalysisLauncher.open(this);
         //Robots have to be rotated after initialisation.
         rotateRobotsCoordsystem();
         setRobotsDH();
+        
+        // is event dispatch thread ok
+        //if (SwingUtilities.isEventDispatchThread()){
+        //    System.out.println("   is eventDispatchThread!");
+        //}
         //setUpRobotMovementUIWithSliders();
         
-        chart.open();
-        chart.addMouseCameraController(); // besser nur addMouse() verwenden?
+        //chart.open();
+        // da lande ich nicht mehr!
+        //System.out.println("    EuclidViewer3DComp.open(): chart.open() finished!");
+        // https://doc.jzy3d.org/guide/docs/chapter6.html
+        //chart.addMouse();
+        //System.out.println("    EuclidViewer3DComp.open(): chart.addMouse() finished!");
+        //chart.addMouseCameraController(); // damit hats früher funktioniert, aber nicht innerhalb netbeans
+        //chart.addKeyController(); // nicht gefunden, vielleicht ist die Version von jzy3d zu alt?
+        //chart.addKeyboard();
+        
+        System.out.println("EuclidViewer3DComp.open() finished!");
     }
     
     public JComponent getComponent(){
@@ -179,10 +204,23 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
     /**
      * Close the chart
      */
-    public void close(){
-        chart.dispose();
+    public boolean close(){
+        //chart.dispose();
+        //chart = null;
+        
+        // geht so nicht, aber wenn ich in open() das hinzufüge muss ich bei close
+        // das wieder entfernen
+        //chart.removeController(chart.getMouse());
+        //chart.removeController(chart.getKeyboard());
+        
+        System.out.println("EuclidViewer3DComp.close()...");
+        return true;
     }
-    
+    public void dispose(){
+        chart.dispose();
+        chart = null;
+        System.out.println("EuclidViewer3DComp.dispose()...");
+    }
     
     
     // implementation 
@@ -1069,7 +1107,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D{
     @Override
     public long addSphere(Point3d location, double radius, java.awt.Color color, 
                           String label, boolean transparent){
-        
+        System.out.println("EuclidViewer3DComp.addSphere()");
         if (!isValid(location) ){
             throw new IllegalArgumentException("addSphere(): location with illegal values!");
         }

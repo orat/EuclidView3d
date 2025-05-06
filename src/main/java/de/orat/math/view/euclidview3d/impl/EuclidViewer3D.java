@@ -55,10 +55,9 @@ import org.jzy3d.plot3d.rendering.lights.Light;
 import org.jzy3d.plot3d.rendering.view.Camera;
 
 /**
- *
  * @author Oliver Rettig (Oliver.Rettig@orat.de)
  */
-public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
+public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D {
 
     static float CHESS_FLOOR_WIDTH = 100;
     
@@ -109,8 +108,9 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
     /**
      * Close the chart
      */
-    public void close(){
+    public boolean close(){
         chart.dispose();
+        return true;
     }
     
     
@@ -864,7 +864,12 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         m.register(chart);
     }
 
-    
+    /**
+     * Remove node.
+     * 
+     * @param id
+     * @return false, if for the given id no node is found
+     */
     @Override
     public boolean removeNode(long id) {
         Composite node = viewObjects.get(id);
@@ -872,6 +877,8 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D{
         if (node != null){
             chart.remove(node);
             result = true;
+        } else {
+            System.out.println("remove node failed. Node not found!");
         }
         return result;
     }
