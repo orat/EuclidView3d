@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -61,6 +62,7 @@ import org.jzy3d.plot3d.rendering.view.Camera;
 public final class EuclidViewer3DComp  implements iEuclidViewer3D {
 
     static float CHESS_FLOOR_WIDTH = 100;
+    private static final Logger logger = Logger.getLogger(EuclidViewer3DComp.class.getName());
     
     private int pickingId = 0;
     private ArrayList<PickableObjects> pickableObjects = new ArrayList();
@@ -159,11 +161,11 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D {
         addRobotUR5e(pathList, delta_theta_rad);
         
         chart.addMouse();
-        System.out.println("    EuclidViewer3DComp.init(): chart.addMouse() finished!");
+        logger.info("    EuclidViewer3DComp.init(): chart.addMouse() finished!");
         //chart.addMouseCameraController(); // damit hats früher funktioniert, aber nicht innerhalb netbeans
         //chart.addKeyController(); // nicht gefunden, vielleicht ist die Version von jzy3d zu alt?
         chart.addKeyboard();
-        System.out.println("    EuclidViewer3DComp.init(): chart.addKeyboard() finished!");
+        logger.info("    EuclidViewer3DComp.init(): chart.addKeyboard() finished!");
     }
     
     /** 
@@ -172,11 +174,11 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D {
      * @throws Exception 
      */
     public void open() /*throws Exception */{
-        System.out.println("EuclidViewer3DComp.open()...");
+        logger.info("EuclidViewer3DComp.open()...");
         //AnalysisLauncher.open(this);
         //Robots have to be rotated after initialisation.
-        rotateRobotsCoordsystem();
-        setRobotsDH();
+        //rotateRobotsCoordsystem();
+        //setRobotsDH();
         
         // is event dispatch thread ok
         //if (SwingUtilities.isEventDispatchThread()){
@@ -194,7 +196,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D {
         //chart.addKeyController(); // nicht gefunden, vielleicht ist die Version von jzy3d zu alt?
         //chart.addKeyboard();
         
-        System.out.println("EuclidViewer3DComp.open() finished!");
+        logger.info("EuclidViewer3DComp.open() finished!");
     }
     
     public JComponent getComponent(){
@@ -213,13 +215,13 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D {
         //chart.removeController(chart.getMouse());
         //chart.removeController(chart.getKeyboard());
         
-        System.out.println("EuclidViewer3DComp.close()...");
+        logger.info("EuclidViewer3DComp.close()...");
         return true;
     }
     public void dispose(){
         chart.dispose();
         chart = null;
-        System.out.println("EuclidViewer3DComp.dispose()...");
+        logger.info("EuclidViewer3DComp.dispose()...");
     }
     
     
@@ -514,7 +516,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D {
             throw new IllegalArgumentException("addLine(): p1 or p2 with illegal values!");
         }
         
-        System.out.println("line \""+label+"\": p1=("+String.valueOf(p1.x)+
+        logger.info("line \""+label+"\": p1=("+String.valueOf(p1.x)+
                 ", "+String.valueOf(p1.y)+", "+String.valueOf(p1.z)+"), p2=("+
                 String.valueOf(p2.x)+", "+String.valueOf(p2.y)+", "+String.valueOf(p2.z)+")");
         // das clipping scheint keine Auswirkungen zu haben clipped-p1 = p1 ...
@@ -799,7 +801,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D {
         Point3f xmaxyminzmax = new Point3f(corners.getXmaxYminZmax().toArray());
         Point3f xymaxzmin = new Point3f(corners.getXmaxYmaxZmin().toArray());
         Point3f xyzmax = new Point3f(corners.getXmaxYmaxZmax().toArray());
-        System.out.println("AABB at c=("+String.valueOf(center.x)+", "+String.valueOf(center.y)+
+        logger.info("AABB at c=("+String.valueOf(center.x)+", "+String.valueOf(center.y)+
                 ", "+String.valueOf(center.z)+") with size=("+String.valueOf(size.x)+", "+
                 String.valueOf(size.y)+", "+String.valueOf(size.z)+")");
         // size scheint korrekt, aber die xyzmin, und andere min-Werte scheinen zu klein zu sein
@@ -852,7 +854,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D {
     }
 
     public long addMesh(String path, Matrix4d transform){
-        System.out.println("addMesh() not yet implemented!");
+        logger.info("addMesh() not yet implemented!");
         return -1;
     }
     
@@ -1107,7 +1109,7 @@ public final class EuclidViewer3DComp  implements iEuclidViewer3D {
     @Override
     public long addSphere(Point3d location, double radius, java.awt.Color color, 
                           String label, boolean transparent){
-        System.out.println("EuclidViewer3DComp.addSphere()");
+        logger.info("EuclidViewer3DComp.addSphere()");
         if (!isValid(location) ){
             throw new IllegalArgumentException("addSphere(): location with illegal values!");
         }

@@ -1079,6 +1079,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D 
      * @param radius [mm] > 0
      * @param color 
      * @param label the text of the label of the sphere
+     * @throws IllegalArgumentException 
      */
     @Override
     public long addSphere(Point3d location, double radius, java.awt.Color color, 
