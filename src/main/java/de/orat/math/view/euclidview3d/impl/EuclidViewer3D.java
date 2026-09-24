@@ -6,7 +6,11 @@ import de.orat.view3d.euclid3dviewapi.spi.iEuclidViewer3D;
 import de.orat.view3d.euclid3dviewapi.util.AxisAlignedBoundingBox;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +63,8 @@ import org.jzy3d.plot3d.rendering.view.Camera;
  */
 public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D {
 
+    private Frame window;
+
     static float CHESS_FLOOR_WIDTH = 100;
     
     private int pickingId = 0;
@@ -101,16 +107,37 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D 
            // gv.updateChessFloor(true, 1f);
         });*/
         
-        chart.open();
+        // AnalysisLauncher already opened this chart; keep its frame for close().
+        window = (Frame) chart.open();
         chart.addMouseCameraController(); // besser nur addMouse() verwenden?
     }
     
-    /**
-     * Close the chart
-     */
+    /** Close the window through the same cleanup path as its close button. */
     public boolean close(){
-        chart.dispose();
-        return true;
+        Frame frame = window;
+        if (frame == null || !frame.isDisplayable()) {
+            window = null;
+            return true;
+        }
+
+        Runnable closeWindow = () -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        if (EventQueue.isDispatchThread()) {
+            closeWindow.run();
+        } else {
+            try {
+                EventQueue.invokeAndWait(closeWindow);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                return false;
+            } catch (InvocationTargetException ex) {
+                return false;
+            }
+        }
+        if (!frame.isDisplayable()) {
+            window = null;
+            return true;
+        }
+        return false;
     }
     
     
