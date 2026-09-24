@@ -80,7 +80,7 @@ public class EuclidViewer3D extends AbstractAnalysis implements iEuclidViewer3D 
      * Constructor for a EuclidViewer3D to get created by a NewtChartFactory.
      */
     public EuclidViewer3D(){
-        super(new NewtChartFactory());  
+        super(new NewtChartFactory(new ClosingNewtPainterFactory()));
     }
     
     /** 
